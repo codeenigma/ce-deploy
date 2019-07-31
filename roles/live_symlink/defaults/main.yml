@@ -1,0 +1,5 @@
+---
+deploy_user: 'deploy'
+live_symlink:
+  # Either update (for successful builds) or revert.
+  operation: update

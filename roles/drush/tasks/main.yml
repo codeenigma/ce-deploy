@@ -1,0 +1,23 @@
+---
+
+- name: Check if we already have a global Drush.
+  stat:
+    path: /usr/local/bin/drush
+  register: drush_global
+
+- name: Check if installed Drush version match.
+  shell: "/usr/local/bin/drush --version | grep -o '[0-9]\\.[0-9]\\.[0-9]'"
+  register: drush_global_version
+  when: drush_global.stat.exists
+
+- name: Download Drush installer.
+  get_url:
+    url: "https://github.com/drush-ops/drush/releases/download/{{ drush.version }}/drush.phar"
+    dest: /usr/local/bin/drush
+    mode: 0755
+  become: yes
+  when: not drush_global.stat.exists or not drush_global_version == drush.version
+  
+- name: Trigger drush init tasks.
+  command: /usr/local/bin/drush init -y
+  when: not drush_global.stat.exists

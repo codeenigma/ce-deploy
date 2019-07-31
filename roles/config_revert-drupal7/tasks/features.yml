@@ -1,0 +1,9 @@
+---
+
+- name: Check if Features module is enabled.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush pm-info features | grep ':  enabled' | wc -l"
+  register: features_enabled
+  
+- name: Revert Drupal configuration from Features.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y fra --force"
+  when: features_enabled.stdout == "1"

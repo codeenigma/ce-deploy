@@ -1,0 +1,5 @@
+---
+
+- name: Apply database updates.
+  include_role:
+    name: "database_update-{{ project_type }}"

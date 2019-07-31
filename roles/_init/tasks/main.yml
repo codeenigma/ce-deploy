@@ -1,0 +1,29 @@
+---
+
+# Gather last known good build directly from symlink.
+# This can happen:
+# - when the first builds failed,
+# and we don't have yet a succesful one
+# - when the repository source changed and we lost track of
+# the project
+# - when the symlink has been manually messed up.
+
+- name: Check if we have a live symlink.
+  stat:
+    path: "/var/www/live.{{ project_name }}_{{ build_type }}"
+  register: last_build_symlink
+
+- name: Register current build.
+  shell: "readlink /var/www/live.dummy_dev | grep -Po '/var/www/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
+  register: last_build
+  when: last_build_symlink.stat.exists
+
+# This is passed from caller.
+- set_fact:
+    previous_build_number: "{{ previous_known_build_number }}"
+
+- set_fact:
+    previous_build_number: "{{ last_build.stdout }}"
+  when: 
+    - last_build_symlink.stat.exists
+    - previous_build_number == 0

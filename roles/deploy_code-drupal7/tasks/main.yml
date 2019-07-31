@@ -1,0 +1,21 @@
+---
+
+- name: Generates settings file.
+  include_tasks: settings.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+
+- name: Install Drupal.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush si -y"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+  when: previous_build_number == 0
+  become: yes
+
+- name: Public and private files.
+  include_tasks: files.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site

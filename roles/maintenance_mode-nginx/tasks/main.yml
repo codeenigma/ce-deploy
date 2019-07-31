@@ -1,0 +1,9 @@
+---
+
+- include_tasks: "{{ maintenance_mode.operation }}.yml"
+
+- name: Reload Nginx.
+  service:
+    name: nginx
+    state: reloaded
+  become: yes

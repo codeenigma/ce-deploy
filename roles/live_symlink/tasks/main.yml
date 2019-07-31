@@ -1,0 +1,18 @@
+---
+
+- set_fact:
+    live_symlink_build_target: "/var/www/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
+    live_symlink_live_symlink: "/var/www/live.{{ project_name }}_{{ build_type }}"
+
+- set_fact:
+    live_symlink_build_target: "/var/www/{{ project_name }}_{{ build_type }}_build_{{ previous_build_number }}"
+  when: live_symlink.operation == 'revert'
+  
+- name: Symlink build.
+  file:
+    src: "{{ live_symlink_build_target }}"
+    dest: "{{ live_symlink_live_symlink }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    state: link
+  become: yes

@@ -1,0 +1,5 @@
+---
+maintenance_mode_nginx:
+  domains:
+    - server_name: "example.com"
+      maintenance_page: "index.html"

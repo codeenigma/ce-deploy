@@ -1,0 +1,7 @@
+---
+mysql_backup:
+  handling: rolling
+  databases:
+    - database_prefix: "{{ project_name }}_{{ build_type }}"
+      user_prefix: "{{ project_name }}_{{ build_type }}"
+      password: ""

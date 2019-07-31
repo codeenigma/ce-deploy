@@ -1,0 +1,7 @@
+---
+
+- name: Apply Drupal database updates.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y updb"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site

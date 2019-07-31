@@ -1,0 +1,20 @@
+---
+
+- name: Disable maintenance vhost.
+  file:
+      path: "/etc/nginx/sites-enabled/{{ domain.server_name }}-maintenance.conf"
+      state: absent
+  with_items: "{{ maintenance_mode_nginx.domains }}"
+  loop_control:
+    loop_var: domain
+  become: yes
+
+- name: Enable active vhost.
+  file:
+    src: "/etc/nginx/sites-available/{{ domain.server_name }}.conf"
+    dest: "/etc/nginx/sites-enabled/{{ domain.server_name }}.conf" 
+    state: link
+  with_items: "{{ maintenance_mode_nginx.domains }}"
+  loop_control:
+    loop_var: domain
+  become: yes

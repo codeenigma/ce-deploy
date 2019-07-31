@@ -1,0 +1,13 @@
+---
+# Puts site(s) offline.
+maintenance_mode:
+  # What level do we operate.
+  # - nginx: serves a static maintenance page.
+  # @todo - haproxy: serves a static maintenance page.
+  # @todo - drupal_core: application level
+  # @todo - drupal_read_only: application level via readonly module.
+  mode: "nginx"
+  # - offline: puts the site offline
+  # @todo - restricted: put the site offline except for whitelist (nginx/haproxy only)
+  # - online: brings the site back online.
+  operation: "offline"

@@ -1,0 +1,40 @@
+---
+
+- name: Ensure public files directory exists.
+  file:
+    path: "/var/www/shared/{{ project_name }}_{{ build_type }}_{{ site.folder }}_public_files"
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: yes
+  become: yes
+
+- name: Remove public files folder.
+  file:
+    path: "{{ build_path }}/{{ webroot }}/{{ site.public_files }}"
+    state: absent
+  become: yes
+
+- name: Create symlink to public files.
+  file:
+    src: "/var/www/shared/{{ project_name }}_{{ build_type }}_{{ site.folder }}_public_files"
+    dest: "{{ build_path }}/{{ webroot }}/{{ site.public_files }}"
+    state: link
+    owner: www-data
+    group: www-data
+  become: yes
+
+- name: Ensure public file path is set.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y vset file_public_path {{ site.public_files }}"
+
+- name: Ensure private files directory exists.
+  file:
+    path: "/var/www/shared/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+    state: directory
+    owner: www-data
+    group: www-data
+    recurse: yes
+  become: yes
+
+- name: Ensure private file path is set.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y vset file_private_path /var/www/shared/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"

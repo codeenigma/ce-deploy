@@ -1,0 +1,7 @@
+---
+
+- name: Revert Drupal admin credentials.
+  include_tasks: admin.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site

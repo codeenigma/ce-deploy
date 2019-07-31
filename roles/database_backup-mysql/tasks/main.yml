@@ -1,0 +1,26 @@
+---
+
+#@todo find a better way of grabbing host, this is hacky.
+- name: Grab mysql credentials.
+  fetch:
+    src: "/etc/mysql/debian.cnf"
+    dest: "build/"
+    flat: yes
+  become: yes
+
+- set_fact:
+    mysql_build_host: "{{ lookup('ini', 'host section=client file=build/debian.cnf') }}"
+  become: yes
+
+- name: Take database dumps.
+  include_role:
+    name: "database_backup-mysql-{{ mysql_backup.handling }}"
+  vars:
+    mysql_backup_db:
+      database_prefix: "{{ database.database_prefix }}"
+      user_prefix: "{{ database.user_prefix }}"
+      password: "{{ database.password }}"
+  with_items: "{{ mysql_backup.databases }}"
+  loop_control:
+    loop_var: database
+  when: not mysql_backup.handling == 'none'

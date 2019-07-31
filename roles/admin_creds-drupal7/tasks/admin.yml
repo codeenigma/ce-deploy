@@ -1,0 +1,11 @@
+---
+
+- set_fact:
+    _admin_user: "{{ lookup('password', '/tmp/{{ project_name }}-{{ site.folder }}-{{ build_type }}-{{ build_number }}-user chars=ascii_letters') }}"
+- set_fact:
+    _admin_pwd: "{{ lookup('password', '/tmp/{{ project_name }}-{{ site.folder }}-{{ build_type }}-{{ build_number }}-pwd chars=ascii_letters') }}"
+
+- name: Reset admin username.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush sql-query \"UPDATE users SET name='{{ _admin_user }}' WHERE uid=1;\""
+- name: Reset admin password.
+  shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush upwd {{ _admin_user }} --password='{{ _admin_pwd }}'"
