@@ -1,7 +1,7 @@
 ---
 
 - set_fact:
-    build_path: "/var/www/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
+    build_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
 
 - name: Copy project repository.
   synchronize:

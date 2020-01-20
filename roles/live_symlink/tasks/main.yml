@@ -1,11 +1,11 @@
 ---
 
 - set_fact:
-    live_symlink_build_target: "/var/www/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
-    live_symlink_live_symlink: "/var/www/live.{{ project_name }}_{{ build_type }}"
+    live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
+    live_symlink_live_symlink: "{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}"
 
 - set_fact:
-    live_symlink_build_target: "/var/www/{{ project_name }}_{{ build_type }}_build_{{ previous_build_number }}"
+    live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ previous_build_number }}"
   when: live_symlink.operation == 'revert'
   
 - name: Symlink build.

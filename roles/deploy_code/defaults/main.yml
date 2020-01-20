@@ -1,2 +1,4 @@
 ---
 deploy_user: 'deploy'
+deploy_base_path: '/var/www'
+deploy_assets_base_path: '/var/www/shared'
