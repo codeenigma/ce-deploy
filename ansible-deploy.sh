@@ -3,18 +3,18 @@
 set -eu
 
 usage(){
-  echo 'ansible-deploy.sh [OPTIONS] --repo <git repo to deploy> --branch <branch to deploy> --buildtype <build identifier> --buildnumber < incremental build number>'
+  echo 'ansible-deploy.sh [OPTIONS] --repo <git repo to deploy> --playbook <path to playbook> --branch <branch to deploy> --buildtype <build identifier> --buildnumber < incremental build number>'
   echo 'Deploy an application.'
   echo ''
   echo 'Mandatory arguments:'
   echo '--repo: Path to a remote git repo. The "deploy" user must have read access to it.'
+  echo '--playbook: Relative path to an ansible playbook within the repo.'
   echo '--branch: The branch to deploy.'
   echo '--buildtype: An identifier for the build type, eg "prod", "dev", "mycustombuild", ...'
   echo '--buildnumber: an incremental build number'
   echo ''
   echo 'Available options:'
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
-  echo '--subdir: Used to determine the Ansible playbooks folder location in the repo above. Defaults to "deploy"'
   echo '--deploy-user: Name of the "deploy" user on that system. Defaults to "deploy"'
   echo '--no-prompt: skip confirmation dialogs.'
   echo '--own-branch: the git branch to use for the deployment scripts repository. Default to "master".'
@@ -57,9 +57,9 @@ parse_options(){
           shift
           TARGET_DEPLOY_BRANCH="$1"
         ;;
-      "--subdir")
+      "--playbook")
           shift
-          TARGET_DEPLOY_SUBDIR="$1"
+          TARGET_DEPLOY_PLAYBOOK="$1"
         ;;
       "--buildtype")
           shift
@@ -152,7 +152,7 @@ ansible_deploy(){
 # @param $1 string
 # Operation to perform (either deploy or revert)
 _ansible_deploy(){
-  TARGET_PLAYBOOK_PATH="$BUILD_DIR/$TARGET_DEPLOY_SUBDIR/$BUILD_TYPE-$1.yml"
+  TARGET_PLAYBOOK_PATH="$BUILD_DIR/$TARGET_DEPLOY_PLAYBOOK"
   ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_type: $BUILD_TYPE, build_number: $BUILD_NUMBER, target_playbook: $TARGET_PLAYBOOK_PATH, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
   /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   return $?
@@ -186,7 +186,7 @@ ANSIBLE_DEPLOY_USER='deploy'
 # Target app.
 TARGET_DEPLOY_REPO=""
 TARGET_DEPLOY_BRANCH=""
-TARGET_DEPLOY_SUBDIR="deploy"
+TARGET_DEPLOY_PLAYBOOK=""
 # Build info.
 BUILD_TYPE=""
 BUILD_NUMBER=""
@@ -203,7 +203,7 @@ parse_options "$@"
 
 # Check we're running as the right user.
 CURRENT_CALLER=$(whoami)
-if [ "$CURRENT_CALLER" != "$ANSIBLE_DEPLOY_USER" ] && [ "$CURRENT_CALLER" != "vagrant" ]; then
+if [ "$CURRENT_CALLER" != "$ANSIBLE_DEPLOY_USER" ] && [ "$CURRENT_CALLER" != "ce-dev" ]; then
   echo "This script needs to be run as the deploy user"
   exit 1
 fi
@@ -213,7 +213,7 @@ if [ "$CURRENT_CALLER" = "vagrant" ]; then
 fi
 
 # Check we have enough arguments.
-if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_SUBDIR" ] || [ -z "$TARGET_DEPLOY_BRANCH" ] || [ -z "$BUILD_TYPE" ] || [ -z "$BUILD_NUMBER" ]; then
+if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TARGET_DEPLOY_BRANCH" ] || [ -z "$BUILD_TYPE" ] || [ -z "$BUILD_NUMBER" ]; then
  usage
  exit 1
 fi
