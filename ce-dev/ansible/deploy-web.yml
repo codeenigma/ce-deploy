@@ -1,0 +1,63 @@
+---
+# This ensures we can gather facts about the associated utility server.
+- hosts: deploy-utility
+  become: yes
+  tasks:
+    - debug: msg="Gather facts about the utility server."
+
+- hosts: deploy-web
+  become: yes
+
+  vars:
+    - domain_name: www.deploy.local
+    - utility_server: deploy-utility
+    - env_type: dev
+    - ssl:
+        email: sysadm@codeenigma.com
+    - nginx:
+        domains:
+          - server_name: "{{ domain_name }}"
+            access_log:  "/var/log/nginx/access.log"
+            error_log:  "/var/log/nginx/error.log"
+            error_log_level:  "notice"
+            webroot:  "/var/www/live.cewww_dev/www"
+            project_type:  "drupal8"
+            ssl_certificate: "/etc/nginx/ssl/ssl_self_signed/{{ domain_name }}.crt"
+            ssl_certificate_key: "/etc/nginx/ssl/ssl_self_signed/{{ domain_name }}.key"
+            is_default: yes
+            https_redirect: no
+            ratelimitingcrawlers: no
+    - mysql_client:
+        host: deploy-db
+        user: ce-dev
+        password: ce-dev
+    - php:
+        version:
+          - 7.3
+
+  tasks:
+    - import_role:
+        name: common_base
+    - import_role:
+        name: deploy_user
+    - import_role:
+        name: mysql_client
+    - import_role:
+        name: php-cli
+    - import_role:
+        name: php-fpm
+    - import_role:
+        name: nginx
+    - import_role:
+        name: memcached
+    - import_role:
+        name: nodejs
+
+# This ensures known hosts is populated on the utility server.
+- hosts: deploy-utility
+  become: yes
+  tasks:
+    - include_role:
+       name: deploy_user
+      vars:
+        env_type: utility

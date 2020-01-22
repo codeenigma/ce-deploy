@@ -1,0 +1,32 @@
+---
+
+- hosts: deploy-utility
+  become: yes
+
+  vars:
+    - domain_name: deploy.local
+    - env_type: utility
+
+  roles:
+      # - common_base
+    # - role: deploy_user
+    #   vars:
+    #     deploy_user:
+    #       role: controller
+    # Uncomment as needed.
+    # - gitlab
+    # - jenkins
+    - ansible_deploy
+    # - role: haproxy
+    #   vars:
+    #     haproxy:
+    #       template: "haproxy-ssl-passthru"
+    #       backends:
+    #       - name: gitlab
+    #         ip: 127.0.0.1
+    #         port: 8881
+    #         domain: "gitlab.{{ domain_name }}"
+    #       - name: jenkins
+    #         ip: 127.0.0.1
+    #         port: 8884
+    #         domain: "jenkins.{{ domain_name }}"
