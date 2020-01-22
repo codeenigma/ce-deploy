@@ -1,0 +1,8 @@
+---
+
+- name: Perform composer step.
+  composer:
+    command: "{{ composer.command }}"
+    no_dev: "{{ composer.no_dev }}"
+    working_dir: "{{ composer.working_dir }}"
+    apcu_autoloader: "{{ composer.apcu_autoloader }}"

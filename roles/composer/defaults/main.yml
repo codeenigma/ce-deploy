@@ -1,0 +1,6 @@
+---
+composer:
+  command: install
+  no_dev: yes
+  working_dir: "{{ build_path }}"
+  apcu_autoloader: yes

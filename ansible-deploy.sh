@@ -23,7 +23,7 @@ usage(){
 
 # Remove temp dir on exit.
 cleanup_exit(){
-  if [ ! -z "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
+  if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
     rm -rf "$BUILD_DIR"
   fi
 }
@@ -153,8 +153,8 @@ ansible_deploy(){
 # Operation to perform (either deploy or revert)
 _ansible_deploy(){
   TARGET_PLAYBOOK_PATH="$BUILD_DIR/$TARGET_DEPLOY_PLAYBOOK"
-  ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_type: $BUILD_TYPE, build_number: $BUILD_NUMBER, target_playbook: $TARGET_PLAYBOOK_PATH, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
-  /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+  ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_type: $BUILD_TYPE, build_number: $BUILD_NUMBER, target_playbook: $TARGET_PLAYBOOK_PATH, previous_known_build_number: $PREVIOUS_BUILD_NUMBER, deploy_user: $ANSIBLE_DEPLOY_USER}"
+  echo /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   return $?
 }
 
@@ -208,8 +208,9 @@ if [ "$CURRENT_CALLER" != "$ANSIBLE_DEPLOY_USER" ] && [ "$CURRENT_CALLER" != "ce
   exit 1
 fi
 # Local use, we don't update repos as they're local.
-if [ "$CURRENT_CALLER" = "vagrant" ]; then
+if [ "$CURRENT_CALLER" = "ce-dev" ]; then
   SKIP_OWN_UPDATE="yes"
+  ANSIBLE_DEPLOY_USER='ce-dev'
 fi
 
 # Check we have enough arguments.
@@ -239,7 +240,7 @@ set -e
 # but avoids coming with an additional parameter.
 # The Ansible side will correct this using the live symlink,
 # so should not be an issue anyway.
-if [ ! -z "$ANSIBLE_BUILD_RESULT" ] && [ "$ANSIBLE_BUILD_RESULT" = 0 ]; then
+if [ -n "$ANSIBLE_BUILD_RESULT" ] && [ "$ANSIBLE_BUILD_RESULT" = 0 ]; then
   echo "$BUILD_NUMBER" > "$BUILD_FILE_TRACK"
   exit 0
 fi

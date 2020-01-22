@@ -27,3 +27,6 @@
   when: 
     - last_build_symlink.stat.exists
     - previous_build_number == 0
+
+- set_fact:
+    build_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"

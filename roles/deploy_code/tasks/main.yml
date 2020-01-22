@@ -1,8 +1,5 @@
 ---
 
-- set_fact:
-    build_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
-
 - name: Copy project repository.
   synchronize:
     src: "{{ local_build_path }}/"
@@ -10,6 +7,7 @@
     archive: yes
     rsync_opts:
       - "--chown={{ deploy_user }}:{{ deploy_user }}"
+      - "--exclude=.git"
   become: yes
 
 - include_role:
