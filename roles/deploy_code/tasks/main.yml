@@ -3,7 +3,7 @@
 - name: Copy project repository.
   synchronize:
     src: "{{ local_build_path }}/"
-    dest: "{{ build_path }}"
+    dest: "{{ deploy_path }}"
     archive: yes
     rsync_opts:
       - "--chown={{ deploy_user }}:{{ deploy_user }}"

@@ -10,11 +10,11 @@
 
 - name: Check if we have a live symlink.
   stat:
-    path: "{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}"
+    path: "{{ live_symlink.live_symlink_dest }}"
   register: last_build_symlink
 
 - name: Register current build.
-  shell: "readlink {{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
+  shell: "readlink {{ live_symlink.live_symlink_dest }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
   register: last_build
   when: last_build_symlink.stat.exists
 
@@ -29,4 +29,4 @@
     - previous_build_number == 0
 
 - set_fact:
-    build_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
+    deploy_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"

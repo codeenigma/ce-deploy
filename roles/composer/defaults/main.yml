@@ -2,5 +2,5 @@
 composer:
   command: install
   no_dev: yes
-  working_dir: "{{ build_path }}"
+  working_dir: "{{ deploy_path }}"
   apcu_autoloader: yes

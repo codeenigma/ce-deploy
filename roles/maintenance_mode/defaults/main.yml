@@ -3,8 +3,8 @@
 maintenance_mode:
   # What level do we operate.
   # - nginx: serves a static maintenance page.
+  # - drupal_core: application level
   # @todo - haproxy: serves a static maintenance page.
-  # @todo - drupal_core: application level
   # @todo - drupal_read_only: application level via readonly module.
   mode: "nginx"
   # - offline: puts the site offline

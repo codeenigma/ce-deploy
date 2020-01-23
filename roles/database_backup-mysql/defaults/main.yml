@@ -1,7 +1,8 @@
 ---
 mysql_backup:
   handling: rolling
+  dumps_directory: "/home/{{ deploy_user }}/build_db_backups/{{ project_name }}/{{ build_type }}"
   databases:
-    - database_prefix: "{{ project_name }}_{{ build_type }}"
-      user_prefix: "{{ project_name }}_{{ build_type }}"
-      password: ""
+    - database: "{{ project_name }}_{{ build_type }}"
+      user: "{{ project_name }}_{{ build_type }}"
+      credentials_file: "/etc/mysql/debian.cnf"

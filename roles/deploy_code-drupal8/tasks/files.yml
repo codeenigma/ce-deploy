@@ -11,14 +11,14 @@
 
 - name: Remove public files folder.
   file:
-    path: "{{ build_path }}/{{ webroot }}/{{ site.public_files }}"
+    path: "{{ deploy_path }}/{{ webroot }}/{{ site.public_files }}"
     state: absent
   become: yes
 
 - name: Create symlink to public files.
   file:
     src: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_public_files"
-    dest: "{{ build_path }}/{{ webroot }}/{{ site.public_files }}"
+    dest: "{{ deploy_path }}/{{ webroot }}/{{ site.public_files }}"
     state: link
     owner: www-data
     group: www-data
@@ -34,7 +34,7 @@
   become: yes
 
 # - name: Ensure public file path is set.
-#   shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y config:set system.file file_public_path {{ site.public_files }}"
+#   shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y config:set system.file file_public_path {{ site.public_files }}"
 
 # - name: Ensure private file path is set.
-#   shell: "cd {{ build_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y config:set system.file file_private_path {{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+#   shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y config:set system.file file_private_path {{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"

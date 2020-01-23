@@ -2,8 +2,8 @@
 - name: Generates settings.php file.
   template:
     src: '{{ item }}'
-    dest: "{{ build_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
+    dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
   with_first_found:
-    - "{{ build_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php.{{ build_type }}"
+    - "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php.{{ build_type }}"
     - "settings.php.j2"
   become: yes
