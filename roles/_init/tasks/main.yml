@@ -1,5 +1,23 @@
 ---
 
+# Ensure default values for common variables.
+- name: Define deploy user.
+  set_fact:
+    deploy_user: "{{ deploy_user | default(deploy) }}"
+- name: Define deploy base path.
+  set_fact:
+    deploy_base_path: "{{ deploy_base_path | default(/var/www) }}"
+- name: Define mounted directory for assets.
+  set_fact:
+    deploy_assets_base_path: "{{ deploy_assets_base_path | default(/var/www/shared) }}"
+- name: Define webroot.
+  set_fact:
+    webroot: "{{ webroot | default(www/) }}"
+- name: Define build deploy path.
+  set_fact:
+    deploy_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
+
+
 # Gather last known good build directly from symlink.
 # This can happen:
 # - when the first builds failed,
@@ -27,6 +45,3 @@
   when: 
     - last_build_symlink.stat.exists
     - previous_build_number == 0
-
-- set_fact:
-    deploy_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"

@@ -1,5 +1,4 @@
 ---
-deploy_user: 'deploy'
 drupal:
   sites:
     - folder: "default"

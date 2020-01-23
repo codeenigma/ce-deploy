@@ -15,18 +15,18 @@
     #       role: controller
     # Uncomment as needed.
     # - gitlab
-    # - jenkins
+    - jenkins
     - ansible_deploy
-    # - role: haproxy
-    #   vars:
-    #     haproxy:
-    #       template: "haproxy-ssl-passthru"
-    #       backends:
-    #       - name: gitlab
-    #         ip: 127.0.0.1
-    #         port: 8881
-    #         domain: "gitlab.{{ domain_name }}"
-    #       - name: jenkins
-    #         ip: 127.0.0.1
-    #         port: 8884
-    #         domain: "jenkins.{{ domain_name }}"
+    - role: haproxy
+      vars:
+        haproxy:
+          template: "haproxy-ssl-passthru"
+          backends:
+          # - name: gitlab
+          #   ip: 127.0.0.1
+          #   port: 8881
+          #   domain: "gitlab.{{ domain_name }}"
+          - name: jenkins
+            ip: 127.0.0.1
+            port: 8884
+            domain: "jenkins.{{ domain_name }}"
