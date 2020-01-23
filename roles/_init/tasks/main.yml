@@ -6,13 +6,13 @@
     deploy_user: "{{ deploy_user | default(deploy) }}"
 - name: Define deploy base path.
   set_fact:
-    deploy_base_path: "{{ deploy_base_path | default(/var/www) }}"
+    deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy') }}"
 - name: Define mounted directory for assets.
   set_fact:
-    deploy_assets_base_path: "{{ deploy_assets_base_path | default(/var/www/shared) }}"
+    deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared') }}"
 - name: Define webroot.
   set_fact:
-    webroot: "{{ webroot | default(www/) }}"
+    webroot: "{{ webroot | default('www') }}"
 - name: Define build deploy path.
   set_fact:
     deploy_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"

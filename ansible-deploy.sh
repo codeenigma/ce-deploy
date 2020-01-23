@@ -121,7 +121,6 @@ repo_clone(){
 # Update the Ansible wrapper repo itself.
 repo_own_update(){
   repo_update "$OWN_DIR" "$ANSIBLE_DEPLOY_BRANCH"
-  sudo rsync -avz --delete --exclude="roles" --chown="$CURRENT_CALLER:$CURRENT_CALLER" "$OWN_DIR/etc/" "/etc/ansible"
 }
 
 # Ensure the Ansible roles are up-to-date.
@@ -154,7 +153,7 @@ ansible_deploy(){
 _ansible_deploy(){
   TARGET_PLAYBOOK_PATH="$BUILD_DIR/$TARGET_DEPLOY_PLAYBOOK"
   ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_type: $BUILD_TYPE, build_number: $BUILD_NUMBER, target_playbook: $TARGET_PLAYBOOK_PATH, previous_known_build_number: $PREVIOUS_BUILD_NUMBER, deploy_user: $ANSIBLE_DEPLOY_USER}"
-  echo /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+  /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   return $?
 }
 

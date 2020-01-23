@@ -5,14 +5,16 @@
 
   vars:
     - domain_name: deploy.local
-    - env_type: utility
+    - env_type: 
+    - deploy_user:
+        username: ce-dev
 
   roles:
-      # - common_base
-    # - role: deploy_user
-    #   vars:
-    #     deploy_user:
-    #       role: controller
+    - common_base
+    - role: deploy_user
+      vars:
+        deploy_user:
+          role: controller
     # Uncomment as needed.
     # - gitlab
     - jenkins
