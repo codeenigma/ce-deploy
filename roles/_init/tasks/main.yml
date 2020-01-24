@@ -45,3 +45,9 @@
   when: 
     - last_build_symlink.stat.exists
     - previous_build_number == 0
+
+# Make sure the deploy target exists.
+- name: Ensure deploy target directory exists.
+  file:
+    path: "{{ deploy_base_path }}"
+    state: directory

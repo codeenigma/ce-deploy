@@ -26,6 +26,7 @@ cleanup_exit(){
   if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
     rm -rf "$BUILD_DIR"
   fi
+  exit 1
 }
 
 # Confirmation dialog.
@@ -244,5 +245,5 @@ if [ -n "$ANSIBLE_BUILD_RESULT" ] && [ "$ANSIBLE_BUILD_RESULT" = 0 ]; then
   exit 0
 fi
 # Revert build.
-ansible_deploy "revert"
+# ansible_deploy "revert"
 exit 1
