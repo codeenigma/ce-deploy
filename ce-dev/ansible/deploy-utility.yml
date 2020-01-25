@@ -8,6 +8,8 @@
     - env_type: 
     - deploy_user:
         username: ce-dev
+    - ansible_deploy:
+        config_repository: git@jenkins.codeenigma.com:ce-ops/ansible-deploy-config.git
 
   roles:
     - common_base
