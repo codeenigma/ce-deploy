@@ -1,0 +1,18 @@
+---
+
+- name: Ensure backup directory exists.
+  file:
+    path: "{{ cron_mysql_backup.dumps_directory }}"
+    state: directory
+    mode: 0777
+
+#@todo: To play it safe and let people manually revert db without 
+# screwing the daily backup when using rolling db, we could
+# add a keep mechanism for backup scripts, like for the dumps themselves.
+# Nice to have more than anything.
+- include_tasks: setup.yml
+  vars:
+    database: database
+  with_items: "{{ build_databases }}"
+  loop_control:
+    loop_var: database

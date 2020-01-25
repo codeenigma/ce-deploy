@@ -1,0 +1,8 @@
+---
+
+- name: Setup cron for regular database backups.
+  include_role:
+    name: "cron/cron_database_backup-{{ engine }}"
+  with_items: "{{ database_backup.engines }}"
+  loop_control:
+    loop_var: engine

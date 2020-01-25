@@ -3,4 +3,3 @@ deploy_user: 'deploy'
 live_symlink:
   # Either update (for successful builds) or revert.
   operation: update
-  live_symlink_dest: "{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}"

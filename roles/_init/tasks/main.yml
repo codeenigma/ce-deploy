@@ -16,7 +16,9 @@
 - name: Define build deploy path.
   set_fact:
     deploy_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
-
+- name: Define live_symlink dest.
+  set_fact:
+    live_symlink_dest: "{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}"
 
 # Gather last known good build directly from symlink.
 # This can happen:
@@ -28,11 +30,11 @@
 
 - name: Check if we have a live symlink.
   stat:
-    path: "{{ live_symlink.live_symlink_dest }}"
+    path: "{{ live_symlink_dest }}"
   register: last_build_symlink
 
 - name: Register current build.
-  shell: "readlink {{ live_symlink.live_symlink_dest }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
+  shell: "readlink {{ live_symlink_dest }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
   register: last_build
   when: last_build_symlink.stat.exists
 

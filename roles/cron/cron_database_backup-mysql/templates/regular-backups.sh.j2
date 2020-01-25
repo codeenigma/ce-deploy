@@ -1,0 +1,22 @@
+#!/bin/sh
+
+DBUSER='{{ database.user }}'
+DBPASSWORD='{{ database.password }}'
+DBHOST='{{ database.host }}'
+DBNAME='{{ database.name }}'
+TARGET_DIR='{{ cron_mysql_backup.dumps_directory }}'
+TARBALL="$DBNAME-$(date -Iseconds).sql.bz2"
+KEEP=$(({{ database.original.backup.keep | default(cron_mysql_backup.keep) }}+1))
+backup(){
+  mysqldump -u"$DBUSER" -p"$DBPASSWORD" -h"$DBHOST" "$DBNAME" | bzip2 > "$TARGET_DIR/$TARBALL"
+}
+
+cleanup(){
+  if [ "$(find "$TARGET_DIR" -name '*sql.bz2'  | wc -l)" -lt "$KEEP" ]; then
+    return 0
+  fi
+  rm "$(find $TARGET_DIR -name '*.sql.bz2' | sort | head -n 1)"
+  cleanup
+}
+backup
+cleanup

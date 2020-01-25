@@ -3,5 +3,5 @@
 - name: Enable maintenance mode.
   command: 
     cmd: drush state:set system.maintenance_mode 1 --input-format=integer
-    chdir: "{{ live_symlink.live_symlink_dest }}/{{ webroot }}"
+    chdir: "{{ live_symlink_dest }}/{{ webroot }}"
   when: previous_build_number > 0

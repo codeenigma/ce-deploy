@@ -24,6 +24,7 @@
 
 - set_fact:
     _build_database:
+      original: "{{ database }}"
       name: "{{ database.database }}"
       user: "{{ _mysql_build_user_name }}"
       password: "{{ _mysql_build_password }}"
