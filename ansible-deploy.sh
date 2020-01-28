@@ -136,19 +136,6 @@ repo_target_clone(){
 # @param $1 string
 # Operation to perform (either deploy or revert)
 ansible_deploy(){
-  if [ ! "$NON_INTERACTIVE_MODE" = "yes" ]; then
-    confirm "Deploy $TARGET_DEPLOY_REPO ?"
-    if [ "$?" = "1" ]; then
-      exit 0
-    fi
-  fi
-  _ansible_deploy "$1"
-}
-
-# Actual deployment.
-# @param $1 string
-# Operation to perform (either deploy or revert)
-_ansible_deploy(){
   TARGET_PLAYBOOK_PATH="$BUILD_DIR/$TARGET_DEPLOY_PLAYBOOK"
   ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_type: $BUILD_TYPE, build_number: $BUILD_NUMBER, target_playbook: $TARGET_PLAYBOOK_PATH, previous_known_build_number: $PREVIOUS_BUILD_NUMBER, deploy_user: $ANSIBLE_DEPLOY_USER}"
   /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
