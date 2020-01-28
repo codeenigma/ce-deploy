@@ -3,21 +3,17 @@
 set -eu
 
 usage(){
-  echo 'ansible-deploy.sh [OPTIONS] --repo <git repo to deploy> --playbook <path to playbook> --branch <branch to deploy> --buildtype <build identifier> --buildnumber < incremental build number>'
+  echo 'ansible-deploy.sh [OPTIONS] --repo <git repo to deploy> --branch <branch to deploy> --playbook <path to playbook> --buildnumber < incremental build number>'
   echo 'Deploy an application.'
   echo ''
   echo 'Mandatory arguments:'
   echo '--repo: Path to a remote git repo. The "deploy" user must have read access to it.'
-  echo '--playbook: Relative path to an ansible playbook within the repo.'
   echo '--branch: The branch to deploy.'
-  echo '--buildtype: An identifier for the build type, eg "prod", "dev", "mycustombuild", ...'
+  echo '--playbook: Relative path to an ansible playbook within the repo.'
   echo '--buildnumber: an incremental build number'
   echo ''
   echo 'Available options:'
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
-  echo '--deploy-user: Name of the "deploy" user on that system. Defaults to "deploy"'
-  echo '--no-prompt: skip confirmation dialogs.'
-  echo '--own-branch: the git branch to use for the deployment scripts repository. Default to "master".'
   echo '--skip-own-update: skip checking the deployment scripts are up to date and checking out to a branch.'
 }
 
@@ -27,23 +23,6 @@ cleanup_exit(){
     rm -rf "$BUILD_DIR"
   fi
   exit 1
-}
-
-# Confirmation dialog.
-# @param string
-# Message to display.
-confirm(){
-  echo "$1 (y/n)?" 
-  read -r _confirm
-  case "$_confirm" in 
-    'y'|'Y'|'yes'|'Yes')
-      return
-    ;;
-    * )
-      echo "Operation cancelled"
-      return 1
-    ;;
-  esac
 }
 
 # Parse long options.
@@ -62,17 +41,9 @@ parse_options(){
           shift
           TARGET_DEPLOY_PLAYBOOK="$1"
         ;;
-      "--buildtype")
-          shift
-          BUILD_TYPE="$1"
-        ;;
       "--buildnumber")
           shift
           BUILD_NUMBER="$1"
-        ;;
-      "--deploy-user")
-          shift
-          ANSIBLE_DEPLOY_USER="$1"
         ;;
       "--ansible-extra-vars")
           shift
@@ -80,10 +51,6 @@ parse_options(){
         ;;
       "--skip-own-update")
           SKIP_OWN_UPDATE="yes"
-        ;;
-      "--own-branch")
-          shift
-          ANSIBLE_DEPLOY_BRANCH="$1"
         ;;
         *)
         usage
