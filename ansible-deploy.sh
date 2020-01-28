@@ -78,9 +78,6 @@ parse_options(){
           shift
           ANSIBLE_EXTRA_VARS="$1"
         ;;
-      "--no-prompt")
-          NON_INTERACTIVE_MODE="yes"
-        ;;
       "--skip-own-update")
           SKIP_OWN_UPDATE="yes"
         ;;
