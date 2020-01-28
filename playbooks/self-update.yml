@@ -1,0 +1,16 @@
+---
+- hosts: "localhost"
+  tasks:
+    - name: Ensure deploy scripts are up to date.
+      git:
+        repo: "{{ ansible_deploy.own_repository | default('https://github.com/codeenigma/ansible-deploy.git')}}"
+        dest: "{{ playbook_dir | dirname }}"
+        update: yes
+        version: "{{ ansible_deploy.own_repository_branch | default('master') }}"
+
+    - name: Ensure config directory is up to date.
+      git:
+        repo: "{{ ansible_deploy.config_repository }}"
+        dest: "{{ playbook_dir | dirname }}/config"
+        version: "{{ ansible_deploy.config_repository_branch  | default('master') }}"
+      when: ansible_deploy.config_repository
