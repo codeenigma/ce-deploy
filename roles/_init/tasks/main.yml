@@ -3,7 +3,7 @@
 # Ensure default values for common variables.
 - name: Define deploy user.
   set_fact:
-    deploy_user: "{{ deploy_user | default(deploy) }}"
+    deploy_user: "{{ deploy_user | default('deploy') }}"
 - name: Define deploy base path.
   set_fact:
     deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy') }}"

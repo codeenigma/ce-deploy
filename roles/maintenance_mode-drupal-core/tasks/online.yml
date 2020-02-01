@@ -4,3 +4,5 @@
   command: 
     cmd: drush state:set system.maintenance_mode 0 --input-format=integer
     chdir: "{{ deploy_path }}/{{ webroot }}"
+  when:
+    - project_type == 'drupal8'

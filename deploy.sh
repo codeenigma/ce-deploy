@@ -19,8 +19,9 @@ usage(){
 
 # Remove temp dir on exit.
 cleanup_exit(){
+  set +e
   if [ "$ANSIBLE_BUILD_RESULT" != 0 ]; then
-    /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH"  --extra_vars '{deploy_operation: revert}' --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+    /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH"  --extra-vars '{deploy_operation: revert}' --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   fi
   if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
     rm -rf "$BUILD_DIR"
@@ -62,6 +63,11 @@ parse_options(){
     esac
     shift
   done
+}
+
+# Clone our target repo.
+repo_target_clone(){
+  git clone "$TARGET_DEPLOY_REPO" "$BUILD_DIR" --depth 1 --branch "$TARGET_DEPLOY_BRANCH"
 }
 
 # Default vars.
@@ -111,10 +117,12 @@ TARGET_PLAYBOOK_PATH="$BUILD_DIR/$TARGET_DEPLOY_PLAYBOOK"
 ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_number: $BUILD_NUMBER, target_playbook: $TARGET_PLAYBOOK_PATH, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
 
 # Trigger own updates.
-/usr/bin/ansible-playbook "$OWN_DIR/playbooks/self-update.yml" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+#/usr/bin/ansible-playbook "$OWN_DIR/playbooks/self-update.yml" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+# Clone target repo.
+repo_target_clone
 # Trigger actual provisioning. From this point on, we revert in case of failure.
 ANSIBLE_BUILD_RESULT=1
-/usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH"  --extra_vars '{deploy_operation: deploy}' --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+/usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH"  --extra-vars "{deploy_operation: deploy}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
 ANSIBLE_BUILD_RESULT=$?
 # Keep track of successful build.
 # This means we loose track of it when changing repo,
