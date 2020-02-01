@@ -6,3 +6,4 @@
     no_dev: "{{ composer.no_dev }}"
     working_dir: "{{ composer.working_dir }}"
     apcu_autoloader: "{{ composer.apcu_autoloader }}"
+  when: deploy_operation == 'deploy'
