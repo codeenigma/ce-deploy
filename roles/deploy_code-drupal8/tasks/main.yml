@@ -7,7 +7,7 @@
     loop_var: site
 
 - name: Install Drupal.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} &&{{ drush_bin }}si -y"
+  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} si -y"
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site

@@ -11,7 +11,4 @@
   file:
     src: "{{ _live_symlink_build_target }}"
     dest: "{{ live_symlink_dest }}"
-    owner: "{{ deploy_user }}"
-    group: "{{ deploy_user }}"
     state: link
-  become: yes
