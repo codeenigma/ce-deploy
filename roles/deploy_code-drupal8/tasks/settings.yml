@@ -9,4 +9,3 @@
   with_first_found:
     - "{{ local_build_path }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php"
     - "settings.php.j2"
-  become: yes

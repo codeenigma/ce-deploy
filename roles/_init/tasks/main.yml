@@ -19,7 +19,9 @@
 - name: Define live_symlink dest.
   set_fact:
     live_symlink_dest: "{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}"
-
+- name: Define Drush patth.
+  set_fact:
+    drush_bin: "{{ drush_bin | default('/home/{{ deploy_user }}/.bin/drush.phar') }}"
 # Gather last known good build directly from symlink.
 # This can happen:
 # - when the first builds failed,

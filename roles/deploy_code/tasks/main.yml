@@ -8,7 +8,6 @@
     rsync_opts:
       - "--chown={{ deploy_user }}:{{ deploy_user }}"
       - "--exclude=.git"
-  become: yes
 
 - include_role:
     name: "deploy_code-{{ project_type }}"

@@ -1,9 +1,9 @@
 ---
 
 - name: Check if Ctools module is enabled.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && drush pm-info ctools | grep ':  enabled' | wc -l"
+  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} &&{{ drush_bin }}pm-info ctools | grep ':  enabled' | wc -l"
   register: ctools_enabled
   
 - name: Revert Drupal configuration from Ctools.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && drush -y ctools-export-revert --all"
+  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} &&{{ drush_bin }}-y ctools-export-revert --all"
   when: ctools_enabled.stdout == "1"

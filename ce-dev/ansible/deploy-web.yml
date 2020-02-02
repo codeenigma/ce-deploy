@@ -20,7 +20,7 @@
             access_log:  "/var/log/nginx/access.log"
             error_log:  "/var/log/nginx/error.log"
             error_log_level:  "notice"
-            webroot:  "/var/www/live.cewww_dev/www"
+            webroot:  "/home/{{ deploy_user.username }}/deploy/live.cewww_dev/www"
             project_type:  "drupal8"
             ssl_certificate: "/etc/nginx/ssl/ssl_self_signed/{{ domain_name }}.crt"
             ssl_certificate_key: "/etc/nginx/ssl/ssl_self_signed/{{ domain_name }}.key"
