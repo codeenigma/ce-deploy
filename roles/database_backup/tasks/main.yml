@@ -5,7 +5,7 @@
 
 - name: Take database dumps.
   include_role:
-    name: "database_backup-{{ engine }}"
+    name: "database_backup/database_backup-{{ engine }}"
   with_items: "{{ database_backup.engines }}"
   loop_control:
     loop_var: engine

@@ -2,5 +2,5 @@
 
 - name: Revert admin credentials.
   include_role:
-    name: "admin_creds-{{ project_type }}"
+    name: "admin_creds/admin_creds-{{ project_type }}"
   when: deploy_operation == 'deploy'

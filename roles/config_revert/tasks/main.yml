@@ -2,5 +2,5 @@
 
 - name: Revert configuration from code.
   include_role:
-    name: "config_revert-{{ project_type }}"
+    name: "config_revert/config_revert-{{ project_type }}"
   when: deploy_operation == 'deploy'

@@ -10,4 +10,4 @@
       - "--exclude=.git"
 
 - include_role:
-    name: "deploy_code-{{ project_type }}"
+    name: "deploy_code/deploy_code-{{ project_type }}"
