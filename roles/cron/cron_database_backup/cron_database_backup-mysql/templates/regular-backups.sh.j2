@@ -4,7 +4,7 @@ DBUSER='{{ database.user }}'
 DBPASSWORD='{{ database.password }}'
 DBHOST='{{ database.host }}'
 DBNAME='{{ database.name }}'
-TARGET_DIR='{{ cron_mysql_backup.dumps_directory }}'
+TARGET_DIR="{{ cron_mysql_backup.dumps_directory }}/$DBHOST"
 TARBALL="$DBNAME-$(date -Iseconds).sql.bz2"
 KEEP=$(({{ database.original.backup.keep | default(cron_mysql_backup.keep) }}+1))
 backup(){
