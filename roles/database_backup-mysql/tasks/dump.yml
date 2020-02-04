@@ -1,0 +1,20 @@
+---
+
+- set_fact:
+    _mysql_build_database_name: "{{ database.database }}"
+- set_fact:
+    _mysql_previous_build_database_name: "{{ database.database }}"
+
+- name: Ensure dump directory exists.
+  file:
+    path: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}"
+    state: directory
+    mode: 0700
+
+- name: Create initial database.
+  command: mysql --defaults-extra-file={{ database.credentials_file }} -e "CREATE DATABASE {{ _mysql_build_database_name }};"
+  when: previous_build_number == 0
+
+- name: Dump existing database.
+  shell: "mysqldump --defaults-extra-file={{ database.credentials_file }} {{ database.database }} | bzip2 > {{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2"
+  when: previous_build_number > 0

@@ -1,13 +1,12 @@
 ---
 
-- name: Take database dumps.
-  include_role:
-    name: "database_backup-mysql-{{ mysql_backup.handling }}"
-  vars:
-    mysql_backup_db:
-      database: "{{ database.database }}"
-      user: "{{ database.user }}"
-      credentials_file: "{{ database.credentials_file }}"
+- name: Take database backup.
+  include_tasks: common.yml
+  # vars:
+  #   mysql_backup_db:
+  #     database: "{{ database.database }}"
+  #     user: "{{ database.user }}"
+  #     credentials_file: "{{ database.credentials_file }}"
   with_items: "{{ mysql_backup.databases }}"
   loop_control:
     loop_var: database

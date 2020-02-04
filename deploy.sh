@@ -26,7 +26,7 @@ cleanup_exit(){
   if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
     rm -rf "$BUILD_DIR"
   fi
-  exit $ANSIBLE_BUILD_RESULT
+  exit "$ANSIBLE_BUILD_RESULT"
 }
 
 # Parse long options.
@@ -78,7 +78,7 @@ BUILD_NUMBER=""
 PREVIOUS_BUILD_NUMBER=0
 ANSIBLE_EXTRA_VARS=""
 ANSIBLE_BUILD_RESULT=0
-
+SKIP_OWN_UPDATE="no"
 # Compute actual location.
 OWN_DIR=$(dirname "$0")
 cd "$OWN_DIR" || exit 1
