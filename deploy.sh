@@ -14,7 +14,6 @@ usage(){
   echo ''
   echo 'Available options:'
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
-  echo '--skip-own-update: skip checking the deployment scripts are up to date and checking out to a branch.'
 }
 
 # Remove temp dir on exit.
@@ -53,9 +52,6 @@ parse_options(){
           shift
           ANSIBLE_EXTRA_VARS="$1"
         ;;
-      "--skip-own-update")
-          SKIP_OWN_UPDATE="yes"
-        ;;
         *)
         usage
         exit 1
@@ -78,7 +74,6 @@ BUILD_NUMBER=""
 PREVIOUS_BUILD_NUMBER=0
 ANSIBLE_EXTRA_VARS=""
 ANSIBLE_BUILD_RESULT=0
-SKIP_OWN_UPDATE="no"
 # Compute actual location.
 OWN_DIR=$(dirname "$0")
 cd "$OWN_DIR" || exit 1
@@ -116,10 +111,6 @@ fi
 TARGET_PLAYBOOK_PATH="$BUILD_DIR/$TARGET_DEPLOY_PLAYBOOK"
 ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_number: $BUILD_NUMBER, target_playbook: $TARGET_PLAYBOOK_PATH, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
 
-# Trigger own updates.
-if [ "$SKIP_OWN_UPDATE" = "no" ]; then
-  /usr/bin/ansible-playbook "$OWN_DIR/playbooks/self-update.yml" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
-fi
 # Clone target repo.
 repo_target_clone
 # Trigger actual provisioning. From this point on, we revert in case of failure.
