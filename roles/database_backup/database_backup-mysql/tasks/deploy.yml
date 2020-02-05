@@ -36,12 +36,13 @@
     _mysql_build_password: "{{ lookup('password', '/dev/null') }}"
   when: mysql_backup.credentials_handling == 'rotate'
 
-- include_tasks: "{{ mysql_backup.handling }}.yml"
+- include_tasks: "deploy-{{ mysql_backup.handling }}.yml"
 
 # We append privileges instead of replacing,
 # to allow this role to be looped over,
 # for multisites or projects with multiple databases.
 # @todo deal with host for user.
+# @todo clean when we delete builds.
 - name: Create/update mysql user.
   command: mysql --defaults-extra-file={{ database.credentials_file }} -e "GRANT ALL ON {{ _mysql_build_database_name }}.* TO '{{ _mysql_build_user_name}}'@'%' IDENTIFIED BY '{{ _mysql_build_password }}';"
   when: ( mysql_backup.credentials_handling == 'rotate' ) or ( mysql_backup.credentials_handling == 'static' )

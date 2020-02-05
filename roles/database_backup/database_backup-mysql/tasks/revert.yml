@@ -1,0 +1,18 @@
+---
+
+- name: Grab mysql credentials.
+  fetch:
+    src: "{{ database.credentials_file }}"
+    dest: "build/mysql_backup_credentials.ini"
+    flat: yes
+
+# Credentials for "managing" databases.
+- set_fact:
+    _mysql_host: "{{ lookup('ini', 'host section=client file=build/mysql_backup_credentials.ini') }}"
+- set_fact:
+    _mysql_user: "{{ lookup('ini', 'user section=client file=build/mysql_backup_credentials.ini') }}"
+- set_fact:
+    _mysql_password: "{{ lookup('ini', 'password section=client file=build/mysql_backup_credentials.ini') }}"
+
+- include_tasks: "revert-{{ mysql_backup.handling }}.yml"
+  when: previous_build_number > 0

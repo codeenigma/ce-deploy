@@ -17,4 +17,4 @@ mysql_backup:
   databases:
     - database: "{{ project_name }}_{{ build_type }}"
       user: "{{ project_name }}_{{ build_type }}"
-      credentials_file: "/etc/mysql/debian.cnf"
+      credentials_file: "/home/{{ deploy_user }}/.mysql.creds"

@@ -3,3 +3,4 @@
 - name: Apply database updates.
   include_role:
     name: "database_update/database_update-{{ project_type }}"
+  when: deploy_operation == 'deploy'

@@ -1,12 +1,7 @@
 ---
 
 - name: Take database backup.
-  include_tasks: common.yml
-  # vars:
-  #   mysql_backup_db:
-  #     database: "{{ database.database }}"
-  #     user: "{{ database.user }}"
-  #     credentials_file: "{{ database.credentials_file }}"
+  include_tasks: "{{ deploy_operation }}.yml"
   with_items: "{{ mysql_backup.databases }}"
   loop_control:
     loop_var: database
