@@ -12,25 +12,10 @@
         config_repository: git@jenkins.codeenigma.com:ce-ops/ansible-deploy-config.git
 
   roles:
-    - common_base
+    - _meta/common_base
     - role: deploy_user
       vars:
         deploy_user:
           role: controller
     # Uncomment as needed.
-    # - gitlab
-    - jenkins
     - ansible_deploy
-    - role: haproxy
-      vars:
-        haproxy:
-          template: "haproxy-ssl-passthru"
-          backends:
-          # - name: gitlab
-          #   ip: 127.0.0.1
-          #   port: 8881
-          #   domain: "gitlab.{{ domain_name }}"
-          - name: jenkins
-            ip: 127.0.0.1
-            port: 8884
-            domain: "jenkins.{{ domain_name }}"
