@@ -5,4 +5,3 @@
   with_items: "{{ mysql_backup.databases }}"
   loop_control:
     loop_var: database
-  when: not mysql_backup.handling == 'none'

@@ -1,0 +1,5 @@
+---
+
+- include_role:
+    name: "config_generate/config_generate-{{ project_type }}"
+  when: deploy_operation == 'deploy'

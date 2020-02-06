@@ -4,7 +4,7 @@
   command: 
     cmd: "{{ drush_bin }} state:set system.maintenance_mode 1 --input-format=integer"
     chdir: "{{ live_symlink_dest }}/{{ webroot }}"
-  become: (www_user != deploy_user)
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   when:
     - previous_build_number > 0

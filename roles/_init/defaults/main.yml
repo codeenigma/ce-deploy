@@ -1,0 +1,9 @@
+---
+# Common defaults. Given the "_init" role is mandatory, 
+# this will ensure defaults to other roles too.
+deploy_user: 'deploy'
+drupal:
+  sites:
+    - folder: "default"
+      public_files: "sites/default/files"
+      config_sync_directory: "config/sync"

@@ -18,10 +18,8 @@
     deploy_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
 - name: Define live_symlink dest.
   set_fact:
-    live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}'"
-- name: Define Drush path.
-  set_fact:
-    drush_bin: "{{ drush_bin | default('/home/{{ deploy_user }}/.bin/drush.phar') }}"
+    live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+
 # Gather last known good build directly from symlink.
 # This can happen:
 # - when the first builds failed,
@@ -29,29 +27,33 @@
 # - when the repository source changed and we lost track of
 # the project
 # - when the symlink has been manually messed up.
+# @todo commented out, not sure we want that.
+# - name: Check if we have a live symlink.
+#   stat:
+#     path: "{{ live_symlink_dest }}"
+#   register: last_build_symlink
 
-- name: Check if we have a live symlink.
-  stat:
-    path: "{{ live_symlink_dest }}"
-  register: last_build_symlink
-
-- name: Register current build.
-  shell: "readlink {{ live_symlink_dest }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
-  register: last_build
-  when: last_build_symlink.stat.exists
+# - name: Register current build.
+#   shell: "readlink {{ live_symlink_dest }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
+#   register: last_build
+#   when: last_build_symlink.stat.exists
 
 # This is passed from caller.
 - set_fact:
     previous_build_number: "{{ previous_known_build_number }}"
 
-- set_fact:
-    previous_build_number: "{{ last_build.stdout }}"
-  when: 
-    - last_build_symlink.stat.exists
-    - previous_build_number == 0
+# - set_fact:
+#     previous_build_number: "{{ last_build.stdout }}"
+#   when: 
+#     - last_build_symlink.stat.exists
+#     - previous_build_number == 0
 
 # Make sure the deploy target exists.
 - name: Ensure deploy target directory exists.
   file:
     path: "{{ deploy_base_path }}"
     state: directory
+
+# Project specific init tasks.
+- name: Include project init tasks.
+  include_tasks: "{{ project_type }}.yml"

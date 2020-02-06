@@ -1,0 +1,5 @@
+---
+
+- name: Define Drush path.
+  set_fact:
+    drush_bin: "{{ drush_bin | default('/home/{{ deploy_user }}/.bin/drush.phar') }}"

@@ -1,0 +1,6 @@
+---
+
+- name: Apply database updates.
+  include_role:
+    name: "database_apply/database_apply-{{ project_type }}"
+  when: deploy_operation == 'deploy'

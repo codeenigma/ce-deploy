@@ -37,7 +37,7 @@
 
   tasks:
     - import_role:
-        name: common_base
+        name: _meta/common_base
     - import_role:
         name: deploy_user
     - import_role:

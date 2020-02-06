@@ -1,0 +1,21 @@
+---
+
+- name: set public files path.
+  set_fact:
+    build_public_file_path: "{{ site.public_files }}"
+
+- name: set public files path.
+  set_fact:
+    build_private_file_path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+
+- name: set config directory path.
+  set_fact:
+    build_config_sync_directory: "{{ deploy_path }}/{{ config_sync_directory }}"
+
+- name: Generates settings.php file.
+  template:
+    src: '{{ item }}'
+    dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
+  with_first_found:
+    - "{{ local_build_path }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php"
+    - "settings.php.j2"
