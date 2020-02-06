@@ -10,7 +10,7 @@
 
 - name: set config directory path.
   set_fact:
-    build_config_sync_directory: "{{ deploy_path }}/{{ config_sync_directory }}"
+    build_config_sync_directory: "{{ deploy_path }}/{{ site.config_sync_directory }}"
 
 - name: Generates settings.php file.
   template:
