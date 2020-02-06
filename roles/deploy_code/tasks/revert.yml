@@ -1,0 +1,39 @@
+---
+
+- name: Copy project repository.
+  synchronize:
+    src: "{{ local_build_path }}/"
+    dest: "{{ deploy_path }}"
+    archive: yes
+    rsync_opts:
+      - "--exclude=.git"
+  when: deploy_operation == 'deploy'
+
+- name: Ensure project repository is readable.
+  file: 
+    path: "{{ deploy_path }}"
+    state: directory
+    mode: 0755
+  when: deploy_operation == 'deploy'
+
+- include_role:
+    name: "deploy_code/deploy_code-drupal"
+  when: 
+    - deploy_operation == 'deploy'
+    - ( project_type == 'drupal7' ) or ( project_type == 'drupal8' )
+
+- include_role:
+    name: "deploy_code/deploy_code-{{ project_type }}"
+  when: 
+    - deploy_operation == 'deploy'
+    - project_type != 'drupal7'
+    - project_type != 'drupal8'
+
+- name: Create additional symlinks.
+  file:
+    src: "{{ link.src }}"
+    dest: "{{ link.dest }}"
+    state: link
+  when: 
+   - deploy_code.symlinks | length
+   - deploy_operation == 'deploy'

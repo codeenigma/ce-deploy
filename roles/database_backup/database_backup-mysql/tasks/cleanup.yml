@@ -1,0 +1,29 @@
+---
+
+- name: Grab mysql credentials.
+  fetch:
+    src: "{{ database.credentials_file }}"
+    dest: "build/mysql_backup_credentials.ini"
+    flat: yes
+
+# Credentials for "managing" databases.
+- set_fact:
+    _mysql_host: "{{ lookup('ini', 'host section=client file=build/mysql_backup_credentials.ini') }}"
+- set_fact:
+    _mysql_user: "{{ lookup('ini', 'user section=client file=build/mysql_backup_credentials.ini') }}"
+- set_fact:
+    _mysql_password: "{{ lookup('ini', 'password section=client file=build/mysql_backup_credentials.ini') }}"
+
+- include_tasks: "cleanup-{{ mysql_backup.handling }}.yml"
+
+# We assume it's safe to only go back 50 build back.
+- name: Delete mysql users.
+  mysql_user:
+    name: "{{ database.user }}_{{ item }}"
+    host_all: yes
+    state: absent
+    login_host: "{{ _mysql_host }}"
+    login_user: "{{ _mysql_user }}"
+    login_password: "{{ _mysql_password }}"
+  with_sequence: start={{ previous_build_number | int - 50 }} end={{ previous_build_number | int - mysql_backup.keep }}
+  when: mysql_backup.credentials_handling == 'rotate'

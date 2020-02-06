@@ -13,3 +13,7 @@
     login_user: "{{ _mysql_user }}"
     login_password: "{{ _mysql_password }}"
   when: previous_build_number == 0
+
+- name: Take a database dump.
+  shell: "mysqldump --defaults-extra-file={{ database.credentials_file }} {{ database.database }} | bzip2 > {{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2"
+  when: previous_build_number > 0 

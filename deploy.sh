@@ -20,7 +20,7 @@ usage(){
 cleanup_exit(){
   set +e
   if [ "$ANSIBLE_BUILD_RESULT" != 0 ]; then
-    /usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH"  --extra-vars '{deploy_operation: revert}' --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+    /usr/bin/ansible-playbook --verbose "$TARGET_PLAYBOOK_PATH"  --extra-vars '{deploy_operation: revert}' --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   fi
   if [ -n "$BUILD_DIR" ] && [ -d "$BUILD_DIR" ]; then
     rm -rf "$BUILD_DIR"
@@ -115,7 +115,7 @@ ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_DIR, build_number: $BUILD_
 repo_target_clone
 # Trigger actual provisioning. From this point on, we revert in case of failure.
 ANSIBLE_BUILD_RESULT=1
-/usr/bin/ansible-playbook "$TARGET_PLAYBOOK_PATH"  --extra-vars "{deploy_operation: deploy}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+/usr/bin/ansible-playbook --verbose "$TARGET_PLAYBOOK_PATH"  --extra-vars "{deploy_operation: deploy}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
 ANSIBLE_BUILD_RESULT=$?
 # Keep track of successful build.
 # This means we loose track of it when changing repo,
@@ -124,6 +124,9 @@ ANSIBLE_BUILD_RESULT=$?
 # so should not be an issue anyway.
 if [ -n "$ANSIBLE_BUILD_RESULT" ] && [ "$ANSIBLE_BUILD_RESULT" = 0 ]; then
   echo "$BUILD_NUMBER" > "$BUILD_FILE_TRACK"
+  # Clean up the builds. Note that we won't revert if that fail, as the "build" itself is successful.
+  # We still exit with an error, so it gets flagged.
+  /usr/bin/ansible-playbook --verbose "$TARGET_PLAYBOOK_PATH"  --extra-vars "{deploy_operation: cleanup}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   exit 0
 fi
 # Failed.

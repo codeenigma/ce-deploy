@@ -1,0 +1,9 @@
+---
+
+
+# We assume it's safe to only go back 50 build back.
+- name: Delete mysql dumps.
+  file:
+    path: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ item }}.sql.bz2"
+    state: absent
+  with_sequence: start={{ previous_build_number | int - 50 }} end={{ previous_build_number | int - mysql_backup.keep }}

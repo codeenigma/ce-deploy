@@ -1,0 +1,7 @@
+---
+
+- name: Delete codebases.
+  file:
+    name: "{{ deploy_path_prefix }}{{ item }}"
+    state: absent
+  with_sequence: start={{ previous_build_number | int - 50 }} end={{ previous_build_number | int - deploy_code.keep }}

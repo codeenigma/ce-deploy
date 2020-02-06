@@ -1,4 +1,5 @@
 ---
 
 - include_role:
-    name: "maintenance_mode/maintenance_mode-{{ maintenance_mode.mode }}"  
+    name: "maintenance_mode/maintenance_mode-{{ maintenance_mode.mode }}"
+  when: deploy_operation != 'cleanup'

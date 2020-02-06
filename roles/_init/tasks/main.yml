@@ -13,9 +13,12 @@
 - name: Define webroot.
   set_fact:
     webroot: "{{ webroot | default('www') }}"
+- name: Define build deploy path prefix.
+  set_fact:
+    deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
 - name: Define build deploy path.
   set_fact:
-    deploy_path: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
+    deploy_path: "{{ deploy_path_prefix }}{{ build_number }}"
 - name: Define live_symlink dest.
   set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
