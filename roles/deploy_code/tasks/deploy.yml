@@ -29,7 +29,7 @@
 - name: Create additional symlinks.
   file:
     src: "{{ link.src }}"
-    dest: "{{ link.dest }}"
+    dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
   with_items: "{{ deploy_code.symlinks }}"
   loop_control:
