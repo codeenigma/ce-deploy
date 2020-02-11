@@ -33,6 +33,6 @@
     state: link
   with_items: "{{ deploy_code.symlinks }}"
   loop_control:
-    loop_var: site
+    loop_var: link
   when: 
    - deploy_code.symlinks | length
