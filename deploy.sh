@@ -78,6 +78,7 @@ ANSIBLE_BUILD_RESULT=0
 OWN_DIR=$(dirname "$0")
 cd "$OWN_DIR" || exit 1
 OWN_DIR=$(pwd -P)
+export ANSIBLE_CONFIG="$OWN_DIR/ansible.cfg"
 
 # Make sure we exit cleanly.
 trap cleanup_exit EXIT INT TERM QUIT HUP
