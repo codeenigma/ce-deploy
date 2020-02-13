@@ -7,4 +7,6 @@ drupal:
     - folder: "default"
       public_files: "sites/default/files"
       config_sync_directory: "config/sync"
-      config_import_command: "cim"
+      #config_import_command: "cim"
+      config_import_command: ""
+      sanitize_command: "sql-sanitize"

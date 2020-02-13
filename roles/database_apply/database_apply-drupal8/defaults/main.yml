@@ -1,6 +1,0 @@
----
-drupal:
-  sites:
-    - folder: "default"
-      public_files: "sites/default/files"
-      config_import_command: cim

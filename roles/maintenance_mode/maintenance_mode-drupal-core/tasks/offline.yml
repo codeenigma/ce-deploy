@@ -1,5 +1,5 @@
 ---
-
+# @todo this needs refactoring for multisite.
 - name: Enable maintenance mode.
   command: 
     cmd: "{{ drush_bin }} state:set system.maintenance_mode 1 --input-format=integer"
