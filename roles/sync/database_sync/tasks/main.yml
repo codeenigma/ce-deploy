@@ -5,7 +5,7 @@
 
 - name: Sync databases.
   include_role:
-    name: "database_sync/database_sync-{{ engine }}"
+    name: "sync/database_sync/database_sync-{{ engine }}"
   with_items: "{{ database_sync.engines }}"
   loop_control:
     loop_var: engine
