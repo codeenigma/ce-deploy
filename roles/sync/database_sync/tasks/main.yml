@@ -1,8 +1,5 @@
 ---
 
-- set_fact:
-    build_databases: []
-
 - name: Sync databases.
   include_role:
     name: "sync/database_sync/database_sync-{{ engine }}"
