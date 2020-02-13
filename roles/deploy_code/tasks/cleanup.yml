@@ -4,4 +4,4 @@
   file:
     name: "{{ deploy_path_prefix }}{{ item }}"
     state: absent
-  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }} end={{ previous_build_number | int - deploy_code.keep }}
+  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
