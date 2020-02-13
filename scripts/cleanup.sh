@@ -19,6 +19,8 @@ usage(){
 }
 
 # Common processing.
+OWN_DIR=$(dirname "$0")
+cd "$OWN_DIR" || exit 1
 OWN_DIR=$(git rev-parse --show-toplevel)
 cd "$OWN_DIR" || exit 1
 OWN_DIR=$(pwd -P)
