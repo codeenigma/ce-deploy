@@ -32,7 +32,7 @@ if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TA
 fi
 
 # Construct track path.
-set_build_track_file
+get_build_track_file
 
 # Check if we know about previous builds.
 get_previous_build_number

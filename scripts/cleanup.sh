@@ -40,7 +40,7 @@ fi
 # If we have no workspace, create it and clone the repo.
 if [ -z "$BUILD_WORKSPACE" ]; then
   trap cleanup_build_workspace EXIT INT TERM QUIT HUP
-  set_build_workspace
+  get_build_workspace
   repo_target_clone
 fi
 

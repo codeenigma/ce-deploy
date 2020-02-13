@@ -68,7 +68,7 @@ get_build_workspace(){
   if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
     mkdir "$BUILD_WORKSPACE_BASE"
   fi
-  BUILD_WORKSPACE=$(mktemp -d -p "$BUILD_DIR_BASE")
+  BUILD_WORKSPACE=$(mktemp -d -p "$BUILD_WORKSPACE_BASE")
 }
 
 # Common extra-vars to pass to Ansible.

@@ -50,7 +50,10 @@ OWN_DIR=$(pwd -P)
 
 # Parse options.
 parse_options "$@"
-
+echo $TARGET_DEPLOY_REPO
+echo $TARGET_DEPLOY_PLAYBOOK
+echo $TARGET_DEPLOY_BRANCH
+echo $CURRENT_BUILD_NUMBER
 # Check we have enough arguments.
 if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TARGET_DEPLOY_BRANCH" ] || [ -z "$CURRENT_BUILD_NUMBER" ]; then
  usage
@@ -63,7 +66,7 @@ trap revert_exit EXIT INT TERM QUIT HUP
 # If we have no workspace, create it and clone the repo.
 if [ -z "$BUILD_WORKSPACE" ]; then
   BUILD_WORKSPACE_TYPE='local'
-  set_build_workspace
+  get_build_workspace
   repo_target_clone
 fi
 
