@@ -73,7 +73,7 @@ get_build_workspace(){
 
 # Common extra-vars to pass to Ansible.
 get_ansible_defaults_vars(){
-  ANSIBLE_DEFAULT_EXTRA_VARS="{local_build_path: $BUILD_WORKSPACE, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  ANSIBLE_DEFAULT_EXTRA_VARS="{ansible_deploy_scripts_local_path: $OWN_DIR, local_build_path: $BUILD_WORKSPACE, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
 }
 
 # Fetch previous build number from track file.
