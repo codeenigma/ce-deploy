@@ -1,0 +1,7 @@
+---
+
+- name: Sync database.
+  include_tasks: "sync.yml"
+  with_items: "{{ mysql_sync.databases }}"
+  loop_control:
+    loop_var: database

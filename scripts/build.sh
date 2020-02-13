@@ -50,10 +50,7 @@ OWN_DIR=$(pwd -P)
 
 # Parse options.
 parse_options "$@"
-echo $TARGET_DEPLOY_REPO
-echo $TARGET_DEPLOY_PLAYBOOK
-echo $TARGET_DEPLOY_BRANCH
-echo $CURRENT_BUILD_NUMBER
+
 # Check we have enough arguments.
 if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TARGET_DEPLOY_BRANCH" ] || [ -z "$CURRENT_BUILD_NUMBER" ]; then
  usage

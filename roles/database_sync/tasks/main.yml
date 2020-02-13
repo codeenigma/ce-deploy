@@ -3,7 +3,7 @@
 - set_fact:
     build_databases: []
 
-- name: Take database dumps.
+- name: Sync databases.
   include_role:
     name: "database_sync/database_sync-{{ engine }}"
   with_items: "{{ database_sync.engines }}"
