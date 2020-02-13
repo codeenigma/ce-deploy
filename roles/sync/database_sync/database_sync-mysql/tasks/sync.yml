@@ -2,22 +2,51 @@
 
 - name: Register remote dump name (from database).
   set_fact:
-    mysql_sync_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
-  when: not database.source.type = 'dump'
+    mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
+  when: not database.source.type == 'dump'
 
 - name: Register existing remote dump name.
   set_fact:
-    mysql_sync_dump_path: "{{ database.source.database }}"
-  when: database.source.type = 'dump'
+    mysql_sync_source_dump_path: "{{ database.source.database }}"
+  when: database.source.type == 'dump'
+
+- name: Register target dump name.
+  set_fact:
+    mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}.sql.bz2"
+
+- name: Get last known good build number.
+  local_action:
+    module: command 
+    argv: 
+      - "/bin/sh"
+      - "{{ ansible_deploy_scripts_local_path }}/scripts/track-get.sh"
+      - "--repo"
+      - "{{ database.target.build_info.repo }}"
+      - "--branch"
+      - "{{ database.target.build_info.branch }}"
+      - "--playbook"
+      - "{{ database.target.build_info.playbook }}"
+  register: mysql_sync_target_build_number
+  when: database.target.type == 'rolling'
+
+- name: Register target database name.
+  set_fact:
+    mysql_sync_target_database: "{{ database.target.database }}_{{ mysql_sync_target_build_number.stdout }}"
+  when: database.target.type == 'rolling'
+
+- name: Register target database name.
+  set_fact:
+    mysql_sync_target_database: "{{ database.target.database }}"
+  when: not database.target.type == 'rolling'
 
 - name: Take a dump from source database.
-  shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ database.source.database }} | bzip2 > {{ mysql_sync_dump_path }}"
+  shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ database.source.database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
   delegate_to: "{{ database.source.host }}"
-  when: not database.source.type = 'dump'
+  when: not database.source.type == 'dump'
 
 - name: Fetch dump file.
   fetch: 
-    src: "{{ mysql_sync_dump_path }}"
+    src: "{{ mysql_sync_source_dump_path }}"
     dest: "{{ local_build_path }}/{{ database.target.database }}.sql.bz2"
     flat: yes
   delegate_to: "{{ database.source.host }}"
@@ -25,61 +54,7 @@
 - name: Copy dump file to destination.
   copy:
     src: "{{ local_build_path }}/{{ database.target.database }}.sql.bz2"
-    dest: "/tmp/{{ database.target.database }}.sql.bz2"
-# - name: Grab mysql credentials.
-#   fetch:
-#     src: "{{ database.credentials_file }}"
-#     dest: "build/mysql_backup_credentials.ini"
-#     flat: yes
+    dest: "{{ mysql_sync_target_dump_path }}"
 
-# # Credentials for "managing" databases.
-# - set_fact:
-#     _mysql_host: "{{ lookup('ini', 'host section=client file=build/mysql_backup_credentials.ini') }}"
-# - set_fact:
-#     _mysql_user: "{{ lookup('ini', 'user section=client file=build/mysql_backup_credentials.ini') }}"
-# - set_fact:
-#     _mysql_password: "{{ lookup('ini', 'password section=client file=build/mysql_backup_credentials.ini') }}"
-# # Credentials for the app itself.
-# # Manual: reuse given creds. Note the user gets ignored.
-# - set_fact:
-#     _mysql_build_user_name: "{{ _mysql_user }}"
-#   when: mysql_backup.credentials_handling == 'manual'
-# - set_fact:
-#     _mysql_build_password: "{{ _mysql_password }}"
-#   when: mysql_backup.credentials_handling == 'manual'
-# # Static: create/update user/pwd only once.
-# - set_fact:
-#     _mysql_build_user_name: "{{ database.user }}"
-#   when: mysql_backup.credentials_handling == 'static'
-# - set_fact:
-#     _mysql_build_password: "{{ lookup('password', '/etc/ansible/data/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
-#   when: mysql_backup.credentials_handling == 'static'
-# # Rotate: create user/pwd on each build.
-# - set_fact:
-#     _mysql_build_user_name: "{{ database.user }}_{{ build_number }}"
-#   when: mysql_backup.credentials_handling == 'rotate'
-# - set_fact:
-#     _mysql_build_password: "{{ lookup('password', '/dev/null') }}"
-#   when: mysql_backup.credentials_handling == 'rotate'
-
-# - include_tasks: "deploy-{{ mysql_backup.handling }}.yml"
-
-# # We append privileges instead of replacing,
-# # to allow this role to be looped over,
-# # for multisites or projects with multiple databases.
-# # @todo deal with host for user.
-# # @todo clean when we delete builds.
-# - name: Create/update mysql user.
-#   command: mysql --defaults-extra-file={{ database.credentials_file }} -e "GRANT ALL ON {{ _mysql_build_database_name }}.* TO '{{ _mysql_build_user_name}}'@'%' IDENTIFIED BY '{{ _mysql_build_password }}';"
-#   when: ( mysql_backup.credentials_handling == 'rotate' ) or ( mysql_backup.credentials_handling == 'static' )
-
-# - set_fact:
-#     _build_database:
-#       original: "{{ database }}"
-#       name: "{{ _mysql_build_database_name }}"
-#       user: "{{ _mysql_build_user_name }}"
-#       password: "{{ _mysql_build_password }}"
-#       host: "{{ _mysql_host }}"
-
-# - set_fact:
-#     build_databases: "{{ build_databases + [ _build_database ] }}"
+- name: Revert database from dump.
+  shell: "bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
