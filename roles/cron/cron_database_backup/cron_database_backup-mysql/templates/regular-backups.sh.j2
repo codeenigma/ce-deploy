@@ -3,12 +3,13 @@
 DBUSER='{{ database.user }}'
 DBPASSWORD='{{ database.password }}'
 DBHOST='{{ database.host }}'
-DBNAME='{{ database.name }}'
+DB_NAME='{{ database.original.database }}'
+CURRENT_DBNAME='{{ database.name }}'
 TARGET_DIR="{{ cron_mysql_backup.dumps_directory }}/$DBHOST"
 TARBALL="$DBNAME-$(date -Iseconds).sql.bz2"
 KEEP=$(({{ database.original.backup.keep | default(cron_mysql_backup.keep) }}+1))
 backup(){
-  mysqldump -u"$DBUSER" -p"$DBPASSWORD" -h"$DBHOST" "$DBNAME" | bzip2 > "$TARGET_DIR/$TARBALL"
+  mysqldump -u"$DBUSER" -p"$DBPASSWORD" -h"$DBHOST" "$CURRENT_DBNAME" | bzip2 > "$TARGET_DIR/$TARBALL"
 }
 
 cleanup(){

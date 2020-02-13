@@ -1,0 +1,9 @@
+---
+
+mysql_backup:
+  handling: rolling
+  databases:
+    - source:
+        database: "{{ project_name }}_prod"
+        user: "{{ project_name }}_{{ build_type }}"
+        credentials_file: "/home/{{ deploy_user }}/.mysql.creds"

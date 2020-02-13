@@ -1,0 +1,12 @@
+---
+
+- set_fact:
+    build_databases: []
+
+- name: Take database dumps.
+  include_role:
+    name: "database_sync/database_sync-{{ engine }}"
+  with_items: "{{ database_sync.engines }}"
+  loop_control:
+    loop_var: engine
+  when: deploy_operation == 'deploy'
