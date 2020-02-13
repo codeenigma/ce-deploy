@@ -1,4 +1,7 @@
 /config
 /build
+/data
+/hosts
+/ansible.cfg
 /track
 *.retry
