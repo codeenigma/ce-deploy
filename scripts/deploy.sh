@@ -3,14 +3,14 @@
 set -eu
 
 usage(){
-  echo 'deploy.sh [OPTIONS] --repo <git repo to deploy> --branch <branch to deploy> --playbook <path to playbook> --buildnumber < incremental build number>'
+  echo 'deploy.sh [OPTIONS] --repo <git repo to deploy> --branch <branch to deploy> --playbook <path to playbook> --build-number < incremental build number>'
   echo 'Deploy an application.'
   echo ''
   echo 'Mandatory arguments:'
   echo '--repo: Path to a remote git repo. The "deploy" user must have read access to it.'
   echo '--branch: The branch to deploy.'
   echo '--playbook: Relative path to an ansible playbook within the repo.'
-  echo '--buildnumber: an incremental build number'
+  echo '--build-number: an incremental build number'
   echo ''
   echo 'Available options:'
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
