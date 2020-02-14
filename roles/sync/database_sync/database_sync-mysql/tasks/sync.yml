@@ -56,5 +56,11 @@
     src: "{{ local_build_path }}/{{ database.target.database }}.sql.bz2"
     dest: "{{ mysql_sync_target_dump_path }}"
 
-- name: Revert database from dump.
+- name: Drop target database.
+  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} drop database {{ mysql_sync_target_database }}"
+
+- name: Recreate target database.
+  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} create database {{ mysql_sync_target_database }}"
+
+- name: Repopulate database from dump.
   shell: "bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
