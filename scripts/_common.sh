@@ -2,6 +2,9 @@
 
 set -eu
 
+export ANSIBLE_FORCE_COLOR=true
+export ANSIBLE_CONFIG="$OWN_DIR/ansible.cfg"
+
 # Default variables.
 TARGET_DEPLOY_REPO=""
 TARGET_DEPLOY_PLAYBOOK=""
