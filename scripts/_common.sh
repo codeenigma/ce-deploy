@@ -78,7 +78,7 @@ get_ansible_defaults_vars(){
 
 # Fetch previous build number from track file.
 get_previous_build_number(){
-  get_build_track_filegi
+  get_build_track_file
   PREVIOUS_BUILD_NUMBER=0
   if [ -f "$BUILD_TRACK_FILE" ]; then
     PREVIOUS_BUILD_NUMBER=$(cat "$BUILD_TRACK_FILE")
