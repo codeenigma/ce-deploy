@@ -18,7 +18,7 @@
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
 - name: Define build deploy path.
   set_fact:
-    deploy_path: "{{ deploy_path_prefix }}{{ build_number }}"
+    deploy_path: "{{ deploy_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
 - name: Define live_symlink dest.
   set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
