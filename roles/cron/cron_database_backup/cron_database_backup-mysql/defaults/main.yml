@@ -1,4 +1,4 @@
 ---
 cron_mysql_backup:
-  dumps_directory: "/home/{{ deploy_user.username }}/db_backups/mysql/regular/{{ project_name }}/{{ build_type }}"
+  dumps_directory: "/home/{{ deploy_user }}/db_backups/mysql/regular/{{ project_name }}/{{ build_type }}"
   keep: 10

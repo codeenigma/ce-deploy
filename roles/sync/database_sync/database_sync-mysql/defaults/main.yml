@@ -8,7 +8,7 @@ mysql_sync:
         # Host that can connect to the database.
         host: "localhost"
         # Creds file on the host.
-        credentials_file: "/home/{{ deploy_user.username }}/.mysql.creds"
+        credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
         # This can be of types:
         # - rolling: (database backups). In that case we'll need build parameters.@todo
         # - fixed: "fixed" database name
@@ -21,7 +21,7 @@ mysql_sync:
           build_type: "prod"
       target:
           database: "{{ project_name }}_dev"
-          credentials_file: "/home/{{ deploy_user.username }}/.mysql.creds"
+          credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
           type: fixed
           # For "rolling builds", so we can compute the database name.
           build_info:

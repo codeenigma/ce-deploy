@@ -2,7 +2,7 @@
 
 mysql_backup:
   handling: rolling
-  dumps_directory: "/home/{{ deploy_user.username }}/db_backups/mysql/build/{{ project_name }}/{{ build_type }}"
+  dumps_directory: "/home/{{ deploy_user }}/db_backups/mysql/build/{{ project_name }}/{{ build_type }}"
   # Number of dumps/db to keep. Note this is independant from the build codebases.
   keep: 10
   # This can be one of the following:
@@ -19,4 +19,4 @@ mysql_backup:
   databases:
     - database: "{{ project_name }}_{{ build_type }}"
       user: "{{ project_name }}_{{ build_type }}"
-      credentials_file: "/home/{{ deploy_user.username }}/.mysql.creds"
+      credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
