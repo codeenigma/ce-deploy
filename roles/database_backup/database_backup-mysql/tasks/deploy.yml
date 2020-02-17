@@ -26,7 +26,7 @@
     _mysql_build_user_name: "{{ database.user }}"
   when: mysql_backup.credentials_handling == 'static'
 - set_fact:
-    _mysql_build_password: "{{ lookup('password', '/etc/ansible/data/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
+    _mysql_build_password: "{{ lookup('password', '{{ ansible_deploy_scripts_local_path }}/data/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
   when: mysql_backup.credentials_handling == 'static'
 # Rotate: create user/pwd on each build.
 - set_fact:
