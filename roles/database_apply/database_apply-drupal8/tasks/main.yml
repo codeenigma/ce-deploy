@@ -23,7 +23,7 @@
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site
-  when: previous_build_number == 0
+  when: previous_build_number == 0 or (site.force_install is defined and site.force_install)
 
 - name: Apply Drupal database updates.
   command:
