@@ -3,7 +3,7 @@
 - name: Grab mysql credentials.
   fetch:
     src: "{{ database.credentials_file }}"
-    dest: "build/mysql_backup_credentials.ini"
+    dest: "{{ local_build_path }}/mysql_backup_credentials.ini"
     flat: yes
 
 # Credentials for "managing" databases.
