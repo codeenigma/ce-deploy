@@ -19,7 +19,7 @@
     module: command 
     argv: 
       - "/bin/sh"
-      - "{{ ansible_deploy_scripts_local_path }}/scripts/track-get.sh"
+      - "{{ _ansible_deploy_base_dir }}/scripts/track-get.sh"
       - "--repo"
       - "{{ database.target.build_info.repo }}"
       - "--branch"
