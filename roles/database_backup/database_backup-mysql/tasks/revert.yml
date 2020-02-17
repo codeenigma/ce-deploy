@@ -8,11 +8,11 @@
 
 # Credentials for "managing" databases.
 - set_fact:
-    _mysql_host: "{{ lookup('ini', 'host section=client file=build/mysql_backup_credentials.ini') }}"
+    _mysql_host: "{{ lookup('ini', 'host section=client file={{ local_build_path }}/mysql_backup_credentials.ini') }}"
 - set_fact:
-    _mysql_user: "{{ lookup('ini', 'user section=client file=build/mysql_backup_credentials.ini') }}"
+    _mysql_user: "{{ lookup('ini', 'user section=client file={{ local_build_path }}/mysql_backup_credentials.ini') }}"
 - set_fact:
-    _mysql_password: "{{ lookup('ini', 'password section=client file=build/mysql_backup_credentials.ini') }}"
+    _mysql_password: "{{ lookup('ini', 'password section=client file={{ local_build_path }}/mysql_backup_credentials.ini') }}"
 
 - include_tasks: "revert-{{ mysql_backup.handling }}.yml"
   when: previous_build_number > 0
