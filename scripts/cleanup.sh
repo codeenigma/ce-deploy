@@ -37,6 +37,8 @@ if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TA
  exit 1
 fi
 
+trap cleanup_build_tmp_dir EXIT INT TERM QUIT HUP
+
 # If we have no workspace, create it and clone the repo.
 if [ -z "$BUILD_WORKSPACE" ]; then
   trap cleanup_build_workspace EXIT INT TERM QUIT HUP

@@ -29,6 +29,7 @@ revert_exit(){
   if [ "$BUILD_WORKSPACE_TYPE" != 'external' ]; then
     cleanup_build_workspace
   fi
+  cleanup_build_tmp_dir
 }
 
 # Define initial success/failure state. 

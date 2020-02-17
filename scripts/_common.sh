@@ -15,6 +15,19 @@ ANSIBLE_EXTRA_VARS=""
 ANSIBLE_DEFAULT_EXTRA_VARS=""
 BUILD_WORKSPACE=""
 BUILD_TRACK_FILE=""
+BUILD_WORKSPACE_BASE="$OWN_DIR/build"
+if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
+    mkdir "$BUILD_WORKSPACE_BASE"
+fi
+BUILD_TMP_DIR=$(mktemp -d -p "$BUILD_WORKSPACE_BASE")
+ANSIBLE_DATA_DIR="$OWN_DIR/data"
+if [ ! -d "$ANSIBLE_DATA_DIR" ]; then
+    mkdir "$ANSIBLE_DATA_DIR"
+fi
+BUILD_TRACK_DIR="$OWN_DIR/track"
+if [ ! -d "$BUILD_TRACK_DIR" ]; then
+  mkdir "$BUILD_TRACK_DIR"
+fi
 # Parse options arguments.
 parse_options(){
   while [ "${1:-}" ]; do
@@ -58,25 +71,17 @@ parse_options(){
 
 # Path to the track file for given build.
 get_build_track_file(){
-  BUILD_TRACK_DIR="$OWN_DIR/track"
-  if [ ! -d "$BUILD_TRACK_DIR" ]; then
-    mkdir "$BUILD_TRACK_DIR"
-  fi
   BUILD_TRACK_FILE="$BUILD_TRACK_DIR/$(echo "$TARGET_DEPLOY_REPO-$TARGET_DEPLOY_BRANCH-$TARGET_DEPLOY_PLAYBOOK" | tr / -)"
 }
 
 # Compute defaults variables.
 get_build_workspace(){
-  BUILD_WORKSPACE_BASE="$OWN_DIR/build"
-  if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
-    mkdir "$BUILD_WORKSPACE_BASE"
-  fi
   BUILD_WORKSPACE=$(mktemp -d -p "$BUILD_WORKSPACE_BASE")
 }
 
 # Common extra-vars to pass to Ansible.
 get_ansible_defaults_vars(){
-  ANSIBLE_DEFAULT_EXTRA_VARS="{ansible_deploy_scripts_local_path: $OWN_DIR, local_build_path: $BUILD_WORKSPACE, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  ANSIBLE_DEFAULT_EXTRA_VARS="{_ansible_deploy_base_dir: $OWN_DIR, _ansible_deploy_build_dir: $BUILD_WORKSPACE, _ansible_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ansible_deploy_data_dir: $ANSIBLE_DATA_DIR, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
 }
 
 # Fetch previous build number from track file.
@@ -105,7 +110,15 @@ cleanup_build_workspace(){
   if [ -n "$BUILD_WORKSPACE" ] && [ -d "$BUILD_WORKSPACE" ]; then
     rm -rf "$BUILD_WORKSPACE"
   fi
+  cleanup_build_tmp_dir
 }
+# Remove tmp directory.
+cleanup_build_tmp_dir(){
+  if [ -n "$BUILD_TMP_DIR" ] && [ -d "$BUILD_TMP_DIR" ]; then
+    rm -rf "$BUILD_TMP_DIR"
+  fi
+}
+
 # Trigger actual Ansible job.
 # $1 (string)
 # Operation to perform.

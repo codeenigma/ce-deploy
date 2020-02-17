@@ -2,7 +2,7 @@
 
 - name: Copy project repository.
   synchronize:
-    src: "{{ local_build_path }}/"
+    src: "{{ _ansible_deploy_build_dir }}/"
     dest: "{{ deploy_path }}"
     archive: yes
     rsync_opts:
