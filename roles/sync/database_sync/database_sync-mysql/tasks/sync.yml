@@ -57,10 +57,10 @@
     dest: "{{ mysql_sync_target_dump_path }}"
 
 - name: Drop target database.
-  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} drop database {{ mysql_sync_target_database }}"
+  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database {{ mysql_sync_target_database }};'"
 
 - name: Recreate target database.
-  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} create database {{ mysql_sync_target_database }}"
+  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
 
 - name: Repopulate database from dump.
   shell: "bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
