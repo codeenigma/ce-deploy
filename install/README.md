@@ -21,6 +21,6 @@ Past this step, the vars.yml file can be safely deleted.
 
 ## Configuration
 Past the initial setup, you will want to manage your configuration (hosts, etc) independantly.
-To do so, amend the default that have been cloned in the "config" subdirectory, and 
+To do so, amend the default that have been cloned in the "config" subdirectory, and
 - point the git remote to the new location in which you want to manage your configuration
 - make sure the ansible_deploy.config_repository variable defaults to the same repository.

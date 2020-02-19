@@ -8,9 +8,11 @@ When triggered from a deployment tool, the stack will clone the codebase and "pl
 <!--TOC-->
 ## [Install](install/README.md)
 The stack only gets tested on Debian Buster, but should run on any Linux distribution, as long as Ansible >=2.9 is present.
-## [Manual install](install/README.md#manual-install)
-## [ansible-provision](install/README.md#ansible-provision)
+
+## [Using ansible-provision](install/README.md#using-ansible-provision)
 ## [Docker](install/README.md#docker)
+## [Manual install](install/README.md#manual-install)
+## [Configuration](install/README.md#configuration)
 ## [Usage](scripts/README.md)
 While you can re-use/fork roles or call playbooks directly from your deployment tool, it is recommended to use the provided wrapper scripts, as they will take care of setting up the needed environments.
 ## [Bundle script](scripts/README.md#bundle-script)
