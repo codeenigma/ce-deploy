@@ -1,10 +1,14 @@
 # ansible-deploy
+A set of Ansible roles and wrapper scripts to deploy (web) applications.
+## Overview
+The "stack" from this repo is to be installed on a "deploy" server/runner, to be used in conjonction with a CI/CD tool (Jenkins, Gitlab, Travis, ...).
+The "targets" for the deployments need to be accessible through SSH for Ansible to reach them.
 <!--TOC-->
 ## [Install](install/README.md)
-
-## [Docker](install/README.md#docker)
-## [ansible-provision](install/README.md#ansible-provision)
+The stack only gets tested on Debian Buster, but should run on any Linux distribution, as long as Ansible >=2.9 is present.
 ## [Manual install](install/README.md#manual-install)
+## [ansible-provision](install/README.md#ansible-provision)
+## [Docker](install/README.md#docker)
 ## [Usage](scripts/README.md)
 ## [Roles](roles/README.md)
 ### ["Meta"](roles/_meta/README.md)
