@@ -27,7 +27,8 @@ Ansible roles and group of roles that constitute the deploy stack.
 Roles that sync data/assets between environments.
 ### ["Meta"](roles/_meta/README.md)
 Roles that bundles other individual roles together for tackling common use cases.
-### [Database backup step.](roles/database_backup/README.md)
+### [Data backups](roles/database_backup/README.md)
+Generate backups for each build.
 ### [Cron](roles/cron/README.md)
 Roles to generate cron entries.
 ### [Code deployment](roles/code/README.md)
