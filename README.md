@@ -2,7 +2,9 @@
 A set of Ansible roles and wrapper scripts to deploy (web) applications.
 ## Overview
 The "stack" from this repo is to be installed on a "deploy" server/runner, to be used in conjonction with a CI/CD tool (Jenkins, Gitlab, Travis, ...).
-The "targets" for the deployments need to be accessible through SSH for Ansible to reach them.
+It allows the deploy steps for a given app to be easily customizable at will, and to be stored alongside the codebase of the project.
+When triggered from a deployment tool, the stack will clone the codebase and "play" a given deploy playbook from there.
+
 <!--TOC-->
 ## [Install](install/README.md)
 The stack only gets tested on Debian Buster, but should run on any Linux distribution, as long as Ansible >=2.9 is present.
