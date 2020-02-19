@@ -4,7 +4,6 @@ addons:
     - git
     - ansible
 script:
-  - useradd -s /bin/bash deploy
-  - chown -R deploy:deploy ../
-  - sudo su deploy -c 'cp install/example.vars.yml install/vars.yml'
+  - cp install/example.vars.yml install/vars.yml
+  - sed -i "s/ \"deploy\"/ $(whoami)/g" install/vars.yml
   - sudo su deploy -c 'ansible-playbook install/self-update.yml --extra-vars="@install/vars.yml"'
