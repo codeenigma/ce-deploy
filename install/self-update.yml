@@ -30,20 +30,6 @@
       set_fact:
         ansible_deploy_has_config_repo: "{{ 'yes' if ansible_deploy_config_repo.stat.isdir is defined and ansible_deploy_config_repo.stat.isdir else 'no' }}"
 
-    - name: Create defaults folders.
-      file:
-        path: "{{ ansible_deploy.local_dir }}/{{ item }}"
-        state: directory
-      with_items:
-        - hosts
-      when: not ansible_deploy_has_config_repo
-
-    - name: Create default config.
-      copy:
-        src: ansible.cfg
-        dest: "{{ ansible_deploy.local_dir }}/ansible.cfg"
-      when: not ansible_deploy_has_config_repo
-
     - name: Remove defaults folders.
       file:
         path: "{{ ansible_deploy.local_dir }}/{{ item }}"
@@ -67,10 +53,3 @@
       file:
         path: "{{ ansible_deploy.local_dir }}/data"
         state: directory
-
-    - name: Ensure ownership of Ansible folder.
-      file:
-        path: "{{ ansible_deploy.local_dir }}"
-        state: directory
-        owner: "{{ ansible_deploy.username }}"
-        recurse: yes
