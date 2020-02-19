@@ -1,0 +1,13 @@
+---
+
+ansible_deploy:
+  # The user you'll be running as (same as the user currently used for installing).
+  username: "deploy"
+  # Path to the main scripts, only amend if you wanted to fork them.
+  own_repository: "https://github.com/codeenigma/ansible-deploy.git"
+  own_repository_branch: "master"
+  # Repo holding your "private" configuration, leave empty to use default of if you manage this by other means.
+  config_repository: ""
+  config_repository_branch: "master"
+  # Where to clone the stack.
+  local_dir: "{{ playbook_dir | dirname }}"

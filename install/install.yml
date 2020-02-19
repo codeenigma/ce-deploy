@@ -1,0 +1,76 @@
+---
+- hosts: "localhost"
+  vars_files:
+    - vars.yml
+  tasks:
+    - name: Ensure deploy scripts are presents.
+      git:
+        repo: "{{ ansible_deploy.own_repository | default('https://github.com/codeenigma/ansible-deploy.git')}}"
+        dest: "{{ ansible_deploy.local_dir }}"
+        version: "{{ ansible_deploy.own_repository_branch  | default('master') }}"
+        update: yes
+        accept_hostkey: yes
+      become: yes
+      become_user: "{{ ansible_deploy.username }}"
+
+    - name: Checkout config directory.
+      git:
+        repo: "{{ ansible_deploy.config_repository }}"
+        accept_hostkey: yes
+        dest: "{{ ansible_deploy.local_dir }}/config"
+      become: yes
+      become_user: "{{ ansible_deploy.username }}"
+      when: ansible_deploy.config_repository is defined and ansible_deploy.config_repository
+    - name: Check if we have a config directory.
+      stat:
+        path: "{{ ansible_deploy.local_dir }}/config"
+      register: ansible_deploy_config_repo
+
+    - name: Register config repository.
+      set_fact:
+        ansible_deploy_has_config_repo: "{{ 'yes' if ansible_deploy_config_repo.stat.isdir is defined and ansible_deploy_config_repo.stat.isdir else 'no' }}"
+
+    - name: Create defaults folders.
+      file:
+        path: "{{ ansible_deploy.local_dir }}/{{ item }}"
+        state: directory
+      with_items:
+        - hosts
+      when: not ansible_deploy_has_config_repo
+
+    - name: Create default config.
+      copy:
+        src: ansible.cfg
+        dest: "{{ ansible_deploy.local_dir }}/ansible.cfg"
+      when: not ansible_deploy_has_config_repo
+
+    - name: Remove defaults folders.
+      file:
+        path: "{{ ansible_deploy.local_dir }}/{{ item }}"
+        state: absent
+      with_items:
+        - hosts
+        - ansible.cfg
+      when: ansible_deploy_has_config_repo
+
+    - name: Symlink config folders to /etc/ansible.
+      file:
+        dest: "{{ ansible_deploy.local_dir }}/{{ item }}"
+        src: "{{ ansible_deploy.local_dir }}/config/{{ item }}"
+        state: link
+      with_items:
+        - hosts
+        - ansible.cfg
+      when: ansible_deploy_has_config_repo
+
+    - name: Create data dir.
+      file:
+        path: "{{ ansible_deploy.local_dir }}/data"
+        state: directory
+
+    - name: Ensure ownership of Ansible folder.
+      file:
+        path: "{{ ansible_deploy.local_dir }}"
+        state: directory
+        owner: "{{ ansible_deploy.username }}"
+        recurse: yes
