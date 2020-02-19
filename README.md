@@ -8,22 +8,28 @@ When triggered from a deployment tool, the stack will clone the codebase and "pl
 <!--TOC-->
 ## [Install](install/README.md)
 The stack only gets tested on Debian Buster, but should run on any Linux distribution, as long as Ansible >=2.9 is present.
+You can install either:
+- through [ansible-provision](https://github.com/codeenigma/ansible-provision)
+- manually by running a local playbook
+- with Docker (soon)
 
-### [Using ansible-provision](install/README.md#using-ansible-provision)
-### [Docker](install/README.md#docker)
-### [Manual install](install/README.md#manual-install)
+### [Install with ansible-provision](install/README.md#install-with-ansible-provision)
+### [Install manually](install/README.md#install-manually)
+### [Install with Docker](install/README.md#install-with-docker)
 ### [Configuration](install/README.md#configuration)
 ## [Usage](scripts/README.md)
 While you can re-use/fork roles or call playbooks directly from your deployment tool, it is recommended to use the provided wrapper scripts, as they will take care of setting up the needed environments.
-### [Bundle script](scripts/README.md#bundle-script)
-### [Individual scripts](scripts/README.md#individual-scripts)
+### [Deploy with the "build" script](scripts/README.md#deploy-with-the-build-script)
+### [Deploy with individual steps](scripts/README.md#deploy-with-individual-steps)
 ## [Roles](roles/README.md)
+Ansible roles and group of roles that constitute the deploy stack.
+### [Sync roles](roles/sync/README.md)
+Roles that sync data/assets between environments.
 ### ["Meta"](roles/_meta/README.md)
 Roles that bundles other individual roles together for tackling common use cases.
 ### [Database backup step.](roles/database_backup/README.md)
-### [A Collection of cron-related tasks.](roles/cron/README.md)
-By defaults those are run as the "deploy" user.
-
+### [Cron](roles/cron/README.md)
+Roles to generate cron entries.
 ### [Code deployment](roles/code/README.md)
 Roles managing the codebase: deployment, symlinks, composer steps, ...
 ### [CLI Tools](roles/cli/README.md)

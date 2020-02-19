@@ -1,6 +1,6 @@
 # Usage
 While you can re-use/fork roles or call playbooks directly from your deployment tool, it is recommended to use the provided wrapper scripts, as they will take care of setting up the needed environments.
-## Bundle script
+## Deploy with the "build" script
 In the script folder, you'll see a `build.sh` script. This is the easiest/safest way to trigger deployments, as it bundles all the steps in one.
 ### Arguments
 You will need to pass at least the following information:
@@ -24,7 +24,7 @@ This how you'd call the build.sh from Jenkins:
 ```
 
 
-## Individual scripts
+## Deploy with individual steps
 If you prefer having more control over the execution of steps, you can reproduce the same outcome using the other individual scripts.
 
 ### Steps

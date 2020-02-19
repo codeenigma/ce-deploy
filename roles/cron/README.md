@@ -1,7 +1,11 @@
-# A Collection of cron-related tasks.
-By defaults those are run as the "deploy" user.
+# Cron
+Roles to generate cron entries.
+<!--ROLEVARS-->
+<!--ENDROLEVARS-->
 
-## Database backup tasks.
-The collection of cron_database_backup tasks ensure regular backups of the dbs.
-Not that they rely on being called after the "build" database backup roles and can't
-be used independantly.
+<!--TOC-->
+## [Database backup cron task](cron_database_backup/README.md)
+Ensure regular local backups of databases.
+### [Database backup cron task - MySQL](cron_database_backup/cron_database_backup-mysql/README.md)
+Ensure regular local backups of MySQL databases.
+<!--ENDTOC-->
