@@ -5,4 +5,4 @@ addons:
     - ansible
 script:
   - cp install/example.vars.yml install/vars.yml
-  - ansible-playbook install/install.yml
+  - ansible-playbook install/self-update.yml --extra-vars="@install/vars.yml"
