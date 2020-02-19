@@ -104,7 +104,7 @@ extract_toc(){
         if [ "$(echo "$INDENT" | wc -m)" = "2" ]; then
           TITLE=$(echo "$LINE" | cut -c 4-)
           ANCHOR=$(echo "$TITLE" | tr ' ' '-'|  tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9\-')
-          echo "#$INDENT"" [$TITLE]($RELATIVE#$ANCHOR)" >> "$TMP_MD"
+          echo "##$INDENT"" [$TITLE]($RELATIVE#$ANCHOR)" >> "$TMP_MD"
         fi
       fi
       WRITE_INTRO="false"

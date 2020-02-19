@@ -9,7 +9,7 @@ Role for deploying single Drupal 8 instances, or multisites with a single databa
 ## [A Collection of cron-related tasks.](cron/README.md)
 By defaults those are run as the "deploy" user.
 
-## [Database backup tasks.](cron/README.md#database-backup-tasks)
+### [Database backup tasks.](cron/README.md#database-backup-tasks)
 ## [Code deployment](code/README.md)
 Roles managing the codebase: deployment, symlinks, composer steps, ...
 ### [Deploy](code/deploy_code/README.md)

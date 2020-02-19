@@ -9,14 +9,14 @@ When triggered from a deployment tool, the stack will clone the codebase and "pl
 ## [Install](install/README.md)
 The stack only gets tested on Debian Buster, but should run on any Linux distribution, as long as Ansible >=2.9 is present.
 
-## [Using ansible-provision](install/README.md#using-ansible-provision)
-## [Docker](install/README.md#docker)
-## [Manual install](install/README.md#manual-install)
-## [Configuration](install/README.md#configuration)
+### [Using ansible-provision](install/README.md#using-ansible-provision)
+### [Docker](install/README.md#docker)
+### [Manual install](install/README.md#manual-install)
+### [Configuration](install/README.md#configuration)
 ## [Usage](scripts/README.md)
 While you can re-use/fork roles or call playbooks directly from your deployment tool, it is recommended to use the provided wrapper scripts, as they will take care of setting up the needed environments.
-## [Bundle script](scripts/README.md#bundle-script)
-## [Individual scripts](scripts/README.md#individual-scripts)
+### [Bundle script](scripts/README.md#bundle-script)
+### [Individual scripts](scripts/README.md#individual-scripts)
 ## [Roles](roles/README.md)
 ### ["Meta"](roles/_meta/README.md)
 Roles that bundles other individual roles together for tackling common use cases.
@@ -30,5 +30,5 @@ Roles managing the codebase: deployment, symlinks, composer steps, ...
 Roles to install app-specific cli tool and utilities (Drush, ...)
 ## [Contribute](contribute/README.md)
 
-## [Documentation](contribute/README.md#documentation)
+### [Documentation](contribute/README.md#documentation)
 <!--ENDTOC-->
