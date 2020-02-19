@@ -6,9 +6,9 @@
 - import_role:
     name: _init
 - import_role:
-    name: deploy_code
+    name: code/deploy_code
 - import_role:
-    name: composer
+    name: code/composer
 - import_role:
     name: maintenance_mode
   vars:
@@ -17,11 +17,11 @@
 - import_role:
     name: database_backup
 - import_role:
-    name: config_generate
+    name: code/config_generate
 - import_role:
     name: database_apply
 - import_role:
-    name: live_symlink
+    name: code/live_symlink
 - import_role:
     name: maintenance_mode
   vars:

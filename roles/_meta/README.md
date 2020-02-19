@@ -1,1 +1,2 @@
-# "Meta roles" that group other roles together.
+# "Meta"
+Roles that bundles other individual roles together for tackling common use cases.
