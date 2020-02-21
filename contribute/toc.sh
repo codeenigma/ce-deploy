@@ -163,15 +163,34 @@ generate_role_variables(){
   fi
 }
 
+# @param
+# $1 (string) filename
+cp_file(){
+  RELATIVE=$(realpath --relative-to="$OWN_DIR" "$(dirname "$1")")
+  TARGET_DIR="$OWN_DIR/docs/$RELATIVE"
+  if [ ! -d "$TARGET_DIR" ]; then
+    mkdir -p "$TARGET_DIR"
+  fi
+  cp "$1" "$TARGET_DIR/"
+}
+
 # TOC Generation.
 parse_page "$OWN_DIR/README.md"
-# parse_subpages "$OWN_DIR/README.md"
-
+# Inject Ansible vars for roles.
 ROLE_PAGES=$(find "$OWN_DIR/roles" -name "README.md")
 for ROLE_PAGE in $ROLE_PAGES; do
   parse_role_variables "$ROLE_PAGE"
 done
-
+# Generates docs folder.
+rm -rf "$OWN_DIR/docs/*"
+cp "$OWN_DIR/README.md" "$OWN_DIR/docs/"
+for FIRST_LEVEL in $FIRST_LEVEL_DIRS; do
+  # Can't easily use exec here.
+  MD_FILES=$(find "$OWN_DIR/$FIRST_LEVEL" -name "README.md")
+  for MD_FILE in $MD_FILES; do
+    cp_file "$MD_FILE"
+  done
+done
 if [ -f "$TMP_MD" ]; then
   rm "$TMP_MD"
 fi
