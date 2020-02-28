@@ -88,16 +88,18 @@ generate_toc(){
 get_subpages(){
   SUBPAGES=""
   for ORDERED in $2; do
-    OWN_LEVEL=$(echo "$ORDERED" | grep -o '/' | wc -m)
-    BASE_LEVEL=$(echo "$1" | grep -o '/' | wc -m)
-    LEVEL=$((OWN_LEVEL-BASE_LEVEL))
+    LEVEL=$(echo "$RELATIVE" | grep -o '/' | wc -m)
     case $ORDERED in
       $1/*)
-      if [ "$LEVEL" -lt 3 ]; then
+      RELATIVE="$(realpath --relative-to="$OWN_DIR/docs/$1" "$OWN_DIR/docs/$ORDERED")"
+      LEVEL=$(echo "$RELATIVE" | grep -o '/' | wc -m)
+      if [ "$LEVEL" -lt 4 ]; then
         SUBPAGES="$SUBPAGES $ORDERED"
       fi
       ;;
       *)
+      RELATIVE="$ORDERED"
+      LEVEL=$(echo "$RELATIVE" | grep -o '/' | wc -m)
       if [ "$FIRST_PASS" = "true" ] && [ "$LEVEL" -lt 3 ] && [ ! "$ORDERED" = "$1" ]; then
         SUBPAGES="$SUBPAGES $ORDERED"
       fi
@@ -112,16 +114,18 @@ extract_toc(){
   WRITE_TITLE="true"
   WRITE_INTRO="false"
   INNER_TOC="false"
-  INDENT="#$(realpath --relative-to="$2" "$1" | grep -o '/' | tr -d "\n" | tr '/' '#')"
-  if [ $FIRST_PASS = "false" ]; then
-    INDENT="#$INDENT"
+  if [ $FIRST_PASS = "true" ]; then
+    RELATIVE="$1"
+  else
+    RELATIVE="$(realpath --relative-to="$OWN_DIR/docs/$2" "$OWN_DIR/docs/$1")"
   fi
+  INDENT="##$(echo "$RELATIVE" | grep -o '/' | tr -d "\n" | tr '/' '#')"
   while read -r LINE; do
     case $LINE in
     "# "*)
       if [ "$WRITE_TITLE" = "true" ]; then
         TITLE=$(echo "$LINE" | cut -c 3-)
-        echo "$INDENT"" [$TITLE]($1/README.md)" >> "$TMP_MD"
+        echo "$INDENT"" [$TITLE]($RELATIVE/README.md)" >> "$TMP_MD"
         WRITE_TITLE="false"
         WRITE_INTRO="true"
       fi
@@ -138,7 +142,7 @@ extract_toc(){
         if [ "$(echo "$INDENT" | wc -m)" = "2" ]; then
           TITLE=$(echo "$LINE" | cut -c 4-)
           ANCHOR=$(echo "$TITLE" | tr ' ' '-'|  tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9\-')
-          echo "$INDENT"" [$TITLE]($1/README.md#$ANCHOR)" >> "$TMP_MD"
+          echo "$INDENT"" [$TITLE]($RELATIVE/README.md#$ANCHOR)" >> "$TMP_MD"
         fi
       fi
       WRITE_INTRO="false"

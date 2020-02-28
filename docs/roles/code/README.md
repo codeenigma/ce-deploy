@@ -1,10 +1,12 @@
 # Code deployment
 Roles managing the codebase: deployment, symlinks, composer steps, ...
 <!--TOC-->
-## [Composer](roles/code/composer/README.md)
+## [Composer](composer/README.md)
 Performs a composer install on a freshly deployed codebase.
-## [Config](roles/code/config_generate/README.md)
+## [Config](config_generate/README.md)
 Generates config files and handles sensitive variables.
-## [Deploy](roles/code/deploy_code/README.md)
+### [Drupal 8](config_generate/config_generate-drupal8/README.md)
+Generates settings.php file for Drupal 8.
+## [Deploy](deploy_code/README.md)
 Step that deploys the codebase.
 <!--ENDTOC-->

@@ -4,6 +4,6 @@ Ensure regular local backups of databases.
 <!--ENDROLEVARS-->
 
 <!--TOC-->
-## [Database backup cron task - MySQL](roles/cron/cron_database_backup/cron_database_backup-mysql/README.md)
+## [Database backup cron task - MySQL](cron_database_backup-mysql/README.md)
 Ensure regular local backups of MySQL databases.
 <!--ENDTOC-->

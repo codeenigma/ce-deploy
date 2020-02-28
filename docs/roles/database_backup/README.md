@@ -12,6 +12,6 @@ engines:
 <!--ENDROLEVARS-->
 
 <!--TOC-->
-## [MySQL backups](roles/database_backup/database_backup-mysql/README.md)
+## [MySQL backups](database_backup-mysql/README.md)
 Generate MySQL backups for each build.
 <!--ENDTOC-->
