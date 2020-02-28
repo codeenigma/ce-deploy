@@ -5,8 +5,8 @@ Ensure regular local backups of MySQL databases.
 ```yaml
 ---
 cron_mysql_backup:
-  dumps_directory: "/home/{{ deploy_user }}/db_backups/mysql/regular/{{ project_name }}/{{ build_type }}"
-  keep: 10
+dumps_directory: "/home/{{ deploy_user }}/db_backups/mysql/regular/{{ project_name }}/{{ build_type }}"
+keep: 10
 ```
 
 <!--ENDROLEVARS-->

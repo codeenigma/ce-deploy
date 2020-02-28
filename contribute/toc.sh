@@ -1,5 +1,7 @@
 #!/bin/sh
 # shellcheck disable=SC2094
+# shellcheck disable=SC2000
+# shellcheck disable=SC2129
 
 OWN_DIR=$(dirname "$0")
 cd "$OWN_DIR" || exit 1
@@ -14,19 +16,25 @@ SUBPAGES=""
 TMP_MD="$OWN_DIR/.toc-tmp.md"
 FIRST_PASS="true"
 # @param
-# $1 (string) filename
+# $1 (string) relative dirname
+# $2 (string) list of all relative dirnames
 parse_page(){
+  SOURCE_FILE="$OWN_DIR/docs/$1/README.md"
+  if [ "$FIRST_PASS" = "true" ]; then
+    SOURCE_FILE="$OWN_DIR/docs/README.md"
+  fi
   if [ -f "$TMP_MD" ]; then
     rm "$TMP_MD"
   fi
+  touch "$TMP_MD"
   WRITE=1
   # Ensure we have a trailing line.
-  echo "" >> "$1"
+  echo "" >> "$SOURCE_FILE"
   while read -r LINE; do
     case $LINE in
     '<!--TOC-->')
       echo "$LINE" >> "$TMP_MD"
-      generate_toc "$1"
+      generate_toc "$1" "$2"
       WRITE=0
     ;;
     '<!--ENDTOC-->')
@@ -39,55 +47,77 @@ parse_page(){
     fi
     ;;
     esac
-  done < "$1"
-  printf '%s\n' "$(cat "$TMP_MD")" > "$1"
+  done < "$SOURCE_FILE"
+  printf '%s\n' "$(cat "$TMP_MD")" > "$SOURCE_FILE"
   rm "$TMP_MD"
   FIRST_PASS="false"
-  parse_subpages "$1"
 }
-parse_subpages(){
-  get_subpages "$1"
-  for SUBPAGE in $SUBPAGES; do
-    parse_page "$SUBPAGE"
+parse_pages(){
+  ORDERED_DIRS="docs"
+  for FIRST_LEVEL_DIR in $FIRST_LEVEL_DIRS; do
+    rm -rf "$OWN_DIR/docs/$FIRST_LEVEL_DIR"
+    PAGES=$(find "$OWN_DIR/$FIRST_LEVEL_DIR" -name README.md)
+    PAGES_DIRS=""
+    for PAGE in $PAGES; do
+      RELATIVE=$(realpath --relative-to="$OWN_DIR" "$(dirname "$PAGE")")
+      RELATIVE=$(printf '%s' "$RELATIVE" | sed "s@/_@/@g")
+      PAGES_DIRS="$PAGES_DIRS\n$RELATIVE"
+      # Create folder structure and copy page.
+      mkdir -p "$OWN_DIR/docs/$RELATIVE"
+      cp "$PAGE" "$OWN_DIR/docs/$RELATIVE"
+    done
+    ORDERED_DIRS="$ORDERED_DIRS $(echo "$PAGES_DIRS" | sort)"
+  done
+  for ORDERED in $ORDERED_DIRS; do
+    parse_page "$ORDERED" "$ORDERED_DIRS"
   done
 }
 
 # @param
-# $1 (string) filename
+# $1 (string) relative dirname
+# $2 (string) list of all relative dirnames
 generate_toc(){
-  get_subpages "$1"
+  get_subpages "$1" "$2"
   for SUBPAGE in $SUBPAGES; do
-      extract_toc "$SUBPAGE" "$(dirname "$1")"
+    extract_toc "$SUBPAGE"
   done
 }
 # @param
-# $1 (string) filename
+# $1 (string) relative dirname
+# $2 (string) list of all relative dirnames
 get_subpages(){
-  DIRNAME=$(dirname "$1")
-  SUBPAGES=$(find "$DIRNAME" -mindepth 2 -maxdepth 3 -name "README.md" | sort -r )
-  if [ "$FIRST_PASS" = "true" ]; then
-    SUBPAGES=""
-    for FOLDER in $FIRST_LEVEL_DIRS; do
-      SUBPAGES="$SUBPAGES $OWN_DIR/$FOLDER/README.md"
-      SUBPAGES="$SUBPAGES $(find "$OWN_DIR/$FOLDER" -mindepth 2 -maxdepth 2 -name "README.md" | sort -r )"
-    done
-  fi
+  SUBPAGES=""
+  for ORDERED in $2; do
+    LEVEL=$(echo "$ORDERED" | grep -o '/' | wc -m)
+    case $ORDERED in
+      $1/*)
+      if [ "$LEVEL" -lt 4 ]; then
+        SUBPAGES="$SUBPAGES $ORDERED"
+      fi
+      ;;
+      *)
+      if [ "$FIRST_PASS" = "true" ] && [ "$LEVEL" -lt 4 ] && [ ! "$ORDERED" = "$1" ]; then
+        SUBPAGES="$SUBPAGES $ORDERED"
+      fi
+      ;;
+    esac
+  done
 }
 # @param
-# $1 (string) filename
-# $2 (string) relative dirname
+# $1 (string) relative dirname
 extract_toc(){
   WRITE_TITLE="true"
   WRITE_INTRO="false"
   INNER_TOC="false"
-  RELATIVE=$(realpath --relative-to="$2" "$1")
-  INDENT=$(echo "$RELATIVE" | grep -o '/' | tr -d "\n" | tr '/' '#')
+  INDENT="##$(echo "$1" | grep -o '/' | tr -d "\n" | tr '/' '#')"
+  echo $1
+  echo $INDENT
   while read -r LINE; do
     case $LINE in
     "# "*)
       if [ "$WRITE_TITLE" = "true" ]; then
         TITLE=$(echo "$LINE" | cut -c 3-)
-        echo "#$INDENT"" [$TITLE]($RELATIVE)" >> "$TMP_MD"
+        echo "$INDENT"" [$TITLE]($1/README.md)" >> "$TMP_MD"
         WRITE_TITLE="false"
         WRITE_INTRO="true"
       fi
@@ -104,18 +134,22 @@ extract_toc(){
         if [ "$(echo "$INDENT" | wc -m)" = "2" ]; then
           TITLE=$(echo "$LINE" | cut -c 4-)
           ANCHOR=$(echo "$TITLE" | tr ' ' '-'|  tr '[:upper:]' '[:lower:]' | tr -cd 'a-z0-9\-')
-          echo "##$INDENT"" [$TITLE]($RELATIVE#$ANCHOR)" >> "$TMP_MD"
+          echo "$INDENT"" [$TITLE]($1/README.md#$ANCHOR)" >> "$TMP_MD"
         fi
       fi
       WRITE_INTRO="false"
     ;;
     *)
+    # Any special chars means we're passed the intro.
+    if echo "$LINE" | grep -q -E '^[^a-zA-Z0-9 -]'; then
+      WRITE_INTRO="false" 
+    fi
     if [ "$WRITE_INTRO" = "true" ] && [ "$INNER_TOC" = "false" ]; then
       echo "$LINE" >> "$TMP_MD"
     fi
     ;;
     esac
-  done < "$1"
+  done < "$OWN_DIR/docs/$1/README.md"
 }
 
 # @param
@@ -163,34 +197,10 @@ generate_role_variables(){
   fi
 }
 
-# @param
-# $1 (string) filename
-cp_file(){
-  RELATIVE=$(realpath --relative-to="$OWN_DIR" "$(dirname "$1")")
-  TARGET_DIR="$OWN_DIR/docs/$RELATIVE"
-  if [ ! -d "$TARGET_DIR" ]; then
-    mkdir -p "$TARGET_DIR"
-  fi
-  cp "$1" "$TARGET_DIR/"
-}
-
-# TOC Generation.
-parse_page "$OWN_DIR/README.md"
-# Inject Ansible vars for roles.
 ROLE_PAGES=$(find "$OWN_DIR/roles" -name "README.md")
 for ROLE_PAGE in $ROLE_PAGES; do
   parse_role_variables "$ROLE_PAGE"
 done
-# Generates docs folder.
-rm -rf "$OWN_DIR/docs/*"
-cp "$OWN_DIR/README.md" "$OWN_DIR/docs/"
-for FIRST_LEVEL in $FIRST_LEVEL_DIRS; do
-  # Can't easily use exec here.
-  MD_FILES=$(find "$OWN_DIR/$FIRST_LEVEL" -name "README.md")
-  for MD_FILE in $MD_FILES; do
-    cp_file "$MD_FILE"
-  done
-done
-if [ -f "$TMP_MD" ]; then
-  rm "$TMP_MD"
-fi
+
+# TOC Generation.
+parse_pages

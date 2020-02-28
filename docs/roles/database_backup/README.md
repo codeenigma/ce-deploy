@@ -5,13 +5,11 @@ Generate backups for each build.
 ```yaml
 ---
 database_backup:
-  engines: 
-    - mysql
+engines:
+- mysql
 ```
 
 <!--ENDROLEVARS-->
 
 <!--TOC-->
-## [MySQL backups](database_backup-mysql/README.md)
-Generate MySQL backups for each build.
 <!--ENDTOC-->

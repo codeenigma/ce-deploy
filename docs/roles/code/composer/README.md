@@ -5,10 +5,10 @@ Performs a composer install on a freshly deployed codebase.
 ```yaml
 ---
 composer:
-  command: install
-  no_dev: yes
-  working_dir: "{{ deploy_path }}"
-  apcu_autoloader: yes
+command: install
+no_dev: yes
+working_dir: "{{ deploy_path }}"
+apcu_autoloader: yes
 ```
 
 <!--ENDROLEVARS-->
