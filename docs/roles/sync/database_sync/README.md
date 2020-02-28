@@ -12,4 +12,6 @@ engines:
 <!--ENDROLEVARS-->
 
 <!--TOC-->
+## [Database sync - MySQL](roles/sync/database_sync/database_sync-mysql/README.md)
+Sync MySQL databases between environments.
 <!--ENDTOC-->

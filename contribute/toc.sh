@@ -79,7 +79,7 @@ parse_pages(){
 generate_toc(){
   get_subpages "$1" "$2"
   for SUBPAGE in $SUBPAGES; do
-    extract_toc "$SUBPAGE"
+    extract_toc "$SUBPAGE" "$1"
   done
 }
 # @param
@@ -88,15 +88,17 @@ generate_toc(){
 get_subpages(){
   SUBPAGES=""
   for ORDERED in $2; do
-    LEVEL=$(echo "$ORDERED" | grep -o '/' | wc -m)
+    OWN_LEVEL=$(echo "$ORDERED" | grep -o '/' | wc -m)
+    BASE_LEVEL=$(echo "$1" | grep -o '/' | wc -m)
+    LEVEL=$((OWN_LEVEL-BASE_LEVEL))
     case $ORDERED in
       $1/*)
-      if [ "$LEVEL" -lt 4 ]; then
+      if [ "$LEVEL" -lt 3 ]; then
         SUBPAGES="$SUBPAGES $ORDERED"
       fi
       ;;
       *)
-      if [ "$FIRST_PASS" = "true" ] && [ "$LEVEL" -lt 4 ] && [ ! "$ORDERED" = "$1" ]; then
+      if [ "$FIRST_PASS" = "true" ] && [ "$LEVEL" -lt 3 ] && [ ! "$ORDERED" = "$1" ]; then
         SUBPAGES="$SUBPAGES $ORDERED"
       fi
       ;;
@@ -105,13 +107,15 @@ get_subpages(){
 }
 # @param
 # $1 (string) relative dirname
+# $2 (string) parent relative dirname
 extract_toc(){
   WRITE_TITLE="true"
   WRITE_INTRO="false"
   INNER_TOC="false"
-  INDENT="##$(echo "$1" | grep -o '/' | tr -d "\n" | tr '/' '#')"
-  echo $1
-  echo $INDENT
+  INDENT="#$(realpath --relative-to="$2" "$1" | grep -o '/' | tr -d "\n" | tr '/' '#')"
+  if [ $FIRST_PASS = "false" ]; then
+    INDENT="#$INDENT"
+  fi
   while read -r LINE; do
     case $LINE in
     "# "*)
