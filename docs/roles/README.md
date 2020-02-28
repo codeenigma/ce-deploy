@@ -5,14 +5,12 @@ Ansible roles and group of roles that constitute the deploy stack.
 Roles to install app-specific cli tool and utilities (Drush, ...)
 ### [Drush](cli/drush/README.md)
 Installs the `drush` command-line tool for the deploy user.
-## [Code deployment](code/README.md)
-Roles managing the codebase: deployment, symlinks, composer steps, ...
-### [Composer](code/composer/README.md)
+## [Composer](composer/README.md)
 Performs a composer install on a freshly deployed codebase.
-### [Config](code/config_generate/README.md)
+## [Config](config_generate/README.md)
 Generates config files and handles sensitive variables.
-### [Deploy](code/deploy_code/README.md)
-Step that deploys the codebase.
+### [Drupal 8](config_generate/config_generate-drupal8/README.md)
+Generates settings.php file for Drupal 8.
 ## [Cron](cron/README.md)
 Roles to generate cron entries.
 ### [Database backup cron task](cron/cron_database_backup/README.md)
@@ -21,6 +19,8 @@ Ensure regular local backups of databases.
 Generate backups for each build.
 ### [MySQL backups](database_backup/database_backup-mysql/README.md)
 Generate MySQL backups for each build.
+## [Deploy](deploy_code/README.md)
+Step that deploys the codebase.
 ## ["Meta"](meta/README.md)
 Roles that bundles other individual roles together for tackling common use cases.
 ### [Drupal 8](meta/deploy-drupal8/README.md)

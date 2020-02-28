@@ -19,12 +19,16 @@ While you can re-use/fork roles or call playbooks directly from your deployment 
 Ansible roles and group of roles that constitute the deploy stack.
 ### [CLI Tools](roles/cli/README.md)
 Roles to install app-specific cli tool and utilities (Drush, ...)
-### [Code deployment](roles/code/README.md)
-Roles managing the codebase: deployment, symlinks, composer steps, ...
+### [Composer](roles/composer/README.md)
+Performs a composer install on a freshly deployed codebase.
+### [Config](roles/config_generate/README.md)
+Generates config files and handles sensitive variables.
 ### [Cron](roles/cron/README.md)
 Roles to generate cron entries.
 ### [Data backups](roles/database_backup/README.md)
 Generate backups for each build.
+### [Deploy](roles/deploy_code/README.md)
+Step that deploys the codebase.
 ### ["Meta"](roles/meta/README.md)
 Roles that bundles other individual roles together for tackling common use cases.
 ### [Sync roles](roles/sync/README.md)
