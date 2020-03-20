@@ -1,0 +1,9 @@
+---
+
+- name: Generates config file.
+  template:
+    src: '{{ item }}'
+    dest: "{{ deploy_path }}/{{ webroot }}/config/config.ini.php"
+  with_first_found:
+    - "{{ _ansible_deploy_build_dir }}/{{ webroot }}/config/{{ build_type }}.config.ini.php"
+    - "config.ini.php.j2"
