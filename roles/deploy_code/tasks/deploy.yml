@@ -20,11 +20,11 @@
   when: 
     - ( project_type == 'drupal7' ) or ( project_type == 'drupal8' )
 
-- include_role:
-    name: "deploy_code/deploy_code-{{ project_type }}"
-  when: 
-    - project_type != 'drupal7'
-    - project_type != 'drupal8'
+# - include_role:
+#     name: "deploy_code/deploy_code-{{ project_type }}"
+#   when: 
+#     - project_type != 'drupal7'
+#     - project_type != 'drupal8'
 
 - name: Create additional symlinks.
   file:
