@@ -60,3 +60,11 @@
 # Project specific init tasks.
 - name: Include project init tasks.
   include_tasks: "{{ project_type }}.yml"
+
+- name: Define opcache cachetool path.
+  set_fact:
+    cachetool_bin: "{{ cachetool_bin | default('/home/{{ deploy_user }}/.bin/cachetool.phar') }}"
+
+- name: Ensure we have a cachetool binary.
+  import_role: 
+   name: cli/cachetool
