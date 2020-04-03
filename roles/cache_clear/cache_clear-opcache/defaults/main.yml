@@ -8,4 +8,4 @@ cache_clear_opcache:
   # Bins to clear.
   clear_opcache: yes
   clear_apcu: no
-  clear_stats: no
+  clear_stat: no
