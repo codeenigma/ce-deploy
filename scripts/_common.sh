@@ -15,6 +15,7 @@ ANSIBLE_EXTRA_VARS=""
 ANSIBLE_DEFAULT_EXTRA_VARS=""
 BUILD_WORKSPACE=""
 BUILD_TRACK_FILE=""
+BUILD_ID=""
 BUILD_WORKSPACE_BASE="$OWN_DIR/build"
 if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
     mkdir "$BUILD_WORKSPACE_BASE"
@@ -69,9 +70,14 @@ parse_options(){
   done
 }
 
+# An ID for the build.
+get_build_id(){
+  BUILD_ID="$(echo "$TARGET_DEPLOY_REPO-$TARGET_DEPLOY_BRANCH-$TARGET_DEPLOY_PLAYBOOK" | tr / -)"
+}
 # Path to the track file for given build.
 get_build_track_file(){
-  BUILD_TRACK_FILE="$BUILD_TRACK_DIR/$(echo "$TARGET_DEPLOY_REPO-$TARGET_DEPLOY_BRANCH-$TARGET_DEPLOY_PLAYBOOK" | tr / -)"
+  get_build_id
+  BUILD_TRACK_FILE="$BUILD_TRACK_DIR/$BUILD_ID"
 }
 
 # Compute defaults variables.

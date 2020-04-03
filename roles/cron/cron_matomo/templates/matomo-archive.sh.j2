@@ -1,0 +1,17 @@
+#!/bin/sh
+
+LOG_DIR="{{ cron_matomo.log_directory }}/$DBHOST"
+KEEP=$(({{ cron_matomo.keep }}+1))
+archive(){
+  env php {{ live_symlink_dest }}/{{ webroot }}/console core:archive --url={{ cron_matomo.url }} > "$LOG_DIR/$(date -Iseconds).log"
+}
+
+cleanup(){
+  if [ "$(find "$LOG_DIR" -name '*.log'  | wc -l)" -lt "$KEEP" ]; then
+    return 0
+  fi
+  rm "$(find $LOG_DIR -name '*.log' | sort | head -n 1)"
+  cleanup
+}
+archive
+cleanup
