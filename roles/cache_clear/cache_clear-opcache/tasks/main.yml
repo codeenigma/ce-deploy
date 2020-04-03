@@ -2,15 +2,15 @@
 
 - name: Clear opcache.
   command:
-    cmd: "{{ cachetool_bin }} {{ cachetool.adapter }} -n opcache:reset"
+    cmd: "{{ cachetool_bin }} {{ cache_clear_opcache.adapter }} -n opcache:reset"
   when: cache_clear_opcache.clear_opcache
 
 - name: Clear apcu.
   command:
-    cmd: "{{ cachetool_bin }} {{ cachetool.adapter }} -n apcu:cache:clear all"
+    cmd: "{{ cachetool_bin }} {{ cache_clear_opcache.adapter }} -n apcu:cache:clear all"
   when: cache_clear_opcache.clear_apcu
 
 - name: Clear stats.
   command:
-    cmd: "{{ cachetool_bin }} {{ cachetool.adapter }} -n stat:clear"
+    cmd: "{{ cachetool_bin }} {{ cache_clear_opcache.adapter }} -n stat:clear"
   when: cache_clear_opcache.clear_stat
