@@ -1,8 +1,8 @@
 ---
 
-- name: Apply Matomo database updates.
+- name: Clear Matomo cache.
   command:
-    cmd: "{{ deploy_path }}/{{ webroot }}/console core:update"
+    cmd: "{{ deploy_path }}/{{ webroot }}/console cache:clear"
     chdir: "{{ deploy_path }}/{{ webroot }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"

@@ -7,6 +7,9 @@ password = "{{ build_databases[0].password }}"
 dbname = "{{ build_databases[0].name }}"
 tables_prefix = ""
 
+[General]
+trusted_hosts[] = "stats.codeenigma.net"
+
 [PluginsInstalled]
 PluginsInstalled[] = "Diagnostics"
 PluginsInstalled[] = "Login"
@@ -69,4 +72,5 @@ PluginsInstalled[] = "ProfessionalServices"
 PluginsInstalled[] = "UserId"
 PluginsInstalled[] = "CustomPiwikJs"
 PluginsInstalled[] = "Tour"
+
 

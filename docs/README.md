@@ -17,6 +17,8 @@ You can install either:
 While you can re-use/fork roles or call playbooks directly from your deployment tool, it is recommended to use the provided wrapper scripts, as they will take care of setting up the needed environments.
 ## [Roles](roles/README.md)
 Ansible roles and group of roles that constitute the deploy stack.
+### [Config](roles/cache_clear/README.md)
+Cache clearing commands.
 ### [CLI Tools](roles/cli/README.md)
 Roles to install app-specific cli tool and utilities (Drush, ...)
 ### [Composer](roles/composer/README.md)

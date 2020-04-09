@@ -21,6 +21,7 @@
       become: yes
       become_user: "{{ ansible_deploy.username }}"
       when: ansible_deploy.config_repository is defined and ansible_deploy.config_repository
+    
     - name: Check if we have a config directory.
       stat:
         path: "{{ ansible_deploy.local_dir }}/config"

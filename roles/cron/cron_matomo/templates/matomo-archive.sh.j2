@@ -6,6 +6,14 @@ archive(){
   env php {{ live_symlink_dest }}/{{ webroot }}/console core:archive --url={{ cron_matomo.url }} > "$LOG_DIR/$(date -Iseconds).log"
 }
 
+tasks(){
+  env php {{ live_symlink_dest }}/{{ webroot }}/console scheduled-tasks:run"
+}
+
+fix(){
+  env php {{ live_symlink_dest }}/{{ webroot }}/console core:fix-duplicate-log-actions"
+}
+
 cleanup(){
   if [ "$(find "$LOG_DIR" -name '*.log'  | wc -l)" -lt "$KEEP" ]; then
     return 0
@@ -14,4 +22,6 @@ cleanup(){
   cleanup
 }
 archive
+fix
+tasks
 cleanup

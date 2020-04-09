@@ -18,7 +18,7 @@ deploy_code:
   #  - src: '/var/simplesaml/etc'
   #    dest: 'vendor/simplesamlphp/simplesamlphp/config'
   symlinks: []
-  # Number of builds to keep. Note this is independand of databases/dump.
+  # Number of builds to keep. Note this is independant of databases/dump.
   keep: 10
 ```
 

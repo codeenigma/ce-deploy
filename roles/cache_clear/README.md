@@ -6,11 +6,4 @@ Generates settings.php file for Drupal 8.
 <!--ENDTOC-->
 
 <!--ROLEVARS-->
-## Default variables
-```yaml
----
-
-
-```
-
 <!--ENDROLEVARS-->
