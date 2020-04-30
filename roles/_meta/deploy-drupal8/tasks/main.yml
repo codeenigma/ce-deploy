@@ -29,7 +29,7 @@
       operation: online
 - import_role:
     name: cron/cron_database_backup
-- import_role:
-    name: cron/cron_drupal
+# - import_role:
+#     name: cron/cron_drupal
 - import_role:
     name: _exit
