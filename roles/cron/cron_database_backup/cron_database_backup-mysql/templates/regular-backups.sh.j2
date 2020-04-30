@@ -8,8 +8,10 @@ CURRENT_DBNAME='{{ database.name }}'
 TARGET_DIR="{{ cron_mysql_backup.dumps_directory }}/$DBHOST"
 TARBALL="$DB_NAME-$(date -Iseconds).sql.bz2"
 KEEP=$(({{ database.original.backup.keep | default(cron_mysql_backup.keep) }}+1))
+
 backup(){
   mysqldump -u"$DBUSER" -p"$DBPASSWORD" -h"$DBHOST" "$CURRENT_DBNAME" | bzip2 > "$TARGET_DIR/$TARBALL"
+  ln -sfn "$TARGET_DIR/$TARBALL" "$TARGET_DIR/$DB_NAME"
 }
 
 cleanup(){
@@ -19,5 +21,6 @@ cleanup(){
   rm "$(find $TARGET_DIR -name '*.sql.bz2' | sort | head -n 1)"
   cleanup
 }
+
 backup
 cleanup
