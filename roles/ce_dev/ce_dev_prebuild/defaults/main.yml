@@ -1,0 +1,3 @@
+---
+ce_dev_prebuild:
+  compose_template: ce-dev.compose.yml

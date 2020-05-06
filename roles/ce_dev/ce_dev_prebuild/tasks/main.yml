@@ -1,0 +1,31 @@
+---
+
+- name: Init docker-compose file.
+  command:
+    cmd: "ce-dev init --template={{ ce_dev_prebuild.compose_template }}"
+    chdir: "{{ _ansible_deploy_build_dir }}"
+
+- name: Start containers.
+  command:
+    cmd: "ce-dev start"
+    chdir: "{{ _ansible_deploy_build_dir }}"
+
+- name: Provision containers.
+  command:
+    cmd: "ce-dev provision"
+    chdir: "{{ _ansible_deploy_build_dir }}"
+
+- name: Install application.
+  command:
+    cmd: "ce-dev deploy"
+    chdir: "{{ _ansible_deploy_build_dir }}"
+
+- name: Build new images.
+  command:
+    cmd: "ce-dev build"
+    chdir: "{{ _ansible_deploy_build_dir }}"
+
+- name: Push new images.
+  command:
+    cmd: "ce-dev push"
+    chdir: "{{ _ansible_deploy_build_dir }}"

@@ -57,7 +57,10 @@
     dest: "{{ mysql_sync_target_dump_path }}"
 
 - name: Drop target database.
-  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database {{ mysql_sync_target_database }};'"
+  mysql_db:
+    name: "{{ mysql_sync_target_database }}"
+    state: absent
+    config_file: "{{ database.target.credentials_file }}"
 
 - name: Recreate target database.
   shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
