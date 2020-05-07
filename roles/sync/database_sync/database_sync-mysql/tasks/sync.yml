@@ -10,17 +10,47 @@
     mysql_sync_source_dump_path: "{{ database.source.database }}"
   when: database.source.type == 'dump'
 
+- name: Get source last known good build number.
+  local_action:
+    module: command 
+    argv: 
+      - "/bin/sh"
+      - "{{ _ansible_deploy_base_dir }}/scripts/track-get.sh"
+      - "--repo"
+      - "{{ database.source.build_info.repo }}"
+      - "--branch"
+      - "{{ database.source.build_info.branch }}"
+      - "--playbook"
+      - "{{ database.source.build_info.playbook }}"
+  register: mysql_sync_source_build_number
+  when: database.source.type == 'rolling'
+
+- name: Register source database name.
+  set_fact:
+    mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_source_target_build_number.stdout }}"
+  when: database.source.type == 'rolling'
+
+- name: Register source database name.
+  set_fact:
+    mysql_sync_source_database: "{{ database.source.database }}"
+  when: not database.source.type == 'rolling'
+
+- name: Take a dump from source database.
+  shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
+  delegate_to: "{{ database.source.host }}"
+  when: not database.source.type == 'dump'
+
 - name: Register tmp target dump name.
   set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}.sql.bz2"
   when: not database.target.type == 'dump'
 
-- name: Register tmp target dump name.
+- name: Register final target dump name.
   set_fact:
     mysql_sync_target_dump_path: "{{ database.target.database }}"
   when: database.target.type == 'dump'
 
-- name: Get last known good build number.
+- name: Get target last known good build number.
   local_action:
     module: command 
     argv: 
@@ -45,21 +75,16 @@
     mysql_sync_target_database: "{{ database.target.database }}"
   when: not database.target.type == 'rolling'
 
-- name: Take a dump from source database.
-  shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ database.source.database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
-  delegate_to: "{{ database.source.host }}"
-  when: not database.source.type == 'dump'
-
 - name: Fetch dump file.
   fetch: 
     src: "{{ mysql_sync_source_dump_path }}"
-    dest: "{{ _ansible_deploy_build_dir }}/{{ database.target.database }}.sql.bz2"
+    dest: "{{ _ansible_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
     flat: yes
   delegate_to: "{{ database.source.host }}"
 
 - name: Copy dump file to destination.
   copy:
-    src: "{{ _ansible_deploy_build_dir }}/{{ database.target.database }}.sql.bz2"
+    src: "{{ _ansible_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
     dest: "{{ mysql_sync_target_dump_path }}"
 
 - name: Drop target database.
