@@ -5,6 +5,19 @@
     cmd: "ce-dev init --template={{ ce_dev_prebuild.compose_template }}"
     chdir: "{{ _ansible_deploy_build_dir }}"
 
+- name: Source registry setup (auth).
+  set_fact:
+    _ce_dev_prebuild_source_argument: "-u {{ ce_dev_prebuild.source.user }} -p {{ ce_dev_prebuild.source.password }}"
+
+- name: Source registry setup (anon).
+  set_fact:
+    _ce_dev_prebuild_source_argument: "--anonymous"
+  when: not ce_dev_prebuild.source.user
+
+- name: Pull fresh images from source.
+    cmd: "ce-dev pull {{ _ce_dev_prebuild_source_argument }}"
+    chdir: "{{ _ansible_deploy_build_dir }}"
+
 - name: Start containers.
   command:
     cmd: "ce-dev start"
@@ -25,7 +38,16 @@
     cmd: "ce-dev build"
     chdir: "{{ _ansible_deploy_build_dir }}"
 
-- name: Push new images.
+- name: Target registry setup (auth).
+  set_fact:
+    _ce_dev_prebuild_target_argument: "-u {{ ce_dev_prebuild.target.user }} -p {{ ce_dev_prebuild.target.password }}"
+
+- name: Target registry setup (anon).
+  set_fact:
+    _ce_dev_prebuild_target_argument: "--anonymous"
+  when: not ce_dev_prebuild.target.user
+
+- name: Push new images (auth).
   command:
-    cmd: "ce-dev push"
+    cmd: "ce-dev push {{ _ce_dev_prebuild_target_argument }}"
     chdir: "{{ _ansible_deploy_build_dir }}"
