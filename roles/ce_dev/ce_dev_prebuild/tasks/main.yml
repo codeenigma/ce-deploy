@@ -7,12 +7,12 @@
 
 - name: Source registry setup (auth).
   set_fact:
-    _ce_dev_prebuild_source_argument: "-u {{ ce_dev_prebuild.source.user }} -p {{ ce_dev_prebuild.source.password }}"
+    _ce_dev_prebuild_source_argument: "-u {{ ce_dev_prebuild.source_registry.user }} -p {{ ce_dev_prebuild.source_registry.password }}"
 
 - name: Source registry setup (anon).
   set_fact:
     _ce_dev_prebuild_source_argument: "--anonymous"
-  when: not ce_dev_prebuild.source.user
+  when: not ce_dev_prebuild.source_registry.user
 
 - name: Pull fresh images from source.
   command:
@@ -41,12 +41,12 @@
 
 - name: Target registry setup (auth).
   set_fact:
-    _ce_dev_prebuild_target_argument: "-u {{ ce_dev_prebuild.target.user }} -p {{ ce_dev_prebuild.target.password }}"
+    _ce_dev_prebuild_target_argument: "-u {{ ce_dev_prebuild.target_registry.user }} -p {{ ce_dev_prebuild.target_registry.password }}"
 
 - name: Target registry setup (anon).
   set_fact:
     _ce_dev_prebuild_target_argument: "--anonymous"
-  when: not ce_dev_prebuild.target.user
+  when: not ce_dev_prebuild.target_registry.user
 
 - name: Push new images (auth).
   command:
