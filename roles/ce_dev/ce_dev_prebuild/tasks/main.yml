@@ -1,5 +1,5 @@
 ---
-
+#@todo exit if op is not "deploy"
 - name: Init docker-compose file.
   command:
     cmd: "ce-dev init --template={{ ce_dev_prebuild.compose_template }}"

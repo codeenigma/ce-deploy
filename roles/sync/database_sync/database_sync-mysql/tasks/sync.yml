@@ -27,7 +27,7 @@
 
 - name: Register source database name.
   set_fact:
-    mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_source_target_build_number.stdout }}"
+    mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_sync_source_build_number.stdout }}"
   when: database.source.type == 'rolling'
 
 - name: Register source database name.
