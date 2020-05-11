@@ -15,6 +15,7 @@
   when: not ce_dev_prebuild.source.user
 
 - name: Pull fresh images from source.
+  command:
     cmd: "ce-dev pull {{ _ce_dev_prebuild_source_argument }}"
     chdir: "{{ _ansible_deploy_build_dir }}"
 
