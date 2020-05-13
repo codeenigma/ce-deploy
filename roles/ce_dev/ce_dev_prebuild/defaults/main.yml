@@ -1,6 +1,7 @@
 ---
 ce_dev_prebuild:
   compose_template: ce-dev.compose.yml
+  compose_prebuilt_template: ce-dev.compose.prebuilt.yml
   source_registry:
     user: ''
     password: ''
