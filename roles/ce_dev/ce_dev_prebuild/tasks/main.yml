@@ -1,54 +1,6 @@
----
-#@todo exit if op is not "deploy"
-- name: Init docker-compose file.
-  command:
-    cmd: "ce-dev init --template={{ ce_dev_prebuild.compose_template }}"
-    chdir: "{{ _ansible_deploy_build_dir }}"
 
-- name: Source registry setup (auth).
-  set_fact:
-    _ce_dev_prebuild_source_argument: "-u {{ ce_dev_prebuild.source_registry.user }} -p {{ ce_dev_prebuild.source_registry.password }}"
+- include_tasks: "deploy.yml"
+  when: deploy_operation == 'deploy'
 
-- name: Source registry setup (anon).
-  set_fact:
-    _ce_dev_prebuild_source_argument: "--anonymous"
-  when: not ce_dev_prebuild.source_registry.user
-
-- name: Pull fresh images from source.
-  command:
-    cmd: "ce-dev pull --template={{ ce_dev_prebuild.compose_template }} {{ _ce_dev_prebuild_source_argument }}"
-    chdir: "{{ _ansible_deploy_build_dir }}"
-
-- name: Start containers.
-  command:
-    cmd: "ce-dev start"
-    chdir: "{{ _ansible_deploy_build_dir }}"
-
-- name: Provision containers.
-  command:
-    cmd: "ce-dev provision"
-    chdir: "{{ _ansible_deploy_build_dir }}"
-
-- name: Install application.
-  command:
-    cmd: "ce-dev deploy"
-    chdir: "{{ _ansible_deploy_build_dir }}"
-
-- name: Build new images.
-  command:
-    cmd: "ce-dev build --template={{ ce_dev_prebuild.compose_prebuilt_template }}"
-    chdir: "{{ _ansible_deploy_build_dir }}"
-
-- name: Target registry setup (auth).
-  set_fact:
-    _ce_dev_prebuild_target_argument: "-u {{ ce_dev_prebuild.target_registry.user }} -p {{ ce_dev_prebuild.target_registry.password }}"
-
-- name: Target registry setup (anon).
-  set_fact:
-    _ce_dev_prebuild_target_argument: "--anonymous"
-  when: not ce_dev_prebuild.target_registry.user
-
-- name: Push new images (auth).
-  command:
-    cmd: "ce-dev push --template={{ ce_dev_prebuild.compose_prebuilt_template }} {{ _ce_dev_prebuild_target_argument }}"
-    chdir: "{{ _ansible_deploy_build_dir }}"
+- include_tasks: "cleanup.yml"
+  when: deploy_operation != 'deploy'
