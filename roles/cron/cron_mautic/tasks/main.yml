@@ -8,4 +8,4 @@
     job: "env php {{ live_symlink_dest }}/{{ webroot }}/app/console {{ entry.job }}"
   with_items: "{{ cron_mautic.entries }}"
   loop_control:
-    control_var: entry
+    loop_var: entry
