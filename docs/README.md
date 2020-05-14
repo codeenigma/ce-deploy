@@ -19,6 +19,9 @@ While you can re-use/fork roles or call playbooks directly from your deployment 
 Ansible roles and group of roles that constitute the deploy stack.
 ### [Config](roles/cache_clear/README.md)
 Cache clearing commands.
+### [ce-dev](roles/ce_dev/README.md)
+Roles that integrate with local dev environments.
+
 ### [CLI Tools](roles/cli/README.md)
 Roles to install app-specific cli tool and utilities (Drush, ...)
 ### [Composer](roles/composer/README.md)

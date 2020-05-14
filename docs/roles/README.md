@@ -9,6 +9,11 @@ Clear caches for Drupal 8.
 Clear caches for Matomo.
 ### [Opcache](cache_clear/cache_clear-opcache/README.md)
 Clear opcache.
+## [ce-dev](ce_dev/README.md)
+Roles that integrate with local dev environments.
+
+### [ce-dev prebuild](ce_dev/ce_dev_prebuild/README.md)
+Prebuild Docker images for re-use in ce-dev locally.
 ## [CLI Tools](cli/README.md)
 Roles to install app-specific cli tool and utilities (Drush, ...)
 ### [Drush](cli/cachetool/README.md)
@@ -29,6 +34,8 @@ Roles to generate cron entries.
 Ensure regular local backups of databases.
 ### [Database backup cron task - MySQL](cron/cron_matomo/README.md)
 Ensure regular local backups of MySQL databases.
+### [Mautic cron tasks](cron/cron_mautic/README.md)
+Ensure Mautic cron entries are run.
 ## [Data backups](database_backup/README.md)
 Generate backups for each build.
 ### [MySQL backups](database_backup/database_backup-mysql/README.md)
