@@ -9,3 +9,4 @@
   with_items: "{{ cron_mautic.entries }}"
   loop_control:
     loop_var: entry
+  when: deploy_operation == 'deploy'
