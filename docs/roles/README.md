@@ -7,6 +7,8 @@ Cache clearing commands.
 Clear caches for Drupal 8.
 ### [Matomo](cache_clear/cache_clear-matomo/README.md)
 Clear caches for Matomo.
+### [Drupal 8](cache_clear/cache_clear-mautic/README.md)
+Clear caches for Drupal 8.
 ### [Opcache](cache_clear/cache_clear-opcache/README.md)
 Clear opcache.
 ## [ce-dev](ce_dev/README.md)
@@ -28,6 +30,8 @@ Generates config files and handles sensitive variables.
 Generates settings.php file for Drupal 8.
 ### [Drupal 8](config_generate/config_generate-matomo/README.md)
 Generates settings.php file for Drupal 8.
+### [Mautic](config_generate/config_generate-mautic/README.md)
+Generates local.php file for Mautic.
 ## [Cron](cron/README.md)
 Roles to generate cron entries.
 ### [Database backup cron task](cron/cron_database_backup/README.md)
@@ -46,6 +50,8 @@ Step that deploys the codebase.
 Roles that bundles other individual roles together for tackling common use cases.
 ### [Drupal 8](meta/deploy-drupal8/README.md)
 Role for deploying single Drupal 8 instances, or multisites with a single database.
+### [Mautic](meta/deploy-mautic/README.md)
+Role for deploying Mautic instances.
 ## [Sync roles](sync/README.md)
 Roles that sync data/assets between environments.
 ### [Database sync](sync/database_sync/README.md)

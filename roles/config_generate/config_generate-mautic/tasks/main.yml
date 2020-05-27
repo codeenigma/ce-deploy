@@ -1,0 +1,18 @@
+---
+
+- name: set public files path.
+  set_fact:
+    build_image_path: "{{ mautic.image_path }}"
+
+- name: set private files path.
+  set_fact:
+    build_upload_dir: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_private_files"
+
+- name: Generates local.php file.
+  template:
+    src: '{{ item }}'
+    dest: "{{ deploy_path }}/{{ webroot }}/app/config/local.php"
+  with_first_found:
+    - "{{ playbook_dir }}/{{ webroot }}/app/config/{{ build_type }}.local.php.j2"
+    - "{{ _ansible_deploy_build_dir }}/{{ webroot }}/app/config/{{ build_type }}.local.php"
+    - "local.php.j2"

@@ -1,0 +1,11 @@
+---
+
+- name: set console path
+  set_fact:
+    mautic_console_bin: "env php {{ deploy_path }}/{{ webroot }}/app/console"
+
+- name: Clear cache.
+  command:
+    cmd: "{{ mautic_console_bin }} cache:clear --no-interaction --env=prod --no-warmup"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"

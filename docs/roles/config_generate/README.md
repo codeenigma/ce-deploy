@@ -5,6 +5,8 @@ Generates config files and handles sensitive variables.
 Generates settings.php file for Drupal 8.
 ## [Drupal 8](config_generate-matomo/README.md)
 Generates settings.php file for Drupal 8.
+## [Mautic](config_generate-mautic/README.md)
+Generates local.php file for Mautic.
 <!--ENDTOC-->
 
 <!--ROLEVARS-->

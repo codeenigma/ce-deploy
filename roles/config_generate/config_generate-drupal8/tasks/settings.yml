@@ -1,10 +1,14 @@
 ---
 
-- name: set public files path.
+- name: set public files relative path.
   set_fact:
     build_public_file_path: "{{ site.public_files }}"
 
 - name: set public files path.
+  set_fact:
+    build_private_file_path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+
+- name: set private files path.
   set_fact:
     build_private_file_path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
 

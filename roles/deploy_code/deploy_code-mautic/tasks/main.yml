@@ -1,0 +1,36 @@
+- name: Ensure public files directory exists.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
+    state: directory
+
+- name: Ensure public files directory permissions.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
+    state: directory
+    owner: "{{ www_user }}"
+    group: "{{ www_user }}"
+    recurse: yes
+  become: yes
+  when: "www_user != deploy_user"
+
+- name: Create symlink to public files.
+  file:
+    src: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
+    dest: "{{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}"
+    state: link
+    force: yes
+
+- name: Ensure private files directory exists.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_private_files"
+    state: directory
+
+- name: Ensure private files directory permissions.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }_private_files"
+    state: directory
+    owner: "{{ www_user }}"
+    group: "{{ www_user }}"
+    recurse: yes
+  become: yes
+  when: "www_user != deploy_user"

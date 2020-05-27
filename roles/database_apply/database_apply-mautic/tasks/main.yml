@@ -1,0 +1,35 @@
+---
+
+- name: set console path
+  set_fact:
+    mautic_console_bin: "env php {{ deploy_path }}/{{ webroot }}/app/console"
+
+- name: Fix file permissions for local.php.
+  file:
+    state: file
+    path: "{{ deploy_path }}/{{ webroot }}/app/config/local.php"
+    owner: "{{ www_user }}"
+    group: "{{ www_user }}"
+  become: yes
+  when: 
+    - www_user != deploy_user
+    - previous_build_number == 0
+
+- name: Install Mautic.
+  command:
+    cmd: "{{ mautic_console_bin }} mautic:install:data --no-interaction"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  when: previous_build_number == 0 or (mautic.force_install is defined and mautic.force_install)
+
+- name: Clear cache.
+  command:
+    cmd: "{{ mautic_console_bin }} cache:clear --no-interaction --env=prod --no-warmup"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+
+- name: Apply Mautic database updates.
+  command:
+    cmd: "{{ mautic_console_bin }} doctrine:migrations:migrate --no-interaction --env=prod"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"

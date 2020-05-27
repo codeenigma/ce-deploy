@@ -10,3 +10,7 @@ drupal:
       #config_import_command: "cim"
       config_import_command: ""
       sanitize_command: "sql-sanitize"
+      force_install: no
+mautic:
+  images_files: "media/images"
+  force_install: no

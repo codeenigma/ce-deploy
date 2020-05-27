@@ -1,0 +1,25 @@
+<?php
+$parameters = array(
+	'db_driver' => 'pdo_mysql',
+	'db_host' => '{{ build_databases[0].host }}',
+	'db_table_prefix' => null,
+	'db_port' => '3306',
+	'db_name' => '{{ build_databases[0].name }}',
+	'db_user' => '{{ build_databases[0].user }}',
+	'db_password' => '{{ build_databases[0].password }}',
+	'db_backup_tables' => 0,
+	'db_backup_prefix' => 'bak_',
+	'mailer_from_name' => 'Hello There',
+	'mailer_from_email' => 'hello@example.com',
+	'mailer_transport' => 'mail',
+	'mailer_host' => null,
+	'mailer_port' => null,
+	'mailer_user' => null,
+	'mailer_password' => null,
+	'mailer_encryption' => null,
+	'mailer_auth_mode' => null,
+	'mailer_spool_type' => 'memory',
+	'mailer_spool_path' => '%kernel.root_dir%/spool'
+	'upload_dir' => '{{ build_upload_dir }}',
+	'image_path' => '{{ build_image_path }},
+);
