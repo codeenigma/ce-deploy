@@ -12,5 +12,5 @@ drupal:
       sanitize_command: "sql-sanitize"
       force_install: no
 mautic:
-  images_files: "media/images"
+  image_path: "media/images"
   force_install: no
