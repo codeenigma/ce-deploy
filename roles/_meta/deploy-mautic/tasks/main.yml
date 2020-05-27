@@ -5,8 +5,8 @@
     name: _init
 - import_role:
     name: deploy_code
-- import_role:
-    name: composer
+# - import_role:
+#     name: composer
 # - import_role:
 #     name: maintenance_mode
 #   vars:
