@@ -20,6 +20,10 @@
     name: database_apply
 - import_role:
     name: live_symlink
+- import_role:
+    name: cache_clear/cache_clear-opcache
+- import_role:
+    name: cache_clear/cache_clear-mautic
 # - import_role:
 #     name: maintenance_mode
 #   vars:
