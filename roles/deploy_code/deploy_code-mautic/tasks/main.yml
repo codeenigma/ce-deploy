@@ -27,7 +27,6 @@
   file:
     path: "{{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}"
     state: absent
-    recurse: yes
 
 - name: Create symlink to public files.
   file:
