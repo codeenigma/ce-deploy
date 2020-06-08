@@ -20,7 +20,7 @@
 
 - name: Synchronize existing assets.
   command:
-    cdm: "rsync -av {{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}/ {{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
+    cmd: "rsync -av {{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}/ {{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
   when: _mautic_public_dir_commited.stat.isdir is defined and _mautic_public_dir_commited.stat.isdir
 
 - name: Create symlink to public files.
