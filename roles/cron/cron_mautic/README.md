@@ -13,6 +13,8 @@ cron_mautic:
     - minute: "*/{{ 10 | random(start=1) }}"
       # hour: 4
       job: mautic:campaigns:trigger
+    - minute: "*/{{ 15 | random(start=1) }}"
+      job: mautic:import
 ```
 
 <!--ENDROLEVARS-->
