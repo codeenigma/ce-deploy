@@ -50,6 +50,8 @@ Step that deploys the codebase.
 Roles that bundles other individual roles together for tackling common use cases.
 ### [Drupal 8](meta/deploy-drupal8/README.md)
 Role for deploying single Drupal 8 instances, or multisites with a single database.
+### [Matomo](meta/deploy-matomo/README.md)
+Role for deploying Matomo instances.
 ### [Mautic](meta/deploy-mautic/README.md)
 Role for deploying Mautic instances.
 ## [Sync roles](sync/README.md)
