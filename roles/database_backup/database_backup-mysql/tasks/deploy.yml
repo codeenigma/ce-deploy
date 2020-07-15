@@ -3,16 +3,16 @@
 - name: Grab mysql credentials.
   fetch:
     src: "{{ database.credentials_file }}"
-    dest: "{{ _ansible_deploy_build_dir }}/mysql_backup_credentials.ini"
+    dest: "{{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini"
     flat: yes
 
 # Credentials for "managing" databases.
 - set_fact:
-    _mysql_host: "{{ lookup('ini', 'host section=client file={{ _ansible_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
+    _mysql_host: "{{ lookup('ini', 'host section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
 - set_fact:
-    _mysql_user: "{{ lookup('ini', 'user section=client file={{ _ansible_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
+    _mysql_user: "{{ lookup('ini', 'user section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
 - set_fact:
-    _mysql_password: "{{ lookup('ini', 'password section=client file={{ _ansible_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
+    _mysql_password: "{{ lookup('ini', 'password section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
 # Credentials for the app itself.
 # Manual: reuse given creds. Note the user gets ignored.
 - set_fact:
@@ -26,7 +26,7 @@
     _mysql_build_user_name: "{{ database.user }}"
   when: mysql_backup.credentials_handling == 'static'
 - set_fact:
-    _mysql_build_password: "{{ lookup('password', '{{ _ansible_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
+    _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
   when: mysql_backup.credentials_handling == 'static'
 # Rotate: create user/pwd on each build.
 - set_fact:

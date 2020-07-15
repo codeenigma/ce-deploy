@@ -4,7 +4,7 @@ Roles that bundles other individual roles together for tackling common use cases
 ## [Install](install/README.md)
 The stack only gets tested on Debian Buster, but should run on any Linux distribution, as long as Ansible >=2.9 is present.
 You can install either:
-- through [ansible-provision](https://github.com/codeenigma/ansible-provision)
+- through [ce-provision](https://github.com/codeenigma/ce-provision)
 - manually by running a local playbook
 - with Docker (soon)
 

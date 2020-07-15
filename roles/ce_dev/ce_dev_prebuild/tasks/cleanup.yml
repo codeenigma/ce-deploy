@@ -3,9 +3,9 @@
 - name: Init docker-compose file.
   command:
     cmd: "ce-dev init --template={{ ce_dev_prebuild.compose_template }}"
-    chdir: "{{ _ansible_deploy_build_dir }}"
+    chdir: "{{ _ce_deploy_build_dir }}"
 
 - name: Destroy containers.
   command:
     cmd: "ce-dev destroy"
-    chdir: "{{ _ansible_deploy_build_dir }}"
+    chdir: "{{ _ce_deploy_build_dir }}"

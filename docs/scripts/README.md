@@ -20,7 +20,7 @@ What this will do is:
 ### Example
 This how you'd call the build.sh from Jenkins:
 ```
-/home/deploy/ansible-deploy/scripts/build.sh --repo "git@gitlab.com:example/myproject.git" --branch "dev" --playbook "deploy/deploy-dev.yml" --build-number "$BUILD_NUMBER"
+/home/deploy/ce-deploy/scripts/build.sh --repo "git@gitlab.com:example/myproject.git" --branch "dev" --playbook "deploy/deploy-dev.yml" --build-number "$BUILD_NUMBER"
 ```
 
 

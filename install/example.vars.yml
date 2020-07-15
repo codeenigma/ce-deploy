@@ -1,13 +1,13 @@
 ---
 
-ansible_deploy:
+ce_deploy:
   # The user you'll be running as (same as the user currently used for installing).
   username: "deploy"
   # Path to the main scripts, only amend if you wanted to fork them.
-  own_repository: "https://github.com/codeenigma/ansible-deploy.git"
+  own_repository: "https://github.com/codeenigma/ce-deploy.git"
   own_repository_branch: "master"
   # Repo holding your "private" configuration, leave empty if you manage this by other means.
-  config_repository: "https://github.com/codeenigma/ansible-deploy-config-example.git"
+  config_repository: "https://github.com/codeenigma/ce-deploy-config-example.git"
   config_repository_branch: "master"
   # Where to clone the stack.
   local_dir: "{{ playbook_dir | dirname }}"

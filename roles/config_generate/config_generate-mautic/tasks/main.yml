@@ -14,5 +14,5 @@
     dest: "{{ deploy_path }}/{{ webroot }}/app/config/local.php"
   with_first_found:
     - "{{ playbook_dir }}/{{ webroot }}/app/config/{{ build_type }}.local.php.j2"
-    - "{{ _ansible_deploy_build_dir }}/{{ webroot }}/app/config/{{ build_type }}.local.php"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/app/config/{{ build_type }}.local.php"
     - "local.php.j2"

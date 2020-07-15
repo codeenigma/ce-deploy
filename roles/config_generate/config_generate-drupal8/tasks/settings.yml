@@ -22,5 +22,5 @@
     dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
   with_first_found:
     - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php.j2"
-    - "{{ _ansible_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php"
     - "settings.php.j2"
