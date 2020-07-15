@@ -10,6 +10,10 @@ usage(){
   echo '--repo: Path to a remote git repo. The "deploy" user must have read access to it.'
   echo '--branch: The branch to deploy.'
   echo '--playbook: Relative path to an ansible playbook within the repo.'
+  echo '--dry-run: Do not perform any action but run the playbooks in --check mode.'
+  echo '--verbose: Detailled informations. This can potentially leak sensitive information in the output'
+  echo '--own-branch: Branch to use for the main stack repository'
+  echo '--config-branch: Branch to use for the main stack config repository'
 }
 
 # Common processing.

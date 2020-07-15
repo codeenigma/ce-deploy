@@ -17,6 +17,8 @@ BUILD_WORKSPACE=""
 BUILD_TRACK_FILE=""
 BUILD_ID=""
 BUILD_WORKSPACE_BASE="$OWN_DIR/build"
+DRY_RUN="no"
+VERBOSE="no"
 if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
     mkdir "$BUILD_WORKSPACE_BASE"
 fi
@@ -61,6 +63,20 @@ parse_options(){
           shift
           PREVIOUS_BUILD_NUMBER="$1"
         ;;
+      "--dry-run")
+          DRY_RUN="yes"
+        ;;
+      "--verbose")
+          VERBOSE="yes"
+        ;;
+      "--own-branch")
+          shift
+          git_checkout_own_dir "$1"
+        ;;
+      "--config-branch")
+          shift
+          git_checkout_config_dir "$1"
+        ;;        
         *)
         usage
         exit 1
@@ -132,6 +148,32 @@ cleanup_build_tmp_dir(){
 # - revert
 # - cleanup
 ansible_play(){
-  /usr/bin/ansible-playbook --verbose "$BUILD_WORKSPACE/$TARGET_DEPLOY_PLAYBOOK"  --extra-vars "{deploy_operation: $1}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+  ANSIBLE_CMD="/usr/bin/ansible-playbook $BUILD_WORKSPACE/$TARGET_DEPLOY_PLAYBOOK"
+  if [ "$DRY_RUN" = "yes" ]; then
+    ANSIBLE_CMD="$ANSIBLE_CMD --check"
+  fi
+  if [ "$VERBOSE" = "yes" ]; then
+    ANSIBLE_CMD="$ANSIBLE_CMD -vvvv"
+  fi
+  $ANSIBLE_CMD --extra-vars "{deploy_operation: $1}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   return $?
+}
+# Update repository.
+# @param $1 absolute path to local repo.
+# @param $2 branch to checkout.
+git_checkout(){
+  git -C "$1" checkout "$2"
+  git -C "$1" pull origin "$2"
+}
+
+# Update own repository.
+# @param $1 branch to checkout.
+git_checkout_own_dir(){
+  git_checkout "$OWN_DIR" "$1"
+}
+
+# Update own repository.
+# @param $1 branch to checkout.
+git_checkout_config_dir(){
+  git_checkout "$OWN_DIR/config" "$1"
 }

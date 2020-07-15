@@ -16,6 +16,10 @@ usage(){
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
   echo '--workspace: a local existing clone of the repo/branch (if your deployment tool already has one). This will skip the cloning/fetching of the repo.'
   echo '--previous-stable-build-number: an incremental build number'
+  echo '--dry-run: Do not perform any action but run the playbooks in --check mode.'
+  echo '--verbose: Detailled informations. This can potentially leak sensitive information in the output'
+  echo '--own-branch: Branch to use for the main stack repository'
+  echo '--config-branch: Branch to use for the main stack config repository'
 }
 
 # Common processing.
