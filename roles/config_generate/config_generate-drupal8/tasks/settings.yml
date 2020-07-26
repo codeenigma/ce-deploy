@@ -16,6 +16,13 @@
   set_fact:
     build_config_sync_directory: "{{ deploy_path }}/{{ site.config_sync_directory }}"
 
+- name: Ensure file permissions on site folder.
+  file:
+    path: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+    state: directory
+    recure: yes
+    mode: 0770
+
 - name: Generates settings.php file.
   template:
     src: '{{ item }}'
