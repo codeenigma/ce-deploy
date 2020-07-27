@@ -5,3 +5,9 @@
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site
+
+- name: Generates Drush settings file.
+  include_tasks: drush.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
