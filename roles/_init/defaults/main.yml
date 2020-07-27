@@ -10,6 +10,7 @@ drupal:
       #config_import_command: "cim"
       config_import_command: ""
       sanitize_command: "sql-sanitize"
+      base_url: https://www.example.com
       force_install: no
 mautic:
   image_path: "media/images"

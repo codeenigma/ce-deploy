@@ -16,6 +16,8 @@ $databases['default']['default'] = array (
   'driver' => 'mysql',
 );
 
+$base_url = '{{ site.base_url }}';
+
 $settings['file_private_path'] = '{{ build_private_file_path }}';
 $settings['file_public_path'] = '{{ build_public_file_path }}';
 $settings['skip_permission_hardening'] = TRUE;
