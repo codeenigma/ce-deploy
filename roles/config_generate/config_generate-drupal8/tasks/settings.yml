@@ -20,7 +20,7 @@
   file:
     path: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
     state: directory
-    recure: yes
+    recurse: yes
     mode: 0770
 
 - name: Generates settings.php file.
