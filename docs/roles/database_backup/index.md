@@ -5,8 +5,8 @@ Generate backups for each build.
 ```yaml
 ---
 database_backup:
-engines:
-- mysql
+  engines: 
+    - mysql
 ```
 
 <!--ENDROLEVARS-->

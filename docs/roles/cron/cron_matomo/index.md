@@ -5,9 +5,9 @@ Ensure regular local backups of MySQL databases.
 ```yaml
 ---
 cron_matomo:
-url: "https://example.com/matomo"
-log_directory: "/home/{{ deploy_user }}/matomo-archive/{{ project_name }}_{{ build_type }}"
-keep: 10
+  url: "https://example.com/matomo"
+  log_directory: "/home/{{ deploy_user }}/matomo-archive/{{ project_name }}_{{ build_type }}"
+  keep: 10
 ```
 
 <!--ENDROLEVARS-->
