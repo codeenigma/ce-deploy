@@ -1,0 +1,10 @@
+ce-deploy-1.x-travis:
+  src: https://github.com/codeenigma/ce-deploy.git
+  src_branch: 1.x
+  src_subdir: 'docs'
+  dest: git@github.com:codeenigma/ce-deploy-docs.git
+  dest_branch: master
+  dest_subdir: 1.x
+  title: ce-deploy
+  type: doc
+  base_url: https://codeenigma.github.io/ce-deploy-docs/1.x

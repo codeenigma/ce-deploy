@@ -1,9 +1,30 @@
-addons:
-  apt:
-    packages:
-    - git
-    - ansible
-script:
-  - cp install/example.vars.yml install/vars.yml
-  - sed -i "s/ \"deploy\"/ $(whoami)/g" install/vars.yml
-  - ansible-playbook install/self-update.yml --extra-vars="@install/vars.yml"
+language: c
+os: linux
+dist: xenial
+services:
+  - docker
+jobs:
+  include:
+    - name: Documentation (push)      
+      if: branch = '1.x'
+      addons:
+        apt:
+          packages:
+          - p7zip-full
+          - libnss3-tools
+          - wget
+      install:
+        - wget https://github.com/FiloSottile/mkcert/releases/download/v1.4.1/mkcert-v1.4.1-linux-amd64 -O /tmp/mkcert
+        - sudo mv /tmp/mkcert /usr/local/bin
+        - sudo chmod +x /usr/local/bin/mkcert
+        - curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/1.x/install.sh | /bin/sh -s -- linux
+        - /bin/sh contribute/toc.sh
+        - '[ -z "$(git diff)" ] && [ -z "$( git ls-files . --exclude-standard --others)" ]'
+      script:
+        - cd
+        - git clone https://github.com/codeenigma/wikis2pages.git
+        - cd wikis2pages
+        - /bin/sh init.sh https://$GITHUB_TOKEN@github.com/codeenigma/ce-deploy.git 1.x
+        - /bin/sh set-current.sh ce-deploy-1.x-travis
+        - docker exec --user ce-dev --workdir /home/ce-dev/deploy/live.local wikis2pages-hugo hugo
+        - /bin/sh .travis-push.sh
