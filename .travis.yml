@@ -19,7 +19,7 @@ jobs:
         - sudo chmod +x /usr/local/bin/mkcert
         - curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/1.x/install.sh | /bin/sh -s -- linux
         - /bin/sh contribute/toc.sh
-        - '[ -z "$(git diff)" ] && [ -z "$( git ls-files . --exclude-standard --others)" ] || echo "Documentation needs updating. Use /bin/sh contribute/toc.sh"'
+        - '[ -z "$(git diff)" ] && [ -z "$( git ls-files . --exclude-standard --others)" ]'
       script:
         - cd
         - git clone https://github.com/codeenigma/wikis2pages.git
