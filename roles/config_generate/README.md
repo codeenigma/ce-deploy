@@ -10,7 +10,6 @@ Generates settings.php file for Drupal 8.
 ```yaml
 ---
 
-
 ```
 
 <!--ENDROLEVARS-->
