@@ -5,6 +5,12 @@ services:
   - docker
 jobs:
   include:
+    - name: Lint
+      addons:
+        apt:
+          packages:
+            - yamllint
+      script: yamllint roles
     - name: Documentation (push)      
       if: branch = '1.x'
       addons:

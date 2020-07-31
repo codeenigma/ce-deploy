@@ -1,4 +1,3 @@
-
 # Probably not worth adding more granularity (weeks, months) for backups, should be at least daily?
 - set_fact:
     _cron_mysql_backup_random_minute: "{{ 59 | random }}"
@@ -21,10 +20,10 @@
     src: "regular-backups.sh.j2"
     dest: "/home/{{ deploy_user }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh"
     mode: 0700
-  
+
 - name: Setup regular backup for MySQL.
   cron:
     name: "cron_mysql_{{ database.host }}_{{ database.original.database }}"
     minute: "{{ _cron_mysql_backup_minute }}"
     hour: "{{ _cron_mysql_backup_hour }}"
-    job: '/bin/sh /home/{{ deploy_user }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh'
+    job: "/bin/sh /home/{{ deploy_user }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh"
