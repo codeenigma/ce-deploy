@@ -96,7 +96,7 @@ generate_roles_toc(){
 }
 
 parse_roles_toc(){
-  ROLES=$(find "$OWN_DIR/$1" -mindepth "$2" -maxdepth "$2" -name "README.md" | sort)
+  ROLES=$(find "$OWN_DIR/$1" -mindepth 2 -maxdepth 2 -name "README.md" | sort)
   for ROLE in $ROLES; do
     WRITE="true"
     INDENT=$(printf %$(($2 * 2))s)
