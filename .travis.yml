@@ -11,7 +11,11 @@ jobs:
           packages:
             - yamllint
             - ansible
-      script: yamllint roles
+            - pip
+      install:
+        - pip install ansible-lint
+      script: 
+        - yamllint roles
     - name: Documentation (push)      
       if: branch = '1.x'
       addons:
