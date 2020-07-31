@@ -11,7 +11,7 @@ jobs:
           packages:
             - yamllint
             - ansible
-            - pip
+            - python-pip
       install:
         - pip install ansible-lint
       script: 
