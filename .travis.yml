@@ -10,6 +10,7 @@ jobs:
         apt:
           packages:
             - yamllint
+            - ansible
       script: yamllint roles
     - name: Documentation (push)      
       if: branch = '1.x'
