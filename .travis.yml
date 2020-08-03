@@ -1,6 +1,5 @@
 language: c
 os: linux
-dist: xenial
 services:
   - docker
 jobs:
@@ -15,7 +14,6 @@ jobs:
       install:
         - pip install ansible-lint
       script:
-        - yamllint --version
         - yamllint roles
     - name: Documentation (push)
       if: branch = '1.x'
