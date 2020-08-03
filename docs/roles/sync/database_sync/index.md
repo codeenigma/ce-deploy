@@ -5,8 +5,9 @@ Roles that sync databases between environments.
 ```yaml
 ---
 database_sync:
-  engines: 
+  engines:
     - mysql
+
 ```
 
 <!--ENDROLEVARS-->

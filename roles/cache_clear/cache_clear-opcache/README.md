@@ -6,9 +6,7 @@ Clear opcache.
 <!--ENDTOC-->
 
 <!--ROLEVARS-->
-
 ## Default variables
-
 ```yaml
 ---
 cache_clear_opcache:
@@ -19,8 +17,9 @@ cache_clear_opcache:
   adapter: ""
   # Bins to clear.
   clear_opcache: true
-  clear_apcu: no
-  clear_stat: no
+  clear_apcu: false
+  clear_stat: false
+
 ```
 
 <!--ENDROLEVARS-->

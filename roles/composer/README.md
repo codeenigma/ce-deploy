@@ -3,9 +3,7 @@
 Performs a composer install on a freshly deployed codebase.
 
 <!--ROLEVARS-->
-
 ## Default variables
-
 ```yaml
 ---
 composer:
@@ -13,6 +11,7 @@ composer:
   no_dev: true
   working_dir: "{{ deploy_path }}"
   apcu_autoloader: true
+
 ```
 
 <!--ENDROLEVARS-->
