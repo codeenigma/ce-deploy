@@ -1,35 +1,35 @@
 ---
-# Default Drupal 8 role. This is suitable for 
+# Default Drupal 8 role. This is suitable for
 # - single site
 # - multisites with a single database
 
 - import_role:
-    name: _init
+      name: _init
 - import_role:
-    name: deploy_code
+      name: deploy_code
 - import_role:
-    name: composer
+      name: composer
 - import_role:
-    name: maintenance_mode
+      name: maintenance_mode
   vars:
-    maintenance_mode:
-      operation: offline
+      maintenance_mode:
+          operation: offline
 - import_role:
-    name: database_backup
+      name: database_backup
 - import_role:
-    name: config_generate
+      name: config_generate
 - import_role:
-    name: database_apply
+      name: database_apply
 - import_role:
-    name: live_symlink
+      name: live_symlink
 - import_role:
-    name: maintenance_mode
+      name: maintenance_mode
   vars:
-    maintenance_mode:
-      operation: online
+      maintenance_mode:
+          operation: online
 - import_role:
-    name: cron/cron_database_backup
+      name: cron/cron_database_backup
 # - import_role:
 #     name: cron/cron_drupal
 - import_role:
-    name: _exit
+      name: _exit

@@ -1,10 +1,9 @@
 ---
-
 - name: Grab mysql credentials.
   fetch:
     src: "{{ database.credentials_file }}"
     dest: "{{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini"
-    flat: yes
+    flat: true
 
 # Credentials for "managing" databases.
 - set_fact:
@@ -20,7 +19,7 @@
 - name: Delete mysql users.
   mysql_user:
     name: "{{ database.user }}_{{ item }}"
-    host_all: yes
+    host_all: true
     state: absent
     login_host: "{{ _mysql_host }}"
     login_user: "{{ _mysql_user }}"

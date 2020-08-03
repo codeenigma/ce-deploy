@@ -9,8 +9,8 @@
     state: directory
     owner: "{{ www_user }}"
     group: "{{ www_user }}"
-    recurse: yes
-  become: yes
+    recurse: true
+  become: true
   when: "www_user != deploy_user"
 
 - name: Check if we have a commited public folder.
@@ -33,7 +33,7 @@
     src: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
     dest: "{{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}"
     state: link
-    force: yes
+    force: true
 
 - name: Ensure private files directory exists.
   file:
@@ -46,6 +46,6 @@
     state: directory
     owner: "{{ www_user }}"
     group: "{{ www_user }}"
-    recurse: yes
-  become: yes
+    recurse: true
+  become: true
   when: "www_user != deploy_user"

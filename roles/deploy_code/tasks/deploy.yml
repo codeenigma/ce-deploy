@@ -1,22 +1,21 @@
 ---
-
 - name: Copy project repository.
   synchronize:
     src: "{{ _ce_deploy_build_dir }}/"
     dest: "{{ deploy_path }}"
-    archive: yes
+    archive: true
     rsync_opts:
       - "--exclude=.git"
 
 - name: Ensure project repository is readable.
-  file: 
+  file:
     path: "{{ deploy_path }}"
     state: directory
     mode: 0755
 
 - include_role:
     name: "deploy_code/deploy_code-{{ project_type }}"
-  
+
 - name: Create additional symlinks.
   file:
     src: "{{ link.src }}"
@@ -25,5 +24,5 @@
   with_items: "{{ deploy_code.symlinks }}"
   loop_control:
     loop_var: link
-  when: 
-   - deploy_code.symlinks | length
+  when:
+    - deploy_code.symlinks | length

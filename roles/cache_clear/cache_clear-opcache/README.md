@@ -1,10 +1,14 @@
 # Opcache
+
 Clear opcache.
+
 <!--TOC-->
 <!--ENDTOC-->
 
 <!--ROLEVARS-->
+
 ## Default variables
+
 ```yaml
 ---
 cache_clear_opcache:
@@ -14,7 +18,7 @@ cache_clear_opcache:
   # Leave blank to use /etc/cachetool.yml
   adapter: ""
   # Bins to clear.
-  clear_opcache: yes
+  clear_opcache: true
   clear_apcu: no
   clear_stat: no
 ```

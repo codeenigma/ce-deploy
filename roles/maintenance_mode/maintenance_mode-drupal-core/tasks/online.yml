@@ -1,7 +1,6 @@
 ---
-
 - name: Disable maintenance mode.
-  command: 
+  command:
     cmd: "{{ drush_bin }} state:set system.maintenance_mode 0 --input-format=integer"
     chdir: "{{ deploy_path }}/{{ webroot }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"

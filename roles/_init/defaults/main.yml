@@ -1,7 +1,7 @@
 ---
-# Common defaults. Given the "_init" role is mandatory, 
+# Common defaults. Given the "_init" role is mandatory,
 # this will ensure defaults to other roles too.
-deploy_user: 'deploy'
+deploy_user: "deploy"
 drupal:
   sites:
     - folder: "default"
@@ -11,7 +11,7 @@ drupal:
       config_import_command: ""
       sanitize_command: "sql-sanitize"
       base_url: https://www.example.com
-      force_install: no
+      force_install: false
 mautic:
   image_path: "media/images"
-  force_install: no
+  force_install: false

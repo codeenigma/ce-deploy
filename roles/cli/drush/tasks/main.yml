@@ -1,5 +1,4 @@
 ---
-
 - name: Check if we already have a global Drush.
   stat:
     path: "{{ drush_bin }}"
@@ -21,7 +20,7 @@
     dest: "{{ drush_bin }}"
     mode: 0755
   when: not drush_global.stat.exists or not drush_global_version.stdout == drush.version
-  
+
 - name: Trigger Drush init tasks.
   command: "{{ drush_bin }} init -y"
   when: not drush_global.stat.exists

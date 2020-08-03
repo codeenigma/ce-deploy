@@ -13,7 +13,7 @@
     path: "{{ cron_mysql_backup.dumps_directory }}/{{ database.host }}"
     state: directory
     mode: 0700
-    recurse: yes
+    recurse: true
 
 - name: Create backup script.
   template:

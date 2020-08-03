@@ -1,5 +1,4 @@
 ---
-
 - name: Register remote dump name (from database).
   set_fact:
     mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
@@ -12,8 +11,8 @@
 
 - name: Get source last known good build number.
   local_action:
-    module: command 
-    argv: 
+    module: command
+    argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
       - "--repo"
@@ -52,8 +51,8 @@
 
 - name: Get target last known good build number.
   local_action:
-    module: command 
-    argv: 
+    module: command
+    argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
       - "--repo"
@@ -76,10 +75,10 @@
   when: not database.target.type == 'rolling'
 
 - name: Fetch dump file.
-  fetch: 
+  fetch:
     src: "{{ mysql_sync_source_dump_path }}"
     dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
-    flat: yes
+    flat: true
   delegate_to: "{{ database.source.host }}"
 
 - name: Copy dump file to destination.
@@ -90,7 +89,7 @@
 - name: Drop target database.
   shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database if exists {{ mysql_sync_target_database }};'"
   when: not database.target.type == 'dump'
-  
+
 - name: Recreate target database.
   shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
   when: not database.target.type == 'dump'

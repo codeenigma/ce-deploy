@@ -1,5 +1,4 @@
 ---
-
 - name: set console path
   set_fact:
     mautic_console_bin: "env php {{ deploy_path }}/{{ webroot }}/app/console"
@@ -10,8 +9,8 @@
     path: "{{ deploy_path }}/{{ webroot }}/app/config/local.php"
     owner: "{{ www_user }}"
     group: "{{ www_user }}"
-  become: yes
-  when: 
+  become: true
+  when:
     - www_user != deploy_user
     - previous_build_number == 0
 

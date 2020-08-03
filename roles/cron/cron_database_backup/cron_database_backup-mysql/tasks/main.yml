@@ -1,6 +1,5 @@
 ---
-
-#@todo: To play it safe and let people manually revert db without 
+#@todo: To play it safe and let people manually revert db without
 # screwing the daily backup when using rolling db, we could
 # add a keep mechanism for backup scripts, like for the dumps themselves.
 # Nice to have more than anything.

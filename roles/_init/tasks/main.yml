@@ -1,5 +1,4 @@
 ---
-
 # Ensure default values for common variables.
 - name: Define deploy user.
   set_fact:
@@ -47,7 +46,7 @@
 
 # - set_fact:
 #     previous_build_number: "{{ last_build.stdout }}"
-#   when: 
+#   when:
 #     - last_build_symlink.stat.exists
 #     - previous_build_number == 0
 
@@ -66,5 +65,5 @@
     cachetool_bin: "{{ cachetool_bin | default('/home/{{ deploy_user }}/.bin/cachetool.phar') }}"
 
 - name: Ensure we have a cachetool binary.
-  import_role: 
-   name: cli/cachetool
+  import_role:
+    name: cli/cachetool

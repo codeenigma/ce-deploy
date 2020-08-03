@@ -1,12 +1,11 @@
 ---
-
 - set_fact:
     _live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
 
 - set_fact:
     _live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ previous_build_number }}"
   when: deploy_operation == 'revert'
-  
+
 - name: Symlink build.
   file:
     src: "{{ _live_symlink_build_target }}"
