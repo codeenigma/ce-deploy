@@ -13,6 +13,4 @@ database_backup:
 <!--ENDROLEVARS-->
 
 <!--TOC-->
-## [MySQL backups](database_backup-mysql/README.md)
-Generate MySQL backups for each build.
 <!--ENDTOC-->

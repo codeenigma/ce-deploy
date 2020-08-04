@@ -16,7 +16,7 @@ cp_role_page(){
   if [ ! -d "$OWN_DIR/docs/$RELATIVE" ]; then
     mkdir -p "$OWN_DIR/docs/$RELATIVE"
   fi
-  cp "$1" "$OWN_DIR/docs/$RELATIVE/index.md"
+  cp "$1" "$OWN_DIR/docs/$RELATIVE.md"
 }
 
 # @param
@@ -25,7 +25,7 @@ cp_single_page(){
   if [ ! -d "$OWN_DIR/docs/$1" ]; then
     mkdir "$OWN_DIR/docs/$1"
   fi
-  cp "$OWN_DIR/$1/README.md" "$OWN_DIR/docs/$1/$1.md"
+  cp "$OWN_DIR/$1/README.md" "$OWN_DIR/docs/$1.md"
 }
 
 # @param
@@ -43,6 +43,14 @@ parse_role_variables(){
       WRITE=0
     ;;
     '<!--ENDROLEVARS-->')
+      echo "$LINE" >> "$TMP_MD"
+      WRITE=1
+    ;;
+    '<!--TOC-->')
+      echo "$LINE" >> "$TMP_MD"
+      WRITE=0
+    ;;
+    '<!--ENDTOC-->')
       echo "$LINE" >> "$TMP_MD"
       WRITE=1
     ;;
@@ -106,7 +114,7 @@ parse_roles_toc(){
       "# "*)
         if [ "$WRITE" = "true" ]; then
           TITLE=$(echo "$LINE" | cut -c 3-)
-          echo "$INDENT"" - [$TITLE]($RELATIVE)" >> "$TMP_SIDEBAR"
+          echo "$INDENT"" - [$TITLE](/$RELATIVE)" >> "$TMP_SIDEBAR"
           WRITE="false"
         fi
       ;;

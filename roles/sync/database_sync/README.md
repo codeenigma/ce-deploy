@@ -13,6 +13,4 @@ database_sync:
 <!--ENDROLEVARS-->
 
 <!--TOC-->
-## [Database sync - MySQL](database_sync-mysql/README.md)
-Sync MySQL databases between environments.
 <!--ENDTOC-->
