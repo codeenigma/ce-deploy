@@ -20,6 +20,7 @@ usage(){
   echo '--verbose: Detailled informations. This can potentially leak sensitive information in the output'
   echo '--own-branch: Branch to use for the main stack repository'
   echo '--config-branch: Branch to use for the main stack config repository'
+  echo '--boto-profile: Name of a profile to export as AWS_PROFILE before calling Ansible'
 }
 
 # Common processing.

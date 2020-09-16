@@ -19,6 +19,7 @@ BUILD_ID=""
 BUILD_WORKSPACE_BASE="$OWN_DIR/build"
 DRY_RUN="no"
 VERBOSE="no"
+BOTO_PROFILE=""
 if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
     mkdir "$BUILD_WORKSPACE_BASE"
 fi
@@ -76,7 +77,11 @@ parse_options(){
       "--config-branch")
           shift
           git_checkout_config_dir "$1"
-        ;;        
+        ;;    
+      "--boto-profile")
+          shift
+          BOTO_PROFILE="$1"
+        ;;    
         *)
         usage
         exit 1
@@ -154,6 +159,9 @@ ansible_play(){
   fi
   if [ "$VERBOSE" = "yes" ]; then
     ANSIBLE_CMD="$ANSIBLE_CMD -vvvv"
+  fi
+  if [ -n "$BOTO_PROFILE" ]; then
+    export AWS_PROFILE="$BOTO_PROFILE"
   fi
   $ANSIBLE_CMD --extra-vars "{deploy_operation: $1}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
   return $?
