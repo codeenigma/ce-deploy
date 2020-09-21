@@ -1,11 +1,21 @@
 ---
-- name: Copy project repository.
+- name: Ensure tmp destination is present.
+  file:
+    path: "/tmp/{{ deploy_path }}"
+    state: directory
+    recurse: true
+
+- name: Copy project repository to tmp destination.
   synchronize:
     src: "{{ _ce_deploy_build_dir }}/"
-    dest: "{{ deploy_path }}"
+    dest: "/tmp/{{ deploy_path }}"
     archive: true
     rsync_opts:
       - "--exclude=.git"
+
+- name: Move to real destination.
+  command:
+    cmd: "mv /tmp/{{ deploy_path }} {{ deploy_path }}"
 
 - name: Ensure project repository is readable.
   file:
