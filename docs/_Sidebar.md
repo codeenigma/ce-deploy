@@ -30,6 +30,7 @@
        - [Drupal 8](/roles/_meta/deploy-drupal8)
        - [Matomo](/roles/_meta/deploy-matomo)
        - [Mautic](/roles/_meta/deploy-mautic)
+     - [NPM](/roles/npm)
      - [Sync roles](/roles/sync)
        - [Database sync](/roles/sync/database_sync)
          - [Database sync - MySQL](/roles/sync/database_sync/database_sync-mysql)
