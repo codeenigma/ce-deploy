@@ -2,7 +2,7 @@
 - name: Perform NPM steps.
   command:
     cmd: "{{ npm.executor }} {{ npm_command }}"
-    working_dir: "{{ npm.working_dir }}"
+    chdir: "{{ npm.working_dir }}"
   with_items: "{{ npm.commands }}"
   loop_control:
     loop_var: npm_command
