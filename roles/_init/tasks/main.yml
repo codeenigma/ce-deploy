@@ -41,7 +41,8 @@
 #   when: last_build_symlink.stat.exists
 
 # This is passed from caller.
-- set_fact:
+- name: Gather last known good build number.
+  set_fact:
     previous_build_number: "{{ previous_known_build_number }}"
 
 # - set_fact:
