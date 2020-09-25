@@ -8,10 +8,13 @@
     deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy') }}"
 - name: Define mounted directory for assets.
   set_fact:
-    deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared') }}"
+    deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared/assets') }}"
+- name: Define mounted directory for deploy code.
+  set_fact:
+    deploy_mount_base_path: "{{ deploy_mount_base_path | default('/home/{{ deploy_user }}/shared/deploy') }}"
 - name: Define webroot.
   set_fact:
-    webroot: "{{ webroot | default('www') }}"
+    webroot: "{{ webroot | default('web') }}"
 - name: Define build deploy path prefix.
   set_fact:
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
