@@ -1,9 +1,2 @@
 ---
 - include_tasks: "{{ deploy_operation }}.yml"
-
-- name: Sync codebases.
-  command:
-    cmd: "rsync -a --delete --exclude '.unison.*' {{ deploy_base_path }}/ {{ deploy_mount_base_path }}"
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync
