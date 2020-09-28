@@ -14,7 +14,7 @@
 
 - name: Move to final destination.
   command:
-    cmd: "mv /tmp/mount_sync.tar {{ mount_sync_tarball }}"
+    cmd: "mv /tmp/mount_sync.tar {{ deploy_code.mount_sync_tarball }}"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync
