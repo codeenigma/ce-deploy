@@ -2,6 +2,10 @@ language: c
 os: linux
 services:
   - docker
+before_install:
+  - echo 'deb http://ppa.launchpad.net/ansible/ansible/ubuntu trusty main' >> /etc/apt/sources.list
+  - apt update
+  - apt install ansible
 jobs:
   include:
     - name: Lint
@@ -9,7 +13,6 @@ jobs:
         apt:
           packages:
             - yamllint
-            - ansible
             - python-pip
       install:
         - pip install ansible-lint
