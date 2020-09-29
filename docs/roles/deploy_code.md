@@ -7,7 +7,6 @@ Step that deploys the codebase.
 ## Default variables
 ```yaml
 ---
-
 deploy_code:
   # Specify any additional symlink to create, with src (target) and dest (link).
   # src: can be either absolute or relative to the dest (eg. '/var/my_data', '/home/deploy/simplesaml', '../../../myconfig')
@@ -20,6 +19,10 @@ deploy_code:
   symlinks: []
   # Number of builds to keep. Note this is independant of databases/dump.
   keep: 10
+  # Wether to sync the local deploy base to a shared destination, after successful build.
+  mount_sync: false
+  mount_sync_tarball: /mnt/directory/project.tar
+
 ```
 
 <!--ENDROLEVARS-->
