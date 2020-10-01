@@ -21,6 +21,7 @@
      - [Cron](/roles/cron)
        - [Database backup cron task](/roles/cron/cron_database_backup)
          - [Database backup cron task - MySQL](/roles/cron/cron_database_backup/cron_database_backup-mysql)
+       - [Drupal 8 cron](/roles/cron/cron_drupal8)
        - [Database backup cron task - MySQL](/roles/cron/cron_matomo)
        - [Mautic cron tasks](/roles/cron/cron_mautic)
      - [Data backups](/roles/database_backup)
