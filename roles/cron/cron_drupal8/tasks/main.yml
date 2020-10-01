@@ -1,0 +1,7 @@
+---
+- name: Create site cron entries.
+  include_tasks:
+    file: cron.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site

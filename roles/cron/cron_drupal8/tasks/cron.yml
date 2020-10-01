@@ -1,0 +1,13 @@
+---
+- name: Setup Drupal cron tasks.
+  cron:
+    name: "{{ project_name }}_{{ site.folder }}_{{ build_type }}_{{ entry.job }}"
+    minute: "{{ entry.minute }}"
+    hour: "{{ entry.hour | default(omit) }}"
+    job: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} {{ entry.job }}"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  with_items: "{{ site.cron }}"
+  loop_control:
+    loop_var: entry
+  when: deploy_operation == 'deploy'

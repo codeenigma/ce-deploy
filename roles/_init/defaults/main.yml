@@ -12,6 +12,9 @@ drupal:
       sanitize_command: "sql-sanitize"
       base_url: https://www.example.com
       force_install: false
+      cron:
+        - minute: "*/{{ 10 | random(start=1) }}"
+          job: cron
 mautic:
   image_path: "media/images"
   force_install: false
