@@ -25,7 +25,7 @@
 - import_role:
     name: live_symlink
 - import_role:
-    name: cache_clear-drupal8
+    name: cache_clear/cache_clear-drupal8
 - import_role:
     name: maintenance_mode
   vars:
