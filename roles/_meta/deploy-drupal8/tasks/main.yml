@@ -32,6 +32,6 @@
 - import_role:
     name: cron/cron_database_backup
 - import_role:
-    name: cron/cron_drupal
+    name: cron/cron_drupal8
 - import_role:
     name: _exit
