@@ -13,7 +13,8 @@
     state: directory
     mode: 0755
 
-- include_role:
+- name: Project specific tasks.
+  include_role:
     name: "deploy_code/deploy_code-{{ project_type }}"
 
 - name: Create additional symlinks.

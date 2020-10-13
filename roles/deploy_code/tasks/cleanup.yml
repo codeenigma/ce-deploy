@@ -1,4 +1,9 @@
 ---
+- name: Ensure codebase is writable.
+  command:
+    cmd: "chmod -R +x {{ deploy_path_prefix }}{{ item }}"
+  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+
 - name: Delete codebases.
   file:
     name: "{{ deploy_path_prefix }}{{ item }}"
