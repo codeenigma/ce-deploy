@@ -1,6 +1,0 @@
----
-deploy_user: 'deploy'
-drupal:
-  sites:
-    - folder: "default"
-      public_files: "sites/default/files"
