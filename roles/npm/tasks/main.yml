@@ -7,3 +7,15 @@
   loop_control:
     loop_var: npm_command
   when: deploy_operation == 'deploy'
+
+- name: Create additional symlinks.
+  file:
+    src: "{{ link.src }}"
+    dest: "{{ deploy_path }}/{{ link.dest }}"
+    state: link
+  with_items: "{{ npm.symlinks }}"
+  loop_control:
+    loop_var: link
+  when:
+    - npm.symlinks | length
+    - deploy_operation == 'deploy'

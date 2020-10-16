@@ -1,9 +1,21 @@
 ---
-
 - name: Perform composer step.
   composer:
     command: "{{ composer.command }}"
     no_dev: "{{ composer.no_dev }}"
     working_dir: "{{ composer.working_dir }}"
     apcu_autoloader: "{{ composer.apcu_autoloader }}"
-  when: deploy_operation == 'deploy'
+  when:
+    - deploy_operation == 'deploy'
+
+- name: Create additional symlinks.
+  file:
+    src: "{{ link.src }}"
+    dest: "{{ deploy_path }}/{{ link.dest }}"
+    state: link
+  with_items: "{{ composer.symlinks }}"
+  loop_control:
+    loop_var: link
+  when:
+    - composer.symlinks | length
+    - deploy_operation == 'deploy'
