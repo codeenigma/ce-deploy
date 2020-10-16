@@ -23,6 +23,8 @@
 - import_role:
     name: database_apply
 - import_role:
+    name: sanitize/admin_creds
+- import_role:
     name: live_symlink
 - import_role:
     name: cache_clear/cache_clear-drupal8

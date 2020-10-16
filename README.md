@@ -1,4 +1,7 @@
 # ce-deploy
+
+[![Build Status](https://api.travis-ci.com/codeenigma/ce-deploy.svg?branch=1.x)](https://api.travis-ci.com/codeenigma/ce-deploy.svg?branch=1.x)
+
 A set of Ansible roles and wrapper scripts to deploy (web) applications.
 ## Overview
 The "stack" from this repo is to be installed on a "deploy" server/runner, to be used in conjonction with a CI/CD tool (Jenkins, Gitlab, Travis, ...).

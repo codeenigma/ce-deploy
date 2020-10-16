@@ -11,3 +11,15 @@
     src: "{{ _live_symlink_build_target }}"
     dest: "{{ live_symlink_dest }}"
     state: link
+
+- name: Create additional symlinks.
+  file:
+    src: "{{ link.src }}"
+    dest: "{{ deploy_path }}/{{ link.dest }}"
+    state: link
+  with_items: "{{ live_symlink.symlinks }}"
+  loop_control:
+    loop_var: link
+  when:
+    - live_symlink.symlinks | length
+    - deploy_operation == 'deploy'
