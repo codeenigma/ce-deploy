@@ -1,11 +1,6 @@
 # ce-deploy
 
 [![Build Status](https://api.travis-ci.com/codeenigma/ce-deploy.svg?branch=1.x)](https://api.travis-ci.com/codeenigma/ce-deploy.svg?branch=1.x)
-[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=codeenigma_ce-deploy&metric=security_rating)](https://sonarcloud.io/dashboard?id=codeenigma_ce-deploy)
-[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=codeenigma_ce-deploy&metric=reliability_rating)](https://sonarcloud.io/dashboard?id=codeenigma_ce-deploy)
-[![Bugs](https://sonarcloud.io/api/project_badges/measure?project=codeenigma_ce-deploy&metric=bugs)](https://sonarcloud.io/dashboard?id=codeenigma_ce-deploy)
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=codeenigma_ce-deploy&metric=alert_status)](https://sonarcloud.io/dashboard?id=codeenigma_ce-deploy)
-
 
 A set of Ansible roles and wrapper scripts to deploy (web) applications.
 ## Overview
