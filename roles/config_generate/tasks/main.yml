@@ -1,5 +1,18 @@
 ---
 
-- include_role:
+- name: Generate project specific configuration.
+  include_role:
     name: "config_generate/config_generate-{{ project_type }}"
   when: deploy_operation == 'deploy'
+
+- name: Create additional symlinks.
+  file:
+    src: "{{ link.src }}"
+    dest: "{{ deploy_path }}/{{ link.dest }}"
+    state: link
+  with_items: "{{ config_generate.symlinks }}"
+  loop_control:
+    loop_var: link
+  when:
+    - config_generate.symlinks | length
+    - deploy_operation == 'deploy'
