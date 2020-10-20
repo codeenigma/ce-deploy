@@ -9,7 +9,6 @@
   template:
     src: "{{ template.src }}"
     dest: "{{ deploy_path }}/{{ template.dest }}"
-    state: link
   with_items: "{{ config_generate.templates }}"
   loop_control:
     loop_var: template
