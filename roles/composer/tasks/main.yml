@@ -8,6 +8,17 @@
   when:
     - deploy_operation == 'deploy'
 
+- name: Generate additional templates.
+  template:
+    src: "{{ template.src }}"
+    dest: "{{ deploy_path }}/{{ template.dest }}"
+  with_items: "{{ composer.templates }}"
+  loop_control:
+    loop_var: template
+  when:
+    - composer.templates | length
+    - deploy_operation == 'deploy'
+
 - name: Create additional symlinks.
   file:
     src: "{{ link.src }}"
