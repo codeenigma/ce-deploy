@@ -17,6 +17,18 @@
   include_role:
     name: "deploy_code/deploy_code-{{ project_type }}"
 
+- name: Generate additional templates.
+  template:
+    src: "{{ template.src }}"
+    dest: "{{ deploy_path }}/{{ template.dest }}"
+    state: link
+  with_items: "{{ deploy_code.templates }}"
+  loop_control:
+    loop_var: template
+  when:
+    - deploy_code.templates | length
+    - deploy_operation == 'deploy'
+
 - name: Create additional symlinks.
   file:
     src: "{{ link.src }}"
