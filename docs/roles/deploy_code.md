@@ -17,6 +17,10 @@ deploy_code:
   #  - src: '/var/simplesaml/etc'
   #    dest: 'vendor/simplesamlphp/simplesamlphp/config'
   symlinks: []
+  # Specify any additional templates to generate, with src (template) and dest (file).
+  # src: name of a template, in the "templates" dir relative to your playbook.
+  # dest: can only be relative to the root of your repository (eg. 'www/config.php', 'var/mysettings.php')
+  templates: []
   # Number of builds to keep. Note this is independant of databases/dump.
   keep: 10
   # Wether to sync the local deploy base to a shared destination, after successful build.

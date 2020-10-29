@@ -17,3 +17,7 @@ npm:
   #  - src: '/var/simplesaml/etc'
   #    dest: 'vendor/simplesamlphp/simplesamlphp/config'
   symlinks: []
+  # Specify any additional templates to generate, with src (template) and dest (file).
+  # src: name of a template, in the "templates" dir relative to your playbook.
+  # dest: can only be relative to the root of your repository (eg. 'www/config.php', 'var/mysettings.php')
+  templates: []

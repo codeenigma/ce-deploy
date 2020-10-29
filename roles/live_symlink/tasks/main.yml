@@ -12,6 +12,17 @@
     dest: "{{ live_symlink_dest }}"
     state: link
 
+- name: Generate additional templates.
+  template:
+    src: "{{ template.src }}"
+    dest: "{{ deploy_path }}/{{ template.dest }}"
+  with_items: "{{ live_symlink.templates }}"
+  loop_control:
+    loop_var: template
+  when:
+    - live_symlink.templates | length
+    - deploy_operation == 'deploy'
+
 - name: Create additional symlinks.
   file:
     src: "{{ link.src }}"
