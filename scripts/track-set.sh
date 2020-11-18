@@ -25,7 +25,7 @@ OWN_DIR=$(pwd -P)
 parse_options "$@"
 
 # Check we have enough arguments.
-if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TARGET_DEPLOY_BRANCH" ] || [ -z "$PREVIOUS_BUILD_NUMBER" ]; then
+if [ -z "$BUILD_ID" ] || [ -z "$PREVIOUS_BUILD_NUMBER" ]; then
  usage
  exit 1
 fi
