@@ -3,19 +3,24 @@
 set -eu
 
 usage(){
-  echo 'revert.sh [OPTIONS] --repo <git repo to deploy> --branch <branch to deploy> --playbook <path to playbook> --build-number < incremental build number>'
+  echo 'cleanup.sh [OPTIONS] --repo <git repo to deploy> --branch <branch to deploy> --playbook <path to playbook> --build-number < incremental build number> --build-id <custom identifier>'
+  echo 'cleanup.sh [OPTIONS] --workspace <local path> --playbook <path to playbook> --build-number < incremental build number>  --build-id <custom identifier>'
   echo 'Cleanup old artefacts for an application.'
   echo ''
   echo 'Mandatory arguments:'
+  echo '--build-number: an incremental build number'
+  echo '--playbook: Relative path to an ansible playbook within the workspace/repository.'
+  echo '--build-id: A custom identifier used to "track" successful deployments.'
+  echo ''
+  echo 'You must also pass either:'
+  echo '--workspace: a local workspace (if your deployment tool already has one). This will skip the cloning/fetching of the repo.'
+  echo 'or both:'
   echo '--repo: Path to a remote git repo. The "deploy" user must have read access to it.'
   echo '--branch: The branch to deploy.'
-  echo '--playbook: Relative path to an ansible playbook within the repo.'
-  echo '--build-number: an incremental build number'
   echo ''
   echo 'Available options:'
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
-  echo '--workspace: a local existing clone of the repo/branch (if your deployment tool already has one). This will skip the cloning/fetching of the repo.'
-  echo '--previous-stable-build-number: an incremental build number'
+  echo '--previous-stable-build-number: an incremental build number that '
   echo '--dry-run: Do not perform any action but run the playbooks in --check mode.'
   echo '--verbose: Detailled informations. This can potentially leak sensitive information in the output'
   echo '--own-branch: Branch to use for the main stack repository'
@@ -36,10 +41,18 @@ OWN_DIR=$(pwd -P)
 # Parse options.
 parse_options "$@"
 
-# Check we have enough arguments.
-if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TARGET_DEPLOY_BRANCH" ] || [ -z "$CURRENT_BUILD_NUMBER" ]; then
+# Check we have mandatory arguments.
+if [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$CURRENT_BUILD_NUMBER" ] || [ -z "$BUILD_ID" ]; then
  usage
  exit 1
+fi
+
+# Check we have a workspace or a repo.
+if [ -z "$BUILD_WORKSPACE" ]; then
+  if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_BRANCH" ]; then
+    usage
+    exit 1
+  fi
 fi
 
 trap cleanup_build_tmp_dir EXIT INT TERM QUIT HUP

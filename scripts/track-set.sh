@@ -3,17 +3,12 @@
 set -eu
 
 usage(){
-  echo 'track-set.sh --repo <git repo to deploy> --branch <branch to deploy> --playbook <path to playbook> --previous-stable-build-number < incremental build number>'
+  echo 'track-set.sh --build-id <custom identifier>'
   echo 'Stores last known good build number for a given build.'
   echo ''
   echo 'Mandatory arguments:'
-  echo '--repo: Path to a remote git repo. The "deploy" user must have read access to it.'
-  echo '--branch: The branch to deploy.'
-  echo '--previous-stable-build-number: an incremental build number'
-  echo '--dry-run: Do not perform any action but run the playbooks in --check mode.'
-  echo '--verbose: Detailled informations. This can potentially leak sensitive information in the output'
-  echo '--own-branch: Branch to use for the main stack repository'
-  echo '--config-branch: Branch to use for the main stack config repository'
+  echo '--build-id: A custom identifier used to "track" successful deployments.'
+  echo '--previous-stable-build-number: an incremental build number that '
 }
 
 # Common processing.
@@ -30,7 +25,7 @@ OWN_DIR=$(pwd -P)
 parse_options "$@"
 
 # Check we have enough arguments.
-if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TARGET_DEPLOY_BRANCH" ] || [ -z "$PREVIOUS_BUILD_NUMBER" ]; then
+if [ -z "$BUILD_ID" ] || [ -z "$PREVIOUS_BUILD_NUMBER" ]; then
  usage
  exit 1
 fi

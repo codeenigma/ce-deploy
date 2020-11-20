@@ -81,6 +81,10 @@ parse_options(){
       "--boto-profile")
           shift
           BOTO_PROFILE="$1"
+        ;;
+      "--build-id")
+          shift
+          BUILD_ID="$1"
         ;;    
         *)
         usage
@@ -91,13 +95,8 @@ parse_options(){
   done
 }
 
-# An ID for the build.
-get_build_id(){
-  BUILD_ID="$(echo "$TARGET_DEPLOY_REPO-$TARGET_DEPLOY_BRANCH-$TARGET_DEPLOY_PLAYBOOK" | tr / -)"
-}
 # Path to the track file for given build.
 get_build_track_file(){
-  get_build_id
   BUILD_TRACK_FILE="$BUILD_TRACK_DIR/$BUILD_ID"
 }
 
