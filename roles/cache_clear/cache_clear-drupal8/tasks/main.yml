@@ -1,5 +1,4 @@
 ---
-
 - name: Clear Drupal cache.
   command:
     cmd: "{{ drush_bin }} -y cr"
@@ -9,3 +8,4 @@
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site
+  run_once: true

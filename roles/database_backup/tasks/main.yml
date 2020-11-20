@@ -1,5 +1,4 @@
 ---
-
 - set_fact:
     build_databases: []
 
@@ -9,3 +8,4 @@
   with_items: "{{ database_backup.engines }}"
   loop_control:
     loop_var: engine
+  run_once: true

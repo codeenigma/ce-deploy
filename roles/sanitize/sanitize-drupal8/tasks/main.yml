@@ -1,5 +1,4 @@
 ---
-
 - name: Sanitize database.
   command:
     cmd: "{{ drush_bin }} -y {{ site.sanitize_command }}"
@@ -10,3 +9,4 @@
   loop_control:
     loop_var: site
   when: site.sanitize_command
+  run_once: true

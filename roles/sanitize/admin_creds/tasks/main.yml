@@ -3,3 +3,4 @@
   include_role:
     name: "sanitize/admin_creds/admin_creds-{{ project_type }}"
   when: deploy_operation == 'deploy'
+  run_once: true
