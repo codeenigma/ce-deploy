@@ -3,17 +3,11 @@
 set -eu
 
 usage(){
-  echo 'track-get.sh --repo <git repo to deploy> --branch <branch to deploy> --playbook <path to playbook>'
+  echo 'track-get.sh --build-id <custom identifier>'
   echo 'Returns last known good build number for a given build.'
   echo ''
   echo 'Mandatory arguments:'
-  echo '--repo: Path to a remote git repo. The "deploy" user must have read access to it.'
-  echo '--branch: The branch to deploy.'
-  echo '--playbook: Relative path to an ansible playbook within the repo.'
-  echo '--dry-run: Do not perform any action but run the playbooks in --check mode.'
-  echo '--verbose: Detailled informations. This can potentially leak sensitive information in the output'
-  echo '--own-branch: Branch to use for the main stack repository'
-  echo '--config-branch: Branch to use for the main stack config repository'
+  echo '--build-id: A custom identifier used to "track" successful deployments.'
 }
 
 # Common processing.
@@ -29,8 +23,8 @@ OWN_DIR=$(pwd -P)
 # Parse options.
 parse_options "$@"
 
-# Check we have enough arguments.
-if [ -z "$TARGET_DEPLOY_REPO" ] || [ -z "$TARGET_DEPLOY_PLAYBOOK" ] || [ -z "$TARGET_DEPLOY_BRANCH" ]; then
+# Check we have mandatory arguments.
+if [ -z "$BUILD_ID" ]; then
  usage
  exit 1
 fi

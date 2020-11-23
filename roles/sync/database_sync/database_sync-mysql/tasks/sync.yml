@@ -15,12 +15,8 @@
     argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
-      - "--repo"
-      - "{{ database.source.build_info.repo }}"
-      - "--branch"
-      - "{{ database.source.build_info.branch }}"
-      - "--playbook"
-      - "{{ database.source.build_info.playbook }}"
+      - "--build-id"
+      - "{{ database.source.build_id }}"
   register: mysql_sync_source_build_number
   when: database.source.type == 'rolling'
 
@@ -55,12 +51,8 @@
     argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
-      - "--repo"
-      - "{{ database.target.build_info.repo }}"
-      - "--branch"
-      - "{{ database.target.build_info.branch }}"
-      - "--playbook"
-      - "{{ database.target.build_info.playbook }}"
+      - "--build-id"
+      - "{{ database.target.build_id }}"
   register: mysql_sync_target_build_number
   when: database.target.type == 'rolling'
 
