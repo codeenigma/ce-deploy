@@ -46,6 +46,7 @@
 - name: Create/update mysql user.
   command: mysql --defaults-extra-file={{ database.credentials_file }} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON {{ _mysql_build_database_name }}.* TO '{{ _mysql_build_user_name}}'@'%' IDENTIFIED BY '{{ _mysql_build_password }}';"
   when: ( mysql_backup.credentials_handling == 'rotate' ) or ( mysql_backup.credentials_handling == 'static' )
+  run_once: true
 
 - set_fact:
     _build_database:

@@ -1,5 +1,5 @@
 ---
-
 - name: Revert database from dump.
   shell: "bzcat {{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2 | mysql --defaults-extra-file={{ database.credentials_file }} {{ database.database }}"
   when: previous_build_number > 0
+  run_once: true

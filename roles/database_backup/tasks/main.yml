@@ -8,4 +8,3 @@
   with_items: "{{ database_backup.engines }}"
   loop_control:
     loop_var: engine
-  run_once: true
