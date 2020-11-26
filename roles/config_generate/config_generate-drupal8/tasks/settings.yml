@@ -21,6 +21,7 @@
     state: directory
     recurse: true
     mode: 0775
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
 
 - name: Generates settings.php file.
   template:
