@@ -3,6 +3,8 @@
   shell:
     cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod -R 777 {{ deploy_path_prefix }}{{ item }}; fi"
   with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  become: true
+  when: "www_user != deploy_user"
 
 - name: Delete codebases.
   file:
