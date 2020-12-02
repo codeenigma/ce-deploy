@@ -4,7 +4,6 @@ Sync MySQL databases between environments.
 ## Default variables
 ```yaml
 ---
-
 mysql_sync:
   databases:
     - source:
@@ -20,23 +19,18 @@ mysql_sync:
         # - dump: Use an existing dump. In that case, the "database" variable is the absolute file path.
         type: fixed
         # For "rolling builds", so we can compute the database name.
-        build_info:
-          repo: ""
-          branch: "prod"
-          build_type: "prod"
+        build_id: mybuildprod
       target:
-          database: "{{ project_name }}_dev"
-          credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
-          # This can be of types:
-          # - rolling: (database backups). In that case we'll need build parameters.
-          # - fixed: "fixed" database name
-          # - dump: Creates a dump file on the target server. In that case, the "database" variable is the absolute file path.
-          type: fixed
-          # For "rolling builds", so we can compute the database name.
-          build_info:
-            repo: ""
-            branch: "prod"
-            build_type: "prod"
+        database: "{{ project_name }}_dev"
+        credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
+        # This can be of types:
+        # - rolling: (database backups). In that case we'll need build parameters.
+        # - fixed: "fixed" database name
+        # - dump: Creates a dump file on the target server. In that case, the "database" variable is the absolute file path.
+        type: fixed
+        # For "rolling builds", so we can compute the database name.
+        build_id: mybuilddev
+
 ```
 
 <!--ENDROLEVARS-->
