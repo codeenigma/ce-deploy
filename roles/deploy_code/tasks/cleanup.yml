@@ -14,16 +14,16 @@
 
 - name: Create a tarball of the deployed codebases.
   command:
-    cmd: "tar -cvf /tmp/mount_sync.tar {{ deploy_base_path }}"
+    cmd: "tar -cvf /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_base_path }}"
   when:
     - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync
+    - deploy_code.mount_sync | length > 1
   run_once: true
 
 - name: Move to final destination.
   command:
-    cmd: "mv -f /tmp/mount_sync.tar {{ deploy_code.mount_sync_tarball }}"
+    cmd: "mv -f /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}"
   when:
     - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync
+    - deploy_code.mount_sync | length > 1
   run_once: true
