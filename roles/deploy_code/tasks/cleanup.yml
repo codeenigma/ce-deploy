@@ -32,7 +32,7 @@
 
 - name: Move to final destination.
   command:
-    cmd: "mv -f /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}"
+    cmd: "mv -f /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.tar"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
