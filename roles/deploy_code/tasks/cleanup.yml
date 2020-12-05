@@ -20,6 +20,16 @@
     - deploy_code.mount_sync | length > 1
   run_once: true
 
+- name: Create destination folder.
+  file:
+    path: "{{ deploy_code.mount_sync }}"
+    state: directory
+    mode: "0755"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+  run_once: true
+
 - name: Move to final destination.
   command:
     cmd: "mv -f /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}"
