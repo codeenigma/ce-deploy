@@ -25,7 +25,7 @@ deploy_code:
   keep: 10
   # Wether to sync the local deploy base to a shared destination, after successful build.
   mount_sync: ""
-  # mount_sync: "{{ deploy_mount_base_path }}"
+  # mount_sync: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/deploy"
 
 ```
 
