@@ -32,7 +32,7 @@
     _mysql_build_user_name: "{{ database.user }}_{{ build_number }}"
   when: mysql_backup.credentials_handling == 'rotate'
 - set_fact:
-    _mysql_build_password: "{{ lookup('password', '/dev/null') }}"
+    _mysql_build_password: "{{ lookup('password', '/dev/shm/{{ project_name }}_{{ build_type }}_{{ build_number }}') }}"
   when: mysql_backup.credentials_handling == 'rotate'
 
 - include_tasks: "deploy-{{ mysql_backup.handling }}.yml"
@@ -40,8 +40,6 @@
 # We append privileges instead of replacing,
 # to allow this role to be looped over,
 # for multisites or projects with multiple databases.
-# @todo deal with host for user.
-# @todo clean when we delete builds.
 # @see https://www.thesysadmin.rocks/2020/10/08/rds-mariadb-grant-all-permission-access-denied-for-user/ for why we cannot GRANT ALL.
 - name: Create/update mysql user.
   command: mysql --defaults-extra-file={{ database.credentials_file }} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON {{ _mysql_build_database_name }}.* TO '{{ _mysql_build_user_name}}'@'%' IDENTIFIED BY '{{ _mysql_build_password }}';"
