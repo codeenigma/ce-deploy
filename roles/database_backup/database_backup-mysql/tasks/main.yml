@@ -1,7 +1,7 @@
 ---
-
 - name: Take database backup.
   include_tasks: "{{ deploy_operation }}.yml"
   with_items: "{{ mysql_backup.databases }}"
   loop_control:
     loop_var: database
+  run_once: true
