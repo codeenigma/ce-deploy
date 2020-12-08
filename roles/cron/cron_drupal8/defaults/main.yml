@@ -8,3 +8,4 @@ drupal:
         - minute: "*/{{ 10 | random(start=1) }}"
           # hour: 2
           job: cron
+  defer: false
