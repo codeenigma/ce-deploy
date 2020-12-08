@@ -1,5 +1,5 @@
 ---
-- name: Setup Drupal cron tasks.
+- name: Setup Drupal cron tasks on app server.
   cron:
     name: "{{ project_name }}_{{ site.folder }}_{{ build_type }}_{{ entry.job }}"
     minute: "{{ entry.minute }}"
@@ -10,4 +10,23 @@
   with_items: "{{ site.cron }}"
   loop_control:
     loop_var: entry
-  when: deploy_operation == 'deploy'
+  when:
+    - deploy_operation == 'deploy'
+    - not site.defer
+
+- name: Setup Drupal cron tasks on deploy server (for ASG).
+  cron:
+    name: "{{ project_name }}_{{ site.folder }}_{{ build_type }}_{{ entry.job }}"
+    minute: "{{ entry.minute }}"
+    hour: "{{ entry.hour | default(omit) }}"
+    job: "ansible {{ inventory_hostname }}[0] -m command -a \"cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} {{ entry.job }}\""
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  delegate_to: localhost
+  with_items: "{{ site.cron }}"
+  loop_control:
+    loop_var: entry
+  when:
+    - deploy_operation == 'deploy'
+    - site.defer is defined
+    - site.defer
