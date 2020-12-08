@@ -12,7 +12,7 @@
 
 - name: Define cron job command for differing deploy users
   set_fact:
-    _cron_job_command: "{{ _cron_job_command }} --extra-vars '{\"become\":yes,\"become_user\":\"{{ www_user }}\"}'"
+    _cron_job_command: "{{ _cron_job_command }} --extra-vars '{\"become\":true,\"become_user\":\"{{ www_user }}\"}'"
   when:
     - www_user != deploy_user
 
@@ -22,7 +22,6 @@
     minute: "{{ entry.minute }}"
     hour: "{{ entry.hour | default(omit) }}"
     job: "{{ _cron_job_command }}"
-  become_user: "{{ www_user }}"
   delegate_to: "{{ 'localhost' if defer else inventory_hostname }}"
   with_items: "{{ site.cron }}"
   loop_control:
