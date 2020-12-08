@@ -1,7 +1,7 @@
 ---
 - name: Define cron job command
   set_fact:
-    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} {{ entry.job }}"
+    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }}"
 
 - name: Define cron job command if deferred (ASG)
   set_fact:
@@ -10,18 +10,12 @@
     - drupal.defer is defined
     - drupal.defer
 
-- name: Define cron job command for differing deploy users
-  set_fact:
-    _cron_job_command: "{{ _cron_job_command }} --extra-vars '{\"become\":true,\"become_user\":\"{{ www_user }}\"}'"
-  when:
-    - www_user != deploy_user
-
 - name: Setup Drupal cron tasks on app server.
   cron:
     name: "{{ project_name }}_{{ site.folder }}_{{ build_type }}_{{ entry.job }}"
     minute: "{{ entry.minute }}"
     hour: "{{ entry.hour | default(omit) }}"
-    job: "{{ _cron_job_command }}"
+    job: "{{ _cron_job_command }} {{ entry.job }} {{ '--extra-vars \'{\"become\":true,\"become_user\":\"{{ www_user }}\"}\'' if www_user != deploy_user }}"
   delegate_to: "{{ 'localhost' if defer else inventory_hostname }}"
   with_items: "{{ site.cron }}"
   loop_control:
