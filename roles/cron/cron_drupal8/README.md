@@ -17,7 +17,7 @@ drupal:
           job: cron
   # If the sites are being deployed to an ASG, setting defer to true will create the crontab entry on the deploy server rather than all of the app servers.
   defer: false
-  # If defer is set to true, the Ansible group name must be declared with defer_target. The first host in that group will be used in the crontab entry.
+  # If defer is set to true, the Ansible target must be declared with defer_target. If using a group, include the index. For example, _ce_www_dev[0]
   defer_target: ""
 
 ```
