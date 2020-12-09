@@ -9,3 +9,4 @@ drupal:
           # hour: 2
           job: cron
   defer: false
+  defer_target: ""
