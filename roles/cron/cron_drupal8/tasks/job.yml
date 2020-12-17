@@ -1,7 +1,7 @@
 ---
 - name: Define cron job command.
   set_fact:
-    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ deploy_path }}/{{ webroot }}/{{ drupal.drush_location }} {{ entry.job }}"
+    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ deploy_path }}/{{ drupal.drush_location }} {{ entry.job }}"
 
 - name: Define cron job command if deferred (ASG).
   set_fact:
