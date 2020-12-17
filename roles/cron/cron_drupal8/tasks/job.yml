@@ -1,7 +1,7 @@
 ---
 - name: Define cron job command.
   set_fact:
-    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} {{ entry.job }}"
+    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ deploy_path }}/{{ drupal.drush_location }} {{ entry.job }}"
 
 - name: Define cron job command if deferred (ASG).
   set_fact:
@@ -17,6 +17,8 @@
     _cron_job_command: "{{ _cron_job_command }} --extra-vars '{\"become\":true,\"become_user\":\"{{ www_user }}\"}'"
   when:
     - www_user != deploy_user
+    - drupal.defer is defined
+    - drupal.defer
 
 - name: Setup Drupal cron tasks on app server.
   cron:
