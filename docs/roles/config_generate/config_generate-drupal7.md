@@ -1,5 +1,5 @@
 # Drupal 7
-Clear caches for Drupal 7.
+Generates settings.php file for Drupal 7.
 <!--TOC-->
 <!--ENDTOC-->
 
