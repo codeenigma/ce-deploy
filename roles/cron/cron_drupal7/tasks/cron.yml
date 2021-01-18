@@ -1,0 +1,9 @@
+---
+- name: Setup Drupal 7 cron tasks.
+  include_tasks:
+    file: job.yml
+  with_items: "{{ site.cron }}"
+  loop_control:
+    loop_var: entry
+  when:
+    - deploy_operation == 'deploy'

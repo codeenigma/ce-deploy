@@ -1,0 +1,16 @@
+---
+- name: Setup PATH in crontab.
+  cron:
+    name: PATH
+    env: true
+    job: "/usr/bin:/usr/local/bin:/bin:/home/{{ deploy_user }}/.bin"
+  when:
+    - drupal.defer is defined
+    - drupal.defer
+
+- name: Create site cron entries.
+  include_tasks:
+    file: cron.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
