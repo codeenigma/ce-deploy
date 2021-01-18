@@ -1,0 +1,7 @@
+---
+
+- name: Public and private files.
+  include_tasks: files.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
