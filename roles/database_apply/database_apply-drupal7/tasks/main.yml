@@ -1,7 +1,7 @@
 ---
 
 - name: Install Drupal.
-  command:
+  shell:
     cmd: "{{ drush_bin }} -y si"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
@@ -12,7 +12,7 @@
   when: previous_build_number == 0 or (site.force_install is defined and site.force_install)
 
 - name: Apply Drupal database updates.
-  command:
+  shell:
     cmd: "{{ drush_bin }} -y updb"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   with_items: "{{ drupal.sites }}"
