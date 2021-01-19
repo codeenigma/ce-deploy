@@ -11,7 +11,7 @@
     - project_type == 'drupal8'
 
 - name: Enable maintenance mode D7.
-  command:
+  shell:
     cmd: "{{ drush_bin }} vset maintenance_mode 1"
     chdir: "{{ live_symlink_dest }}/{{ webroot }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
