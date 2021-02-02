@@ -9,6 +9,7 @@ drupal:
       config_sync_directory: "config/sync"
       #config_import_command: "cim"
       config_import_command: ""
+      revert_features_command: ""
       sanitize_command: "sql-sanitize"
       base_url: https://www.example.com
       force_install: false
