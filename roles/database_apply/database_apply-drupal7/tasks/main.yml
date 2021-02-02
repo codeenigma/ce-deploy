@@ -32,6 +32,9 @@
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site
+  when:
+    - previous_build_number > 0
+    - site.revert_features_command
 
 - name: Revert Drupal configuration with Ctools.
   include_tasks: ctools.yml
