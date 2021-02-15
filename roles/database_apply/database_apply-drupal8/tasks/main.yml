@@ -15,7 +15,7 @@
 
 - name: Install Drupal.
   command:
-    cmd: "{{ drush_bin }} -y si"
+    cmd: "{{ drush_bin }} -y si {{ site.install_profile }}"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
