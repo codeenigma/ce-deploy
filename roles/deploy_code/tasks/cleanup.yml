@@ -6,10 +6,13 @@
   become: true
   when: "www_user != deploy_user"
 
-- name: Ensure sites/default is writable.
+- name: Ensure permissions are set on directory.
   shell:
-    cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod 755 {{ deploy_path_prefix }}{{ item }}/{{ webroot }}/sites/default; fi"
+    cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod 755 {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
   with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  when:
+    - deploy_code.perms_fix_path is defined
+    - deploy_code.perms_fix_path | length > 1
 
 - name: Delete codebases.
   file:
