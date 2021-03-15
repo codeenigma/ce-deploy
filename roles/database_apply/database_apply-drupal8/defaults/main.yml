@@ -1,7 +1,0 @@
----
-# This role takes its parameters from the "drupal.sites" variables directly.
-drupal:
-  sites:
-    - folder: "default"
-      # ... See the _init role for other variables.
-      install_command: "-y si"
