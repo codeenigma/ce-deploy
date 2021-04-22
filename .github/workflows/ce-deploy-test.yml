@@ -1,0 +1,79 @@
+name: Run tests and build docs
+
+# Run this workflow every time a new commit pushed to your repository
+on: pull_request
+
+jobs:
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+  run-tests:
+    # Name the Job
+    name: Run tests against Ansible code base
+    # Set the type of machine to run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Linter checks.
+      - name: Run linters.
+        if: ${{ always() }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible-lint yamllint shellcheck
+          find ./roles -name "*.yml"  | xargs ansible-lint
+          yamllint ./roles
+          cd scripts && shellcheck *.sh
+
+      # Installs the ce-dev stack
+      - name: Install ce-dev
+        run: |
+          cd /tmp
+          wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
+          sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz
+          export PATH=$PATH:/usr/local/go/bin
+          git clone https://github.com/FiloSottile/mkcert && cd mkcert
+          go build -ldflags "-X main.Version=$(git describe --tags)"
+          sudo mv ./mkcert /usr/local/bin && cd ../
+          sudo chmod +x /usr/local/bin/mkcert
+          rm -Rf mkcert
+          curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/1.x/install.sh | /bin/sh -s -- linux
+
+      # Configures global Git variables for committing
+      - name: Configure Git
+        run: |
+          git config --global user.email "sysadm@codeenigma.com"
+          git config --global user.name "Code Enigma CI"
+
+      # @TODO - we need some equivalent for ce-deploy here
+      # 
+      # Uses the ce-dev stack to run a test provision
+      #- name: Run a test provision
+      #  run: |
+      #    git clone --branch 1.x https://github.com/codeenigma/ce-dev-ce-provision-config.git config
+      #    /bin/bash ce-dev/ansible/examples/test.sh
+      #  shell: bash
+
+      # Builds the table of contents for the docs
+      - name: Documentation (build table of contents)
+        if: ${{ github.event.pull_request.base.ref == '1.x' }}
+        run: contribute/toc.sh
+        shell: bash
+
+      # Uses the ce-dev stack to run Hugo to build and deploy the docs
+      - name: Documentation (build and publish)
+        if: ${{ github.event.pull_request.base.ref == '1.x' }}
+        run: |
+          cd
+          git clone https://github.com/codeenigma/wikis2pages.git
+          cd wikis2pages
+          /bin/bash init.sh https://${{ secrets.GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy.git 1.x
+          /bin/sh set-current.sh ce-deploy-1.x-travis
+          docker exec --user ce-dev --workdir /home/ce-dev/deploy/live.local wikis2pages-hugo hugo
+          /bin/sh .github-actions-push.sh
+          cd /home/runner/wikis2pages/public/ce-deploy-1.x-travis
+          git remote add ci https://${{ secrets.DOCS_GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy-docs.git
+          git push ci master
+        shell: bash
