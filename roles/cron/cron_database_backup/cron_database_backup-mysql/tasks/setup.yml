@@ -2,11 +2,11 @@
 - set_fact:
     _cron_mysql_backup_random_minute: "{{ 59 | random }}"
 - set_fact:
-    _cron_mysql_backup_minute: "{{ database.original.backup.minute | default(_cron_mysql_backup_random_minute)}}"
+    _cron_mysql_backup_minute: "{{ database.original.backup.minute | default(_cron_mysql_backup_random_minute) }}"
 - set_fact:
-    _cron_mysql_backup_hour: "{{ database.original.backup.hour | default(0)}}"
+    _cron_mysql_backup_hour: "{{ database.original.backup.hour | default(0) }}"
 - set_fact:
-    _cron_mysql_backup_keep: "{{ database.original.backup.keep | default(10)}}"
+    _cron_mysql_backup_keep: "{{ database.original.backup.keep | default(10) }}"
 
 - name: Ensure backup directory exists.
   file:
