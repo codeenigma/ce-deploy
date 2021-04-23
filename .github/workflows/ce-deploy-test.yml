@@ -47,14 +47,17 @@ jobs:
           git config --global user.email "sysadm@codeenigma.com"
           git config --global user.name "Code Enigma CI"
 
-      # @TODO - we need some equivalent for ce-deploy here
-      # 
-      # Uses the ce-dev stack to run a test provision
-      #- name: Run a test provision
-      #  run: |
-      #    git clone --branch 1.x https://github.com/codeenigma/ce-dev-ce-provision-config.git config
-      #    /bin/bash ce-dev/ansible/examples/test.sh
-      #  shell: bash
+      # Uses the ce-dev stack to run a test Drupal deploy
+      - name: Run a test ce-dev deploy
+        run: |
+          ce-dev create -p test -t drupal8 -d ~/test
+          cd ~/test
+          ce-dev init
+          ce-dev start
+          ce-dev provision
+          ce-dev deploy
+          curl https://www.test.local
+        shell: bash
 
       # Builds the table of contents for the docs
       - name: Documentation (build table of contents)
