@@ -5,9 +5,10 @@
   register: drush_global
 
 - name: Ensure bin directory exists.
-  file:
+  ansible.builtin.file:
     path: "{{ drush_bin | dirname }}"
     state: directory
+  register: drush_global_directory
 
 - name: Check if installed Drush version match.
   shell: "{{ drush_bin }} --version | grep -o '[0-9]\\.[0-9]\\.[0-9]'"
@@ -20,6 +21,12 @@
     dest: "{{ drush_bin }}"
     mode: 0755
   when: not drush_global.stat.exists or not drush_global_version.stdout == drush.version
+
+- name: Add drush directory to the .bashrc file
+  ansible.builtin.lineinfile:
+    path: "/home/{{ deploy_user }}/.bashrc"
+    line: "export PATH=\"$PATH:{{ drush_global_directory.path }}\""
+  when: drush_global_directory is defined
 
 - name: Trigger Drush init tasks.
   command: "{{ drush_bin }} init -y"
