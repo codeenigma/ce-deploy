@@ -1,3 +1,10 @@
+# Drupal 7 cron
+
+Ensure Drupal cron entries are run.
+
+<!--ROLEVARS-->
+## Default variables
+```yaml
 ---
 # This role takes its parameters from the "drupal.sites" variables directly.
 drupal:
@@ -12,5 +19,10 @@ drupal:
   defer: false
   # If defer is set to true, the Ansible target must be declared with defer_target. If using a group, include the index. For example, _ce_www_dev[0]
   defer_target: ""
-  # Drush location when installed with Composer
-  drush_location: "vendor/drush/drush/drush"
+
+```
+
+<!--ENDROLEVARS-->
+
+<!--TOC-->
+<!--ENDTOC-->
