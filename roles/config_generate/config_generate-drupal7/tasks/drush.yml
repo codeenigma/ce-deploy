@@ -1,0 +1,10 @@
+---
+
+- name: Generates drush.yml file.
+  template:
+    src: '{{ item }}'
+    dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/drush.yml"
+  with_first_found:
+    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.drush.yml.j2"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.drush.yml"
+    - "drush.yml.j2"

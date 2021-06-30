@@ -1,0 +1,39 @@
+---
+# Default Drupal 7 role. This is suitable for
+# - single site
+# - multisites with a single database
+
+- import_role:
+    name: _init
+- import_role:
+    name: deploy_code
+- import_role:
+    name: npm
+- import_role:
+    name: maintenance_mode
+  vars:
+    maintenance_mode:
+      operation: offline
+- import_role:
+    name: database_backup
+- import_role:
+    name: config_generate
+- import_role:
+    name: database_apply
+- import_role:
+    name: sanitize/admin_creds
+- import_role:
+    name: live_symlink
+- import_role:
+    name: cache_clear/cache_clear-drupal7
+- import_role:
+    name: maintenance_mode
+  vars:
+    maintenance_mode:
+      operation: online
+- import_role:
+    name: cron/cron_database_backup
+- import_role:
+    name: cron/cron_drupal7
+- import_role:
+    name: _exit
