@@ -10,14 +10,14 @@
   when: database.source.type == 'dump'
 
 - name: Get source last known good build number.
-  local_action:
-    module: command
+  command:
     argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
       - "--build-id"
       - "{{ database.source.build_id }}"
   register: mysql_sync_source_build_number
+  delegate_to: localhost
   when: database.source.type == 'rolling'
 
 - name: Register source database name.
@@ -46,14 +46,14 @@
   when: database.target.type == 'dump'
 
 - name: Get target last known good build number.
-  local_action:
-    module: command
+  command:
     argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
       - "--build-id"
       - "{{ database.target.build_id }}"
   register: mysql_sync_target_build_number
+  delegate_to: localhost
   when: database.target.type == 'rolling'
 
 - name: Register target database name.
