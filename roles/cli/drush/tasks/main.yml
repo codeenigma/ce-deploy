@@ -30,6 +30,13 @@
     - deploy_operation == 'deploy'
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
 
+- name: Create .bashrc file if it does not exist
+  ansible.builtin.file:
+    path: "/home/{{ deploy_user }}/.bashrc"
+    state: touch
+  when:
+    - deploy_operation == 'deploy'
+
 - name: Add drush directory to the .bashrc file
   ansible.builtin.lineinfile:
     path: "/home/{{ deploy_user }}/.bashrc"
