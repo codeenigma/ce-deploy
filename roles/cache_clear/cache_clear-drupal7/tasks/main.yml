@@ -1,0 +1,11 @@
+---
+- name: Clear Drupal 7 cache.
+  command:
+    cmd: "{{ drush_bin }} -y cc all"
+    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+  run_once: true

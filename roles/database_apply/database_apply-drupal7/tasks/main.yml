@@ -1,7 +1,26 @@
 ---
 
+- name: Install Drupal.
+  shell:
+    cmd: "{{ drush_bin }} -y si"
+    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+  when: previous_build_number == 0 or (site.force_install is defined and site.force_install)
+
+- name: Fix permissions on Drupal directory.
+  shell:
+    cmd: "chmod 755 {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+  when: previous_build_number == 0 or (site.force_install is defined and site.force_install)
+
 - name: Apply Drupal database updates.
-  command:
+  shell:
     cmd: "{{ drush_bin }} -y updb"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   with_items: "{{ drupal.sites }}"
@@ -13,6 +32,9 @@
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site
+  when:
+    - previous_build_number > 0
+    - site.revert_features_command
 
 - name: Revert Drupal configuration with Ctools.
   include_tasks: ctools.yml
