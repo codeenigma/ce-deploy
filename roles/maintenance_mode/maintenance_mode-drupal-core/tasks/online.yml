@@ -7,3 +7,12 @@
   become_user: "{{ www_user }}"
   when:
     - project_type == 'drupal8'
+
+- name: Disable maintenance mode D7.
+  shell:
+    cmd: "{{ drush_bin }} vset maintenance_mode 0"
+    chdir: "{{ deploy_path }}/{{ webroot }}"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  when:
+    - project_type == 'drupal7'

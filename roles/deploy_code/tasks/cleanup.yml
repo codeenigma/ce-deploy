@@ -6,6 +6,14 @@
   become: true
   when: "www_user != deploy_user"
 
+- name: Ensure permissions are set on directory.
+  shell:
+    cmd: "if [ -d {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
+  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  when:
+    - deploy_code.perms_fix_path is defined
+    - deploy_code.perms_fix_path | length > 1
+
 - name: Delete codebases.
   file:
     name: "{{ deploy_path_prefix }}{{ item }}"
@@ -14,16 +22,26 @@
 
 - name: Create a tarball of the deployed codebases.
   command:
-    cmd: "tar -cvf /tmp/mount_sync.tar {{ deploy_base_path }}"
+    cmd: "tar -cvf /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_base_path }}"
   when:
     - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync
+    - deploy_code.mount_sync | length > 1
+  run_once: true
+
+- name: Create destination folder.
+  file:
+    path: "{{ deploy_code.mount_sync }}"
+    state: directory
+    mode: "0755"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
   run_once: true
 
 - name: Move to final destination.
   command:
-    cmd: "mv -f /tmp/mount_sync.tar {{ deploy_code.mount_sync_tarball }}"
+    cmd: "mv /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.tar"
   when:
     - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync
+    - deploy_code.mount_sync | length > 1
   run_once: true
