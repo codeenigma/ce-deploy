@@ -1,0 +1,45 @@
+---
+- name: Check if 'lhci' is available.
+  ansible.builtin.command: "which lhci"
+  register: _lhci_check_result
+  ignore_errors: true
+
+- name: Check if 'Xvfb' is running.
+  ansible.builtin.command: "ps aux | grep Xvfb | wc -l"
+  register: _lhci_check_xvfb_result
+  when:
+    - _lhci_check_result.rc == 0
+
+- name: Set up the X display.
+  ansible.builtin.command: "Xvfb -ac :99 -screen 0 1280x1024x16 &"
+  when:
+    - _lhci_check_result.rc == 0
+    - _lhci_check_xvfb_result.stdout == '1'
+
+- name: Export the X display ID.
+  ansible.builtin.command: "export DISPLAY=:99"
+  when:
+    - _lhci_check_result.rc == 0
+
+- name: Place the 'lighthouserc.yml' config file.
+  ansible.builtin.template:
+    src: lighthouserc.yml.j2
+    dest: "{{ live_symlink_dest }}/lighthouserc.yml"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+  when:
+    - _lhci_check_result.rc == 0
+
+- name: Collect test data.
+  ansible.builtin.command:
+    cmd: "lhci collect"
+    chdir: "{{ live_symlink_dest }}"
+  when:
+    - _lhci_check_result.rc == 0
+
+- name: Save test data.
+  ansible.builtin.command:
+    cmd: "lhci upload"
+    chdir: "{{ live_symlink_dest }}"
+  when:
+    - _lhci_check_result.rc == 0
