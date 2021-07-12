@@ -5,7 +5,7 @@
   ignore_errors: true
 
 - name: Check if 'Xvfb' is running.
-  ansible.builtin.command: "ps aux | grep Xvfb | wc -l"
+  ansible.builtin.shell: "ps aux | grep Xvfb | wc -l"
   register: _lhci_run_check_xvfb_result
   when:
     - _lhci_run_check_result.rc == 0
