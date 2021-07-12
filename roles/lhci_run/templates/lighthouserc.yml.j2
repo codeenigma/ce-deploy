@@ -1,7 +1,7 @@
 ci:
   collect:
     url:
-{% for url in lhci.test_urls %}
+{% for url in lhci_run.test_urls %}
       - {{ url }}
 {% endfor %}
     settings:
