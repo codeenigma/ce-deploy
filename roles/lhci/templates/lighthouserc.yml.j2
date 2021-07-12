@@ -1,0 +1,16 @@
+ci:
+  collect:
+    url:
+{% for url in lhci.test_urls %}
+      - {{ url }}
+{% endfor %}
+    settings:
+      chromeFlags:
+        - "--no-sandbox"
+        - "--ignore-certificate-errors"
+      output: "html"
+    numberOfRuns: 1
+    headful: true
+  upload:
+    outputDir: "./reports"
+    target: "filesystem"

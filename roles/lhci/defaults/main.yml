@@ -1,0 +1,4 @@
+---
+lhci:
+  test_urls:
+    - "http://www.example.com"
