@@ -2,12 +2,12 @@ ci:
   collect:
     url:
 {% for url in lhci_run.test_urls %}
-      - {{ url }}
+      - "{{ url }}"
 {% endfor %}
     settings:
       chromeFlags:
 {% for flag in lhci_run.chrome_flags %}
-        - {{ flag }}
+        - "{{ flag }}"
 {% endfor %}
       output: "html"
     numberOfRuns: 1
