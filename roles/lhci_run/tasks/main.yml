@@ -16,11 +16,6 @@
     - _lhci_run_check_result.rc == 0
     - _lhci_run_check_xvfb_result.stdout == '1'
 
-- name: Export the X display ID.
-  ansible.builtin.command: "export DISPLAY=:99"
-  when:
-    - _lhci_run_check_result.rc == 0
-
 - name: Place the 'lighthouserc.yml' config file.
   ansible.builtin.template:
     src: lighthouserc.yml.j2
@@ -33,7 +28,9 @@
 - name: Collect test data.
   ansible.builtin.command:
     cmd: "lhci collect"
-    chdir: "{{ live_symlink_dest }}"
+    chdir: "{{ deploy_path }}"
+  environment:
+    DISPLAY: ":99"
   when:
     - _lhci_run_check_result.rc == 0
 
