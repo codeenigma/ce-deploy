@@ -22,6 +22,8 @@
 
 - name: Export the X display ID.
   ansible.builtin.shell: "export DISPLAY=:99"
+  become: true
+  become_user: "{{ deploy_user }}"
   when:
     - _lhci_run_check_result.rc == 0
 
