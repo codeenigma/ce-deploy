@@ -3,3 +3,11 @@ lhci_run:
   # Create a list of URLs to test with LHCI
   test_urls:
     - "http://www.example.com"
+  # Location to save reports
+  output_directory: "./reports/{{ ansible_date_time.iso8601 }}"
+  # Type of report storage (for now only local filesystem is supported)
+  upload_target_type: "filesystem"
+  # Flags to pass to Google Chrome
+  chrome_flags:
+    - "--no-sandbox"
+    - "--ignore-certificate-errors"
