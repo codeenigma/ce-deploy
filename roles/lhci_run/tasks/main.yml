@@ -35,6 +35,7 @@
   when:
     - _lhci_run_check_result.rc == 0
 
+# @todo - we currently only support saving locally, no reason not to allow posting to a server later.
 - name: Save test data.
   ansible.builtin.command:
     cmd: "lhci upload"
