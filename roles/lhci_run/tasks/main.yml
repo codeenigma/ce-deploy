@@ -15,7 +15,7 @@
     var: _lhci_run_check_xvfb_result
 
 - name: Set up the X display.
-  ansible.builtin.command: "Xvfb -ac :99 -screen 0 1280x1024x16 &"
+  ansible.builtin.shell: "Xvfb -ac :99 -screen 0 1280x1024x16 &"
   when:
     - _lhci_run_check_result.rc == 0
     - _lhci_run_check_xvfb_result.rc > 0
