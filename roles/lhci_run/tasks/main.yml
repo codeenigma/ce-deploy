@@ -17,7 +17,7 @@
     - _lhci_run_check_xvfb_result.stdout == '1'
 
 - name: Export the X display ID.
-  ansible.builtin.command: "export DISPLAY=:99"
+  ansible.builtin.shell: "export DISPLAY=:99"
   when:
     - _lhci_run_check_result.rc == 0
 
