@@ -19,7 +19,7 @@
 - name: Place the 'lighthouserc.yml' config file.
   ansible.builtin.template:
     src: lighthouserc.yml.j2
-    dest: "{{ live_symlink_dest }}/lighthouserc.yml"
+    dest: "{{ deploy_path }}/lighthouserc.yml"
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
   when:
@@ -37,6 +37,6 @@
 - name: Save test data.
   ansible.builtin.command:
     cmd: "lhci upload"
-    chdir: "{{ live_symlink_dest }}"
+    chdir: "{{ deploy_path }}"
   when:
     - _lhci_run_check_result.rc == 0
