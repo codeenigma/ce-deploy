@@ -5,8 +5,9 @@
   ignore_errors: true
 
 - name: Check if 'Xvfb' is running.
-  ansible.builtin.shell: "ps aux | grep Xvfb | wc -l"
+  ansible.builtin.shell: "pgrep Xvfb"
   register: _lhci_run_check_xvfb_result
+  ignore_errors: true
   when:
     - _lhci_run_check_result.rc == 0
 
@@ -17,7 +18,7 @@
   ansible.builtin.command: "Xvfb -ac :99 -screen 0 1280x1024x16 &"
   when:
     - _lhci_run_check_result.rc == 0
-    - _lhci_run_check_xvfb_result.stdout == '1'
+    - _lhci_run_check_xvfb_result.rc > 0
 
 - name: Export the X display ID.
   ansible.builtin.shell: "export DISPLAY=:99"
