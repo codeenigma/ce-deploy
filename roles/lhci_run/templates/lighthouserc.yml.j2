@@ -6,11 +6,12 @@ ci:
 {% endfor %}
     settings:
       chromeFlags:
-        - "--no-sandbox"
-        - "--ignore-certificate-errors"
+{% for flag in lhci_run.chrome_flags %}
+        - {{ flag }}
+{% endfor %}
       output: "html"
     numberOfRuns: 1
     headful: true
   upload:
-    outputDir: "./reports"
-    target: "filesystem"
+    outputDir: "{{ lhci_run.output_directory }}"
+    target: "{{ lhci_run.upload_target_type }}"
