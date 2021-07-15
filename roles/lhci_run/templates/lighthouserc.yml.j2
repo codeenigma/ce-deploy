@@ -9,8 +9,7 @@ ci:
 {% for flag in lhci_run.chrome_flags %}
         - "{{ flag }}"
 {% endfor %}
-      output: "html"
-    numberOfRuns: 1
+    numberOfRuns: {{ lhci_run.test_runs }}
     headful: true
   upload:
     outputDir: "{{ lhci_run.output_directory }}"
