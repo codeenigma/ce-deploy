@@ -24,8 +24,11 @@ deploy_code:
   # Number of builds to keep. Note this is independant of databases/dump.
   keep: 10
   # Wether to sync the local deploy base to a shared destination, after successful build.
-  mount_sync: false
-  mount_sync_tarball: /mnt/directory/project.tar
+  mount_sync: ""
+  # mount_sync: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/deploy"
+  # Path that you want to make sure has 755 permissions. Make sure to include the webroot WITHOUT the slash.
+  perms_fix_path: ""
+  # perms_fix_path: "www/sites/default"
 
 ```
 

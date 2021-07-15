@@ -1,3 +1,12 @@
+# Init
+These variables **must** be set in the `deploy/common.yml` file, at least.
+
+<!--TOC-->
+<!--ENDTOC-->
+
+<!--ROLEVARS-->
+## Default variables
+```yaml
 ---
 # Common defaults. Given the "_init" role is mandatory,
 # this will ensure defaults to other roles too.
@@ -23,3 +32,7 @@ drupal:
 mautic:
   image_path: "media/images"
   force_install: false
+
+```
+
+<!--ENDROLEVARS-->

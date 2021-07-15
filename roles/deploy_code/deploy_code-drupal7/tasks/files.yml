@@ -1,0 +1,37 @@
+---
+- name: Ensure public files directory exists.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_public_files"
+    state: directory
+
+- name: Ensure public files directory permissions.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_public_files"
+    state: directory
+    owner: "{{ www_user }}"
+    group: "{{ www_user }}"
+    recurse: true
+  become: true
+  when: "www_user != deploy_user"
+
+- name: Create symlink to public files.
+  file:
+    src: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_public_files"
+    dest: "{{ deploy_path }}/{{ webroot }}/{{ site.public_files }}"
+    state: link
+    force: true
+
+- name: Ensure private files directory exists.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+    state: directory
+
+- name: Ensure private files directory permissions.
+  file:
+    path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+    state: directory
+    owner: "{{ www_user }}"
+    group: "{{ www_user }}"
+    recurse: true
+  become: true
+  when: "www_user != deploy_user"

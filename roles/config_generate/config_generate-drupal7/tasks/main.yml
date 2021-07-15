@@ -1,0 +1,14 @@
+---
+- name: Generates settings file.
+  include_tasks: settings.yml
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+
+#- name: Generates Drush settings file.
+#  include_tasks: drush.yml
+#  when:
+#    - site.base_url is defined
+#  with_items: "{{ drupal.sites }}"
+#  loop_control:
+#    loop_var: site
