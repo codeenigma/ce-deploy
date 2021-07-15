@@ -16,6 +16,8 @@ lhci_run:
   # Create a list of URLs to test with LHCI
   test_urls:
     - "http://www.example.com"
+  # Number of times LHCI should run on each page
+  test_runs: 3
   # Location to save reports
   output_directory: "./reports/{{ ansible_date_time.iso8601 }}"
   # Type of report storage (for now only local filesystem is supported)
