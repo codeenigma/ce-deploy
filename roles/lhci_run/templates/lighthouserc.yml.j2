@@ -9,6 +9,16 @@ ci:
 {% for flag in lhci_run.chrome_flags %}
         - "{{ flag }}"
 {% endfor %}
+{% if lhci_run.skip_audits is defined and lhci_run.skip_audits %}
+      skipAudits:
+{% for audit in lhci_run.skip_audits %}
+        - "{{ audit }}"
+{% endfor %}{% endif %}
+{% if lhci_run.only_audits is defined and lhci_run.only_audits %}
+      onlyAudits:
+{% for audit in lhci_run.only_audits %}
+        - "{{ audit }}"
+{% endfor %}{% endif %}
     numberOfRuns: {{ lhci_run.test_runs }}
     headful: true
   upload:
