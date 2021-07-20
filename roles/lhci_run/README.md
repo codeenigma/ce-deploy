@@ -26,6 +26,10 @@ lhci_run:
   chrome_flags:
     - "--no-sandbox"
     - "--ignore-certificate-errors"
+  # Optional lists of audits to explicitly skip or run.
+  skip_audits:
+    - "full-page-screenshot" # We exclude this by default is it causes problems on some websites.
+  only_audits: []
 
 ```
 
