@@ -44,10 +44,6 @@
   when:
     - drush_global_directory.path is defined
     - deploy_operation == 'deploy'
-<<<<<<< HEAD
-=======
-    - drush_global_directory is defined
->>>>>>> devel
 
 - name: Trigger Drush init tasks.
   command: "{{ drush_bin }} init -y"
