@@ -39,7 +39,8 @@
   ansible.builtin.lineinfile:
     path: "/home/{{ deploy_user }}/.bashrc"
     line: "export PATH=\"$PATH:{{ drush_global_directory.path }}\""
-  when: drush_global_directory is defined
+  when:
+    - drush_global_directory.path is defined
 
 - name: Trigger Drush init tasks.
   command: "{{ drush_bin }} init -y"
