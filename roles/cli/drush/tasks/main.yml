@@ -34,6 +34,8 @@
   ansible.builtin.file:
     path: "/home/{{ deploy_user }}/.bashrc"
     state: touch
+  when:
+    - deploy_operation == 'deploy'
 
 - name: Add drush directory to the .bashrc file
   ansible.builtin.lineinfile:
@@ -41,6 +43,7 @@
     line: "export PATH=\"$PATH:{{ drush_global_directory.path }}\""
   when:
     - drush_global_directory.path is defined
+    - deploy_operation == 'deploy'
 
 - name: Trigger Drush init tasks.
   command: "{{ drush_bin }} init -y"
