@@ -1,0 +1,29 @@
+---
+- name: set public files relative path.
+  set_fact:
+    build_public_file_path: "{{ site.public_files }}"
+
+- name: set public files path.
+  set_fact:
+    build_private_file_path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+
+- name: set private files path.
+  set_fact:
+    build_private_file_path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
+
+- name: Ensure file permissions on site folder.
+  file:
+    path: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+    state: directory
+    recurse: true
+    mode: 0775
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+
+- name: Generates settings.php file.
+  template:
+    src: "{{ item }}"
+    dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
+  with_first_found:
+    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php.j2"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php"
+    - "settings.php.j2"

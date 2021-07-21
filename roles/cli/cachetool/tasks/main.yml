@@ -1,18 +1,23 @@
 ---
-
 - name: Check if we already have cachetool.
   stat:
     path: "{{ cachetool_bin }}"
   register: cachetool_global
+  when:
+    - deploy_operation == 'deploy'
 
 - name: Ensure bin directory exists.
   file:
     path: "{{ cachetool_bin | dirname }}"
     state: directory
+  when:
+    - deploy_operation == 'deploy'
 
 - name: Download cachetool installer.
   get_url:
     url: "http://gordalina.github.io/cachetool/downloads/cachetool.phar"
     dest: "{{ cachetool_bin }}"
     mode: 0755
-  when: not cachetool_global.stat.exists
+  when:
+    - deploy_operation == 'deploy'
+    - not cachetool_global.stat.exists

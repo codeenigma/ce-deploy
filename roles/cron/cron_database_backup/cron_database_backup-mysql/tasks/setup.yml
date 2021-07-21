@@ -15,6 +15,13 @@
     mode: 0700
     recurse: true
 
+- name: Ensure cron directory exists.
+  file:
+    path: "/home/{{ deploy_user }}/cron/{{ project_name }}_{{ build_type }}"
+    state: directory
+    mode: 0700
+    recurse: true
+
 - name: Create backup script.
   template:
     src: "regular-backups.sh.j2"

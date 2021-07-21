@@ -1,5 +1,5 @@
 ---
-- name: Setup Drupal cron tasks.
+- name: Setup Drupal 7 cron tasks.
   include_tasks:
     file: job.yml
   with_items: "{{ site.cron }}"
