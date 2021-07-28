@@ -26,6 +26,7 @@ usage(){
   echo '--own-branch: Branch to use for the main stack repository'
   echo '--config-branch: Branch to use for the main stack config repository'
   echo '--boto-profile: Name of a profile to export as AWS_PROFILE before calling Ansible'
+  echo '--git-project-name: If defined, the value set here will be used to set the project name in the deploy config in the repo'
 }
 
 # Common processing.
