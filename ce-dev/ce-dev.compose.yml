@@ -1,0 +1,27 @@
+version: "3.7"
+x-ce_dev:
+  version: 1.x
+  registry: localhost:5000
+  project_name: deploy
+  provision:
+    - ce-dev/ansible/setup.yml
+services:
+  controller:
+    image: codeenigma/ce-dev-1.x
+    x-ce_dev: {}
+    volumes:
+      - ../:/home/ce-dev/ce-deploy
+  web:
+    image: codeenigma/ce-dev-1.x
+    x-ce_dev:
+      host_aliases:
+        - deploy-web.local
+    expose:
+      - 80
+      - 443
+    volumes:
+      - ../ce-dev/build/:/home/ce-dev/deploy/live.local:delegated
+  db:
+    image: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: ce-dev

@@ -4,4 +4,8 @@
 /hosts
 /ansible.cfg
 /track
+/.editorconfig
+/.gitattributes
+mysql_backup_credentials.ini
 *.retry
+ce-dev/build
