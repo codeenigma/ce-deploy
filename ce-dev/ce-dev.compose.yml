@@ -20,7 +20,7 @@ services:
       - 80
       - 443
     volumes:
-      - ../:/home/ce-dev/deploy/live.local:delegated
+      - ../ce-dev/build/:/home/ce-dev/deploy/live.local:delegated
   db:
     image: mariadb
     environment:
