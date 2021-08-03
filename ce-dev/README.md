@@ -55,10 +55,10 @@ You need to ensure this exists and the correct IP addresses are defined (you can
 
 `ce-dev shell`
 
-Select the `deploy-controller` instance to connect to. From there, you can run a playbook to deploy to the deploy-web server. There are two ways to run playbooks.
+Select the `deploy-controller` instance to connect to. From there, you can run a playbook to deploy to the deploy-web server. There are two ways to run playbooks. Here are examples using the provided Drupal 8 example playbook:
 
 1.  From the **~/ce-deploy** directory, run:
-    `ansible-playbook ce-dev/ansible/local/my-playbook.yml`
+    `ansible-playbook ce-dev/ansible/examples/drupal8/deploy.yml`
 
 2.  Use the `build.sh` wrapper script. As you're working locally, you can use the `--workspace` argument:
-    `/bin/sh /home/ce-dev/ce-deploy/scripts/build.sh --workspace /home/ce-dev/ce-deploy --playbook ce-dev/ansible/local/my-playbook.yml --build-number 0 --build-id example`
+    `/bin/sh /home/ce-dev/ce-deploy/scripts/build.sh --workspace /home/ce-dev/ce-deploy/ce-dev/build --playbook ../../ce-dev/ansible/examples/drupal8/deploy.yml --build-number 0 --build-id example`
