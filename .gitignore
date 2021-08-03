@@ -7,3 +7,4 @@
 /.editorconfig
 /.gitattributes
 *.retry
+ce-dev/build/*
