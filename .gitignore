@@ -1,5 +1,4 @@
 /config
-/build
 /data
 /hosts
 /ansible.cfg
@@ -7,4 +6,4 @@
 /.editorconfig
 /.gitattributes
 *.retry
-ce-dev/build/*
+ce-dev/build
