@@ -7,6 +7,8 @@ By default, it will create:
 - a target web server, called **deploy-web**, which has standard privileges.
 - a database server, called **deploy-db**, which is the default MariaDB image from Docker Hub.
 
+The "web" server mounts the `ce-dev/build` directory in the ce-deploy repository at `/home/ce-dev/deploy/live.local` in the container so your "deployed" application can be found there. This is ignored by git to avoid accidentally committing build artifacts.
+
 ## Pre-requesites
 
 You'll need https://github.com/codeenigma/ce-dev installed.
