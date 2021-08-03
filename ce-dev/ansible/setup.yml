@@ -1,0 +1,41 @@
+---
+- hosts: deploy-controller
+  become: yes
+  vars_files:
+    - common.yml
+  vars:
+    - _domain_name: deploy-controller.local
+    - project_name: deploy
+  tasks:
+    - import_role:
+        name: ce_deploy
+    #- name: Remove example git hooks.
+    #  file:
+    #    path: "/home/ce-dev/ce-deploy/.git/hooks"
+    #    state: absent
+    #- name: Create git-hooks link.
+    #  file:
+    #    src: "../git-hooks"
+    #    dest: "/home/ce-dev/ce-deploy/.git/hooks"
+    #    state: link
+- hosts: deploy-web
+  become: yes
+  vars_files:
+    - common.yml
+  vars:
+    - project_name: deploy
+    - _env_type: dev
+    - _domain_name: www.{{ project_name }}.local
+  tasks:
+    - apt:
+        update_cache: true
+    - import_role:
+        name: _meta/common_base
+    - import_role:
+        name: mysql_client
+    - import_role:
+        name: php-cli
+    - import_role:
+        name: php-fpm
+    - import_role:
+        name: nginx

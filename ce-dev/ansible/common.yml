@@ -1,0 +1,61 @@
+# Common vars for local development.
+is_local: yes
+ce_deploy:
+  username: "ce-dev"
+  own_repository: "https://github.com/codeenigma/ce-deploy.git"
+  own_repository_branch: "1.x"
+  own_repository_skip_checkout: true
+  config_repository: "https://github.com/codeenigma/ce-dev-ce-deploy-config.git"
+  config_repository_branch: "1.x"
+  config_repository_skip_checkout: true
+  local_dir: "/home/ce-dev/ce-deploy"
+  groups: []
+user_deploy:
+  username: ce-dev
+  utility_host: "localhost"
+  utility_username: ce-dev
+  sudoer: false
+  groups: []
+  keys: []
+# Common vars for local web server.
+mysql_client:
+  host: deploy-db
+  user: root
+  password: ce-dev
+nginx:
+  domains:
+    - server_name: "{{ _domain_name }}"
+      access_log:  "/var/log/nginx-access.log"
+      error_log:  "/var/log/nginx-error.log"
+      error_log_level:  "notice"
+      webroot:  "/home/ce-dev/deploy/live.local/web"
+      project_type:  "drupal8"
+      ssl:
+        domain: "{{ _domain_name }}"
+        cert: "{{ _ce_dev_mkcert_base}}/deploy-web.local.pem"
+        key: "{{ _ce_dev_mkcert_base}}/deploy-web.local-key.pem"
+        handling: "unmanaged"
+      ratelimitingcrawlers: no
+      is_default: yes
+      servers:
+        - port: 80
+          ssl: no
+          https_redirect: yes
+        - port: 443
+          ssl: yes
+          https_redirect: no
+      upstreams: []
+php:
+  version:
+    - 7.4
+  cli:
+    memory_limit: -1
+xdebug:
+  cli: true
+# CE provision required variables.
+_ce_provision_build_tmp_dir: /tmp
+_ce_provision_base_dir: /home/ce-dev/ce-provision
+_ce_provision_build_dir: /home/ce-dev/ce-provision/ce-dev/ansible/local
+_ce_provision_data_dir: /tmp
+_ce_provision_build_id: ce-dev
+_ce_provision_force_play: true
