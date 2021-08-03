@@ -1,4 +1,5 @@
 /config
+/build
 /data
 /hosts
 /ansible.cfg
