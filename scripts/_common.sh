@@ -20,7 +20,6 @@ BUILD_WORKSPACE_BASE="$OWN_DIR/build"
 DRY_RUN="no"
 VERBOSE="no"
 BOTO_PROFILE=""
-GIT_PROJECT_NAME=""
 if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
     mkdir "$BUILD_WORKSPACE_BASE"
 fi
@@ -85,14 +84,8 @@ parse_options(){
         ;;
       "--build-id")
           shift
-          project_name=$(echo "$1" | rev | cut -d"-" -f2- | rev | awk '{print tolower($0)}' | sed -e "s/-//g")
-          branch_name=$(echo "$1" | rev | cut -d"-" -f1 | rev)
-          BUILD_ID="$project_name"-"$branch_name"
-        ;;
-      "--git-project-name")
-          shift
-          GIT_PROJECT_NAME=$(echo "$1" | sed -e "s/-//g" | awk '{print tolower($0)}')
-        ;;
+          BUILD_ID="$1"
+        ;;    
         *)
         usage
         exit 1
@@ -114,7 +107,7 @@ get_build_workspace(){
 
 # Common extra-vars to pass to Ansible.
 get_ansible_defaults_vars(){
-  ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER, git_project_name: $GIT_PROJECT_NAME}"
+  ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
 }
 
 # Fetch previous build number from track file.
