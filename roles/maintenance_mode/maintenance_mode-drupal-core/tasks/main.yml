@@ -1,3 +1,6 @@
 ---
 - include_tasks: "{{ maintenance_mode.operation }}.yml"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
   run_once: true
