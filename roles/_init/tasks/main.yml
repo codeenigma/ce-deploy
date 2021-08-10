@@ -60,9 +60,9 @@
 # Check for project specific init tasks.
 - name: Check that {{ project_type }}.yml exists.
   stat:
-    path: "{{ project_type }}.yml"
+    path: "{{ _ce_deploy_base_dir }}/roles/_init/tasks/{{ project_type }}.yml"
   register: _project_type_task_result
-  delegate_to: localhost
+  delegate_to: "localhost"
 
 # Project specific init tasks.
 - name: Include project init tasks.
