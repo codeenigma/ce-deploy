@@ -62,6 +62,7 @@
   stat:
     path: "{{ project_type }}.yml"
   register: _project_type_task_result
+  delegate_to: localhost
 
 # Project specific init tasks.
 - name: Include project init tasks.
