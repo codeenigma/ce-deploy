@@ -32,6 +32,7 @@ BUILD_TRACK_DIR="$OWN_DIR/track"
 if [ ! -d "$BUILD_TRACK_DIR" ]; then
   mkdir "$BUILD_TRACK_DIR"
 fi
+ANSIBLE_LOCATION=$(which ansible)
 # Parse options arguments.
 parse_options(){
   while [ "${1:-}" ]; do
@@ -107,7 +108,7 @@ get_build_workspace(){
 
 # Common extra-vars to pass to Ansible.
 get_ansible_defaults_vars(){
-  ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, _ce_deploy_ansible_location: $ANSIBLE_LOCATION, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
 }
 
 # Fetch previous build number from track file.
