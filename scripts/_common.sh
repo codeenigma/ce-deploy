@@ -32,7 +32,7 @@ BUILD_TRACK_DIR="$OWN_DIR/track"
 if [ ! -d "$BUILD_TRACK_DIR" ]; then
   mkdir "$BUILD_TRACK_DIR"
 fi
-ANSIBLE_LOCATION=$(which ansible)
+ANSIBLE_LOCATION=$(command -v ansible)
 # Parse options arguments.
 parse_options(){
   while [ "${1:-}" ]; do
@@ -153,7 +153,7 @@ cleanup_build_tmp_dir(){
 # - revert
 # - cleanup
 ansible_play(){
-  ANSIBLE_BIN=$(which ansible-playbook)
+  ANSIBLE_BIN=$(command -v ansible-playbook)
   ANSIBLE_CMD="$ANSIBLE_BIN $BUILD_WORKSPACE/$TARGET_DEPLOY_PLAYBOOK"
   if [ "$DRY_RUN" = "yes" ]; then
     ANSIBLE_CMD="$ANSIBLE_CMD --check"
