@@ -31,6 +31,7 @@
        - [MySQL backups](/roles/database_backup/database_backup-mysql)
      - [Deploy](/roles/deploy_code)
      - [Init](/roles/_init)
+     - [LHCI run](/roles/lhci_run)
      - ["Meta"](/roles/_meta)
        - [Drupal 7](/roles/_meta/deploy-drupal7)
        - [Drupal 8](/roles/_meta/deploy-drupal8)
