@@ -153,13 +153,7 @@ cleanup_build_tmp_dir(){
 # - revert
 # - cleanup
 ansible_play(){
-  # Ubuntu PPA repo installed
-  if [ -f "/usr/bin/ansible-playbook" ]; then
-    ANSIBLE_BIN="/usr/bin/ansible-playbook"
-  # or pip installed
-  else
-    ANSIBLE_BIN="/usr/local/bin/ansible-playbook"
-  fi
+  ANSIBLE_BIN=$(which ansible-playbook)
   ANSIBLE_CMD="$ANSIBLE_BIN $BUILD_WORKSPACE/$TARGET_DEPLOY_PLAYBOOK"
   if [ "$DRY_RUN" = "yes" ]; then
     ANSIBLE_CMD="$ANSIBLE_CMD --check"
