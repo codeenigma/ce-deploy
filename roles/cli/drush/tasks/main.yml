@@ -12,6 +12,7 @@
     state: directory
   when:
     - deploy_operation == 'deploy'
+    - not drush.use_vendor
   register: drush_global_directory
 
 - name: Check if installed Drush version match.
@@ -20,6 +21,7 @@
   when:
     - deploy_operation == 'deploy'
     - drush_global.stat.exists
+    - not drush.use_vendor
 
 - name: Download Drush installer.
   get_url:
@@ -29,6 +31,7 @@
   when:
     - deploy_operation == 'deploy'
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
+    - not drush.use_vendor
 
 - name: Create .bashrc file if it does not exist
   ansible.builtin.file:
@@ -50,3 +53,4 @@
   when:
     - deploy_operation == 'deploy'
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
+    - not drush.use_vendor
