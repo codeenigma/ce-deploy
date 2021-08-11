@@ -8,6 +8,7 @@ drush:
   # Note: This is the "default" version,
   # but projects should define theirs in composer.json.
   version: 8.2.2
+  use_vendor: false
 ```
 
 <!--ENDROLEVARS-->
