@@ -54,4 +54,3 @@
     - deploy_operation == 'deploy'
     - not drush.use_vendor
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
-
