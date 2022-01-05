@@ -2,7 +2,7 @@
 
 - name: Apply Matomo database updates.
   command:
-    cmd: "{{ deploy_path }}/{{ webroot }}/console core:update"
+    cmd: "{{ deploy_path }}/{{ webroot }}/console core:update --yes"
     chdir: "{{ deploy_path }}/{{ webroot }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
