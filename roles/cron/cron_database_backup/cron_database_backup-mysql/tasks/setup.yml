@@ -25,12 +25,26 @@
 - name: Create backup script.
   template:
     src: "regular-backups.sh.j2"
-    dest: "/home/{{ deploy_user }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh"
+    dest: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh"
     mode: 0700
+
+- name: Define backup cron job command.
+  set_fact:
+    _backup_cron_job_command: "/bin/sh /home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh"
+
+- name: Define backup cron job command if deferred (ASG).
+  set_fact:
+    _backup_cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _backup_cron_job_command }}\""
+  when:
+    - drupal.defer is defined
+    - drupal.defer
+    - drupal.defer_target is defined
+    - drupal.defer_target | length > 0
 
 - name: Setup regular backup for MySQL.
   cron:
     name: "cron_mysql_{{ database.host }}_{{ database.original.database }}"
     minute: "{{ _cron_mysql_backup_minute }}"
     hour: "{{ _cron_mysql_backup_hour }}"
-    job: "/bin/sh /home/{{ deploy_user }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh"
+    job: "{{ _backup_cron_job_command }}"
+  delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
