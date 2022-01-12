@@ -47,6 +47,4 @@
     minute: "{{ _cron_mysql_backup_minute }}"
     hour: "{{ _cron_mysql_backup_hour }}"
     job: "{{ _backup_cron_job_command }}"
-    cron_file: "{{ project_name }}-{{ build_type }}"
-    user: "{{ deploy_user }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
