@@ -33,7 +33,20 @@
 - name: Take a dump from source database.
   shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
   delegate_to: "{{ database.source.host }}"
-  when: not database.source.type == 'dump'
+  when:
+    - not database.source.type == 'dump'
+    - database.source.fresh_db
+
+- name: Register source database host.
+  shell: "grep 'host' {{ database.source.credentials_file }} | cut -d= -f2"
+  register: mysql_sync_source_database_host
+  delegate_to: "{{ database.source.host }}"
+  when: not database.source.fresh_db
+
+- name: Copy a nightly backup for the source database.
+  shell: "cp -L {{ database.source.dumps_directory }}/{{ mysql_sync_source_database_host.stdout }}/{{ project_name }}_{{ build_type }} {{ mysql_sync_source_dump_path }}"
+  delegate_to: "{{ database.source.host }}"
+  when: not database.source.fresh_db
 
 - name: Register tmp target dump name.
   set_fact:
