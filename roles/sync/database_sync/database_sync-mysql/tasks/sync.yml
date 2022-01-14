@@ -38,13 +38,16 @@
     - database.source.fresh_db
 
 - name: Register source database host.
-  shell: "grep 'host' {{ database.source.credentials_file }} | cut -d= -f2"
-  register: mysql_sync_source_database_host
+  set_fact:
+    mysql_sync_source_database_host: "{{ lookup('ini', 'host section=client file={{ database.source.credentials_file }}') }}"
   delegate_to: "{{ database.source.host }}"
   when: not database.source.fresh_db
 
 - name: Copy a nightly backup for the source database.
-  shell: "cp -L {{ database.source.dumps_directory }}/{{ mysql_sync_source_database_host.stdout }}/{{ project_name }}_{{ build_type }} {{ mysql_sync_source_dump_path }}"
+  ansible.builtin.copy:
+    src: "{{ database.source.dumps_directory }}/{{ mysql_sync_source_database_host }}/{{ project_name }}_{{ build_type }}"
+    dest: "{{ mysql_sync_source_dump_path }}"
+    remote_src: true
   delegate_to: "{{ database.source.host }}"
   when: not database.source.fresh_db
 
