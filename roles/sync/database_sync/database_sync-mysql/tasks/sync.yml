@@ -37,9 +37,16 @@
     - not database.source.type == 'dump'
     - database.source.fresh_db
 
+- name: Find source database host.
+  ansible.builtin.command:
+    cmd: "grep 'host' {{ database.source.credentials_file }}"
+  register: mysql_host_info_grep
+  delegate_to: "{{ database.source.host }}"
+  when: not database.source.fresh_db
+
 - name: Register source database host.
   set_fact:
-    mysql_sync_source_database_host: "{{ lookup('ini', 'host section=client file={{ database.source.credentials_file }}') }}"
+    mysql_sync_source_database_host: "{{ mysql_host_info_grep.stdout.split('=')[1] }}"
   delegate_to: "{{ database.source.host }}"
   when: not database.source.fresh_db
 
