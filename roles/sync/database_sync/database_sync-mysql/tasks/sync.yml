@@ -52,7 +52,7 @@
 
 - name: Copy a nightly backup for the source database.
   ansible.builtin.copy:
-    src: "{{ database.source.dumps_directory }}/{{ mysql_sync_source_database_host }}/{{ project_name }}_{{ build_type }}"
+    src: "{{ database.source.dumps_directory }}/{{ mysql_sync_source_database_host }}/{{ database.source.database }}"
     dest: "{{ mysql_sync_source_dump_path }}"
     remote_src: true
   delegate_to: "{{ database.source.host }}"
