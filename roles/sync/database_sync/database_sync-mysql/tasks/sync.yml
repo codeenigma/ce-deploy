@@ -1,4 +1,40 @@
 ---
+- name: Get database source host region.
+  amazon.aws.ec2_metadata_facts:
+  register: mysql_sync_source_database_host_info
+  delegate_to: "{{ database.source.host }}"
+  when:
+    - database.source.asg is defined
+    - database.source.asg | length > 0
+    - database.source.fresh_db is defined
+    - database.source.fresh_db
+
+# This task does not need a delegate_to because the hosts set in the sync playbook in the repo should be the target host.
+- name: Get database target host region.
+  amazon.aws.ec2_metadata_facts:
+  register: mysql_sync_target_database_host_info
+  when:
+    - database.target.asg is defined
+    - database.target.asg | length > 0
+
+- name: Disable ReplaceUnhealthy autoscale process on source ASG.
+  ansible.builtin.command: >
+    aws autoscaling suspend-processes --auto-scaling-group-name {{ database.source.asg }} --scaling-processes ReplaceUnhealthy --region {{ mysql_sync_source_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
+  delegate_to: localhost
+  when:
+    - database.source.asg is defined
+    - database.source.asg | length > 0
+    - database.source.fresh_db is defined
+    - database.source.fresh_db
+
+- name: Disable ReplaceUnhealthy autoscale process on target ASG.
+  ansible.builtin.command: >
+    aws autoscaling suspend-processes --auto-scaling-group-name {{ database.target.asg }} --scaling-processes ReplaceUnhealthy --region {{ mysql_sync_target_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
+  delegate_to: localhost
+  when:
+    - database.target.asg is defined
+    - database.target.asg | length > 0
+
 - name: Register remote dump name (from database).
   set_fact:
     mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
@@ -118,3 +154,21 @@
     path: "{{ mysql_sync_target_dump_path }}"
     state: absent
   when: not database.target.type == 'dump'
+
+- name: Enable all autoscale processes on source ASG.
+  ansible.builtin.command: >
+    aws autoscaling resume-processes --auto-scaling-group-name {{ database.source.asg }} --region {{ mysql_sync_source_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
+  delegate_to: localhost
+  when:
+    - database.source.asg is defined
+    - database.source.asg | length > 0
+    - database.source.fresh_db is defined
+    - database.source.fresh_db
+
+- name: Enable all autoscale processes on target ASG.
+  ansible.builtin.command: >
+    aws autoscaling resume-processes --auto-scaling-group-name {{ database.target.asg }} --region {{ mysql_sync_target_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
+  delegate_to: localhost
+  when:
+    - database.target.asg is defined
+    - database.target.asg | length > 0
