@@ -4,6 +4,7 @@
     name: PATH
     env: true
     job: "/usr/bin:/usr/local/bin:/bin:/home/{{ deploy_user }}/.bin"
+  delegate_to: localhost
   when:
     - drupal.defer is defined
     - drupal.defer
