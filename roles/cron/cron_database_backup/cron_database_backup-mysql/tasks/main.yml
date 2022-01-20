@@ -3,6 +3,16 @@
 # screwing the daily backup when using rolling db, we could
 # add a keep mechanism for backup scripts, like for the dumps themselves.
 # Nice to have more than anything.
+- name: Setup PATH in crontab.
+  cron:
+    name: PATH
+    env: true
+    job: "/usr/bin:/usr/local/bin:/bin:/home/{{ deploy_user }}/.bin"
+  delegate_to: localhost
+  when:
+    - drupal.defer is defined
+    - drupal.defer
+
 - include_tasks: setup.yml
   vars:
     database: database
