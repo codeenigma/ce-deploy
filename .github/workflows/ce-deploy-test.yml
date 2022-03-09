@@ -72,7 +72,7 @@ jobs:
 
       - name: Run a test ce-dev deploy with Localgov
         run: |
-          ce-dev create -p testlocalgov -t drupal9 -d ~/testlocalgov
+          ce-dev create -p testlocalgov -t localgov -d ~/testlocalgov
           cd ~/testlocalgov
           ce-dev init
           ce-dev start
