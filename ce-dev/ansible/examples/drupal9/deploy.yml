@@ -18,7 +18,7 @@
     - drupal:
         sites:
           - folder: "default"
-            public_files: "sites/default/files"z
+            public_files: "sites/default/files"
             install_command: "-y si"
             # Toggle config import on/off. Disabled for initial passes.
             config_import_command: ""
