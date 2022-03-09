@@ -1,0 +1,55 @@
+---
+# Template playbook for a local Drupal9 codebase.
+- hosts: deploy-web
+  vars:
+    - project_name: example
+    - project_type: drupal8
+    - webroot: web
+    - build_type: local
+    - _env_type: dev
+    - _domain_name: www.{{ project_name }}.local
+    # Path to your project root. This must match the "volume" set in the docker-compose template.
+    - deploy_path: /home/ce-dev/deploy/live.local
+    # This actually does not take any backup, but is needed to populate settings.php.
+    - mysql_backup:
+        handling: none
+        credentials_handling: static
+    # A list of Drupal sites (for multisites).
+    - drupal:
+        sites:
+          - folder: "default"
+            public_files: "sites/default/files"z
+            install_command: "-y si"
+            # Toggle config import on/off. Disabled for initial passes.
+            config_import_command: ""
+            # config_import_command: "cim"
+            config_sync_directory: "config/sync"
+            sanitize_command: "sql-sanitize"
+            # Remove after initial pass, to avoid reinstalling Drupal.
+            force_install: yes
+            base_url: "https://{{ _domain_name }}"
+    # Composer command to run.
+    - composer:
+        command: install
+        no_dev: no
+        working_dir: "{{ deploy_path }}"
+        apcu_autoloader: no
+  pre_tasks:
+    # You can safely remove these steps once you have a working composer.json.
+    - name: Download composer file.
+      get_url:
+        url: https://raw.githubusercontent.com/drupal/recommended-project/9.3.x/composer.json
+        dest: "{{ deploy_path }}/composer.json"
+        force: no
+    - name: Install drush.
+      command:
+        cmd: composer require drush/drush:11.*
+        chdir: "{{ deploy_path }}"
+  roles:
+    - _init # Sets some variables the deploy scripts rely on.
+    - composer # Composer install step.
+    - database_backup # This is still needed to generate credentials.
+    - config_generate # Generates settings.php
+    #    - sync/database_sync # Grab database from a remote server.
+    - database_apply # Run drush updb and config import.
+    - _exit # Some common housekeeping.

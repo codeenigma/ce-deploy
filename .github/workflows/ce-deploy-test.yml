@@ -48,7 +48,7 @@ jobs:
           git config --global user.name "Code Enigma CI"
 
       # Uses the ce-dev stack to run a test Drupal deploy
-      - name: Run a test ce-dev deploy
+      - name: Run a test ce-dev deploy with Drupal 8
         run: |
           ce-dev create -p test -t drupal8 -d ~/test
           cd ~/test
@@ -57,6 +57,28 @@ jobs:
           ce-dev provision
           ce-dev deploy
           curl https://www.test.local
+        shell: bash
+
+      - name: Run a test ce-dev deploy with Drupal 9
+        run: |
+          ce-dev create -p testnine -t drupal9 -d ~/testnine
+          cd ~/testnine
+          ce-dev init
+          ce-dev start
+          ce-dev provision
+          ce-dev deploy
+          curl https://www.testnine.local
+        shell: bash
+
+      - name: Run a test ce-dev deploy with Localgov
+        run: |
+          ce-dev create -p testlocalgov -t drupal9 -d ~/testlocalgov
+          cd ~/testlocalgov
+          ce-dev init
+          ce-dev start
+          ce-dev provision
+          ce-dev deploy
+          curl https://www.testlocalgov.local
         shell: bash
 
       # Builds the table of contents for the docs
