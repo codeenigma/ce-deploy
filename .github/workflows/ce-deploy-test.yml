@@ -59,6 +59,28 @@ jobs:
           curl https://www.test.local
         shell: bash
 
+      - name: Run a test ce-dev deploy with Drupal 9
+        run: |
+          ce-dev create -p testnine -t drupal9 -d ~/testnine
+          cd ~/testnine
+          ce-dev init
+          ce-dev start
+          ce-dev provision
+          ce-dev deploy
+          curl https://www.testnine.local
+        shell: bash
+
+      - name: Run a test ce-dev deploy with Localgov
+        run: |
+          ce-dev create -p testlocalgov -t localgov -d ~/testlocalgov
+          cd ~/testlocalgov
+          ce-dev init
+          ce-dev start
+          ce-dev provision
+          ce-dev deploy
+          curl https://www.testlocalgov.local
+        shell: bash
+
       # Builds the table of contents for the docs
       - name: Documentation (build table of contents)
         if: ${{ github.event.pull_request.base.ref == '1.x' }}
