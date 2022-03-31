@@ -1,0 +1,17 @@
+---
+# Default SimpleSAMLphp role. This is suitable for a standalone SimpleSAMLphp installation
+
+- ansible.builtin.import_role:
+    name: _init
+- ansible.builtin.import_role:
+    name: deploy_code
+- ansible.builtin.import_role:
+    name: composer
+- ansible.builtin.import_role:
+    name: database_backup
+- ansible.builtin.import_role:
+    name: live_symlink
+- ansible.builtin.import_role:
+    name: cache_clear/cache_clear-opcache
+- ansible.builtin.import_role:
+    name: _exit
