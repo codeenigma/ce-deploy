@@ -10,7 +10,7 @@ TARBALL="$DB_NAME-$(date -Iseconds).sql.bz2"
 KEEP=$(({{ database.original.backup.keep | default(cron_mysql_backup.keep) }}+1))
 
 backup(){
-  mysqldump --max-allowed-packet=128M --single-transaction --skip-opt -e --quick \
+  mysqldump --max-allowed-packet={{ cron_mysql_backup.max_allowed_packets }} --single-transaction --skip-opt -e --quick \
 	    --skip-disable-keys --skip-add-locks -C -a --add-drop-table \
 	    -u"$DBUSER" -p"$DBPASSWORD" -h"$DBHOST" "$CURRENT_DBNAME" | bzip2 > "$TARGET_DIR/$TARBALL"
   ln -sfn "$TARGET_DIR/$TARBALL" "$TARGET_DIR/$DB_NAME"
