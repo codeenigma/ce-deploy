@@ -1,0 +1,35 @@
+---
+- name: Ensure variables are empty.
+  ansible.builtin.set_fact:
+    _api_call_variables: ""
+    _api_call_url: ""
+
+- name: Build HTML escaped variable string.
+  ansible.builtin.set_fact:
+    _api_call_variables: "{{ _api_call_variables + ('' if ansible_loop.first else '&') + 'variables' + item }}"
+  with_items: "{{ api_call.variables }}"
+  loop_control:
+    extended: true
+  when: api_call.variables | length > 0
+
+- name: Build anonymous API call URL.
+  ansible.builtin.set_fact:
+    _api_call_url: "{{ api_call.base_url }}{{ api_call.path }}?{{ _api_call_variables }}"
+  when: api_call.token | length == 0
+
+- name: Build token authenticated API call URL.
+  ansible.builtin.set_fact:
+    _api_call_url: "{{ api_call.base_url }}{{ api_call.path }}?{% if api_call.token_type == 'trigger' %}token={% else %}private_token={% endif %}{{ api_call.token }}&{{ _api_call_variables }}"
+  when: api_call.token | length > 0
+
+- name: Display URL to call.
+  ansible.builtin.debug:
+    msg: "{{ _api_call_url }}"
+
+- name: Make API call.
+  ansible.builtin.uri:
+    url: "{{ _api_call_url }}"
+    method: "{{ api_call.method }}"
+    return_content: true
+    status_code: "{{ api_call.status_codes }}"
+  register: _api_call_return

@@ -1,0 +1,13 @@
+---
+api_call:
+  type: gitlab
+  base_url: https://gitlab.example.com/api/v4/
+  path: projects # see documentation - https://docs.gitlab.com/ee/api/
+  method: GET
+  token: "" # empty means anonymous action
+  token_type: trigger # options are 'trigger' or 'personal'
+  variables: []
+  status_codes:
+    - 200
+    - 201
+    - 202
