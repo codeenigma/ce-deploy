@@ -2,3 +2,4 @@
 cron_mysql_backup:
   dumps_directory: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/db_backups/mysql/regular"
   keep: 10
+  max_allowed_packets: 128M # Needs to be larger than the single largest database row

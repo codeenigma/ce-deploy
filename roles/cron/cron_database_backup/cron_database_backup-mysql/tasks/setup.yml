@@ -47,4 +47,4 @@
     minute: "{{ _cron_mysql_backup_minute }}"
     hour: "{{ _cron_mysql_backup_hour }}"
     job: "{{ _backup_cron_job_command }}"
-  delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
+  delegate_to: "{{ 'localhost' if drupal.defer is defined and drupal.defer else inventory_hostname }}"
