@@ -46,6 +46,17 @@
     - deploy_code.mount_sync | length > 1
   run_once: true
 
-- name: Pack an AWS AMI.
-  ansible.builtin.include_tasks: "ami.yml"
-  when: deploy_code.pack_ami
+- name: Trigger an infrastructure rebuild.
+  ansible.builtin.include_role:
+    name: api_call
+  vars:
+    api_call:
+      type: "{{ deploy_code.api_call.type }}"
+      base_url: "{{ deploy_code.api_call.base_url }}"
+      path: "{{ deploy_code.api_call.path }}"
+      method: "{{ deploy_code.api_call.method }}"
+      token: "{{ deploy_code.api_call.token }}"
+      token_type: "{{ deploy_code.api_call.token_type }}"
+      variables: "{{ deploy_code.api_call.variables }}"
+      status_codes: "{{ deploy_code.api_call.status_codes }}"
+  when: deploy_code.rebuild_infra
