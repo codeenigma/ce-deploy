@@ -21,3 +21,6 @@ deploy_code:
   # Path that you want to make sure has 755 permissions. Make sure to include the webroot WITHOUT the slash.
   perms_fix_path: ""
   # perms_fix_path: "www/sites/default"
+  # Pack an AMI if this is AWS and we are deploying instances with the code built in.
+  # This goes with ce-provision's 'repack' operation for deploying autoscaling groups.
+  pack_ami: false

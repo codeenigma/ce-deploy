@@ -1,6 +1,6 @@
 ---
 - name: Copy project repository.
-  synchronize:
+  ansible.posix.synchronize:
     src: "{{ _ce_deploy_build_dir }}/"
     dest: "{{ deploy_path }}"
     archive: true
@@ -8,17 +8,17 @@
       - "--exclude=.git"
 
 - name: Ensure project repository is readable.
-  file:
+  ansible.builtin.file:
     path: "{{ deploy_path }}"
     state: directory
     mode: 0755
 
 - name: Project specific tasks.
-  include_role:
+  ansible.builtin.include_role:
     name: "deploy_code/deploy_code-{{ project_type }}"
 
 - name: Generate additional templates.
-  template:
+  ansible.builtin.template:
     src: "{{ template.src }}"
     dest: "{{ deploy_path }}/{{ template.dest }}"
   with_items: "{{ deploy_code.templates }}"
@@ -29,7 +29,7 @@
     - deploy_operation == 'deploy'
 
 - name: Create additional symlinks.
-  file:
+  ansible.builtin.file:
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link

@@ -1,2 +1,2 @@
 ---
-- include_tasks: "{{ deploy_operation }}.yml"
+- ansible.builtin.include_tasks: "{{ deploy_operation }}.yml"
