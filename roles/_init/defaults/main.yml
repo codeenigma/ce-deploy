@@ -2,7 +2,7 @@
 # Common defaults. Given the "_init" role is mandatory,
 # this will ensure defaults to other roles too.
 deploy_user: "deploy"
-mysqldump_command: "mysqldump --max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
+_mysqldump_command: "mysqldump --max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 drupal:
   sites:
     - folder: "default"
