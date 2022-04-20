@@ -12,6 +12,6 @@
   run_once: true
 
 - name: Populate new database.
-  shell: "{{ mysql_backup.mysqldump_command }} --defaults-extra-file={{ database.credentials_file }} {{ _mysql_previous_build_database_name }} | mysql --defaults-extra-file={{ database.credentials_file }} {{ _mysql_build_database_name }}"
+  shell: "mysqldump --defaults-extra-file={{ database.credentials_file }} {{ mysql_backup.mysqldump_params }} {{ _mysql_previous_build_database_name }} | mysql --defaults-extra-file={{ database.credentials_file }} {{ _mysql_build_database_name }}"
   when: previous_build_number > 0
   run_once: true
