@@ -2,4 +2,4 @@
 cron_mysql_backup:
   dumps_directory: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/db_backups/mysql/regular"
   keep: 10
-  mysqldump_command: "{{ mysqldump_command }}" # set in _init but you can override here
+  mysqldump_command: "{{ _mysqldump_command }}" # set in _init but you can override here

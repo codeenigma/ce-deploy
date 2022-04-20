@@ -1,6 +1,6 @@
 ---
 mysql_sync:
-  mysqldump_command: "{{ mysqldump_command }}" # set in _init but you can override here
+  mysqldump_command: "{{ _mysqldump_command }}" # set in _init but you can override here
   databases:
     - source:
         # Name of the database to take a dump from.
