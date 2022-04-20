@@ -67,7 +67,7 @@
   when: not database.source.type == 'rolling'
 
 - name: Take a dump from source database.
-  shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
+  shell: "{{ mysql_sync.mysqldump_command }} --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
   delegate_to: "{{ database.source.host }}"
   when:
     - not database.source.type == 'dump'
