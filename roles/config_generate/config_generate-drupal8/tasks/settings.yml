@@ -20,7 +20,7 @@
     path: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
     state: directory
     mode: 0775
-  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become: "{{ false if www_user == deploy_user else true }}"
 
 - name: Generates settings.php file.
   template:
