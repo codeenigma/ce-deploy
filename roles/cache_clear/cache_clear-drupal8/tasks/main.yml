@@ -1,7 +1,7 @@
 ---
 - name: Clear Drupal cache.
   command:
-    cmd: "{{ drush_bin }} -y cr -l {{ site.folder }}"
+    cmd: "{{ drush_bin }} -l {{ site.folder }} -y cr"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"

@@ -6,6 +6,6 @@
     _admin_pwd: "{{ lookup('password', '/tmp/{{ project_name }}-{{ site.folder }}-{{ build_type }}-{{ build_number }}-pwd chars=ascii_letters') }}"
 
 - name: Reset admin username.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} sql-query \"UPDATE users SET name='{{ _admin_user }}' WHERE uid=1;\" -l {{ site.folder }}"
+  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} sql-query \"UPDATE users SET name='{{ _admin_user }}' WHERE uid=1;\""
 - name: Reset admin password.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} upwd {{ _admin_user }} --password='{{ _admin_pwd }}' -l {{ site.folder }}"
+  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} upwd {{ _admin_user }} --password='{{ _admin_pwd }}'"
