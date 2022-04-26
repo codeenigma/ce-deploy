@@ -15,7 +15,7 @@
 
 - name: Install Drupal.
   command:
-    cmd: "{{ drush_bin }} {{ site.install_command }}"
+    cmd: "{{ drush_bin }} {{ site.install_command }} -l {{ site.folder }}"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
@@ -34,7 +34,7 @@
 
 - name: Apply Drupal database updates.
   command:
-    cmd: "{{ drush_bin }} -y updb"
+    cmd: "{{ drush_bin }} -y updb -l {{ site.folder }}"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
@@ -44,7 +44,7 @@
 
 - name: Import configuration.
   command:
-    cmd: "{{ drush_bin }} -y {{ site.config_import_command }}"
+    cmd: "{{ drush_bin }} -y {{ site.config_import_command }} -l {{ site.folder }}"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
