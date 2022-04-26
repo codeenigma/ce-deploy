@@ -4,14 +4,14 @@
 # Loading the user directly is akward, but at least means we don't bypass entity update.
 - name: Reset admin username.
   command:
-    cmd: "{{ drush_bin }} php-eval '$admin = \\Drupal\\user\\Entity\\User::load(1); $admin->setUsername(\"{{ admin_creds.username }}\");$admin->save();' -l {{ site.folder }}"
+    cmd: "{{ drush_bin }} -l {{ site.folder }} php-eval '$admin = \\Drupal\\user\\Entity\\User::load(1); $admin->setUsername(\"{{ admin_creds.username }}\");$admin->save();' "
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   when:
     - admin_creds.username | length > 1
 
 - name: Reset admin password.
   command:
-    cmd: "{{ drush_bin }} php-eval '$admin = \\Drupal\\user\\Entity\\User::load(1); $admin->setPassword(\"{{ admin_creds.password }}\");$admin->save();' -l {{ site.folder }}"
+    cmd: "{{ drush_bin }} -l {{ site.folder }} php-eval '$admin = \\Drupal\\user\\Entity\\User::load(1); $admin->setPassword(\"{{ admin_creds.password }}\");$admin->save();' "
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   when:
     - admin_creds.password | length > 1
