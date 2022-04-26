@@ -1,8 +1,8 @@
 ---
 - name: Check if Features module is enabled.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} pm-info features -l {{ site.folder }} | grep ':  enabled' | wc -l"
+  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} pm-info features | grep ':  enabled' | wc -l"
   register: features_enabled
 
 - name: Revert Drupal configuration from Features.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -y {{ site.revert_features_command }} -l {{ site.folder }}"
+  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} -y {{ site.revert_features_command }}"
   when: features_enabled.stdout == "1"
