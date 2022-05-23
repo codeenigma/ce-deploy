@@ -16,9 +16,6 @@ mysql_backup:
   # Uses the same user/pwd pair than the one found in the database.credentials_file.
   # This is useful for locked-down setups where you do not have GRANT permissions.
   credentials_handling: rotate
-  # If you're deploying to an ASG and you're using `static` for credentials_handling,
-  # you can set asg_deployment to `true` to ensure the database user password remains the same, always.
-  asg_deployment: false
   databases:
     - database: "{{ project_name }}_{{ build_type }}"
       user: "{{ project_name }}_{{ build_type }}"
