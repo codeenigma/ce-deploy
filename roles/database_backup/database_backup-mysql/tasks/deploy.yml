@@ -26,7 +26,16 @@
   when: mysql_backup.credentials_handling == 'static'
 - set_fact:
     _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
-  when: mysql_backup.credentials_handling == 'static'
+  when:
+    - mysql_backup.credentials_handling == 'static'
+    - mysql_backup.asg_deployment is not defined or not mysql_backup.asg_deployment
+- set_fact:
+    _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ project_name }}_asg/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
+  when:
+    - mysql_backup.credentials_handling == 'static'
+    - mysql_backup.asg_deployment is defined
+    - mysql_backup.asg_deployment
+  run_once: true
 # Rotate: create user/pwd on each build.
 - set_fact:
     _mysql_build_user_name: "{{ database.user }}_{{ build_number }}"
