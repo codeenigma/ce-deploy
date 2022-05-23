@@ -25,6 +25,7 @@
     _mysql_build_user_name: "{{ database.user }}"
   when: mysql_backup.credentials_handling == 'static'
 
+### Start of legacy handling. Can remove in a few months.
 - name: Catch legacy static password handling.
   ansible.builtin.stat:
     path: "{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}"
@@ -68,6 +69,7 @@
     - mysql_backup.credentials_handling == 'static'
     - _legacy_static_creds is defined
     - _legacy_static_creds.stat.exists
+### End of legacy handling.
 
 - set_fact:
     _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ project_name }}_{{ build_type }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
