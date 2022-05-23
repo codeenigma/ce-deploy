@@ -24,8 +24,55 @@
 - set_fact:
     _mysql_build_user_name: "{{ database.user }}"
   when: mysql_backup.credentials_handling == 'static'
+
+### Start of legacy handling. Can remove in a few months.
+- name: Catch legacy static password handling.
+  ansible.builtin.stat:
+    path: "{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}"
+  register: _legacy_static_creds
+  delegate_to: localhost
+  run_once: true
+  when: mysql_backup.credentials_handling == 'static'
+
+- name: Create new static password location if it doesn't exist.
+  ansible.builtin.file:
+    path: "{{ _ce_deploy_data_dir }}/{{ project_name }}_{{ build_type }}/mysql/{{ _mysql_host }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: 0755
+  delegate_to: localhost
+  run_once: true
+  when: mysql_backup.credentials_handling == 'static'
+
+- name: Copy legacy static password to new location.
+  ansible.builtin.copy:
+    src: "{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}"
+    dest: "{{ _ce_deploy_data_dir }}/{{ project_name }}_{{ build_type }}/mysql/{{ _mysql_host }}/{{ database.database }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    mode: 0644
+  delegate_to: localhost
+  run_once: true
+  when:
+    - mysql_backup.credentials_handling == 'static'
+    - _legacy_static_creds is defined
+    - _legacy_static_creds.stat.exists
+
+- name: Delete legacy static password file if it exists.
+  ansible.builtin.file:
+    path: "{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}"
+    state: absent
+  delegate_to: localhost
+  run_once: true
+  when:
+    - mysql_backup.credentials_handling == 'static'
+    - _legacy_static_creds is defined
+    - _legacy_static_creds.stat.exists
+### End of legacy handling.
+
 - set_fact:
-    _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
+    _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ project_name }}_{{ build_type }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
   when: mysql_backup.credentials_handling == 'static'
 # Rotate: create user/pwd on each build.
 - set_fact:
