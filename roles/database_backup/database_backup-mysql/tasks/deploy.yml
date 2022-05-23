@@ -30,7 +30,7 @@
     - mysql_backup.credentials_handling == 'static'
     - mysql_backup.asg_deployment is not defined or not mysql_backup.asg_deployment
 - set_fact:
-    _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ project_name }}_asg/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
+    _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ project_name }}_{{ build_type }}_asg/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
   when:
     - mysql_backup.credentials_handling == 'static'
     - mysql_backup.asg_deployment is defined
