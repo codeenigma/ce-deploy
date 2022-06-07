@@ -15,7 +15,7 @@
 
 - name: Copy the source files from the deploy server onto the destination server.
   ansible.builtin.copy:
-    src: "{{ files.source.temp_dir }}/{{ files.source.build_id }}"
+    src: "{{ files.source.temp_dir }}/{{ files.source.build_id }}/"
     dest: "{{ files.target.files_dir }}"
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
