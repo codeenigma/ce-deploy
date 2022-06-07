@@ -1,0 +1,7 @@
+---
+- name: Sync files.
+  include_tasks: "sync.yml"
+  with_items: "{{ files_sync.directories }}"
+  loop_control:
+    loop_var: files
+  run_once: true

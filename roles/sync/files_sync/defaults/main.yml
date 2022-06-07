@@ -1,0 +1,16 @@
+---
+files_sync:
+  directories:
+    - source:
+        # Location of the files to sync from. DO NOT INCLUDE TRAILING SLASH!
+        files_dir: "/home/{{ deploy_user }}/shared/{{ project_name }}_prod/assets/{{ project_name }}_prod_default_public_files"
+        # Host that contains source files.
+        host: "localhost"
+        # Location on deploy server where source files get copied to first. NO TRAILING SLASH.
+        temp_dir: "/tmp"
+        # Used to create directory in /tmp.
+        build_id: mybuildprod
+      target:
+        # Location of the files to sync to. DO NOT INCLUDE TRAILING SLASH!
+        files_dir: "/home/{{ deploy_user }}/shared/{{ project_name }}_dev/assets/{{ project_name }}_dev_default_public_files"
+        build_id: mybuilddev

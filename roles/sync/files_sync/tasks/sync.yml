@@ -1,0 +1,21 @@
+---
+- name: Create a temporary directory for source files on localhost.
+  ansible.builtin.file:
+    path: "{{ files.source.temp_dir }}/{{ files.source.build_id }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy the source files onto the deploy server.
+  ansible.builtin.command:
+    cmd: "rsync -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' -aHPv {{ files.source.host }}:{{ files.source.files_dir }}/ {{ files.source.temp_dir }}/{{ files.source.build_id }}/"
+  delegate_to: "localhost"
+  run_once: true
+
+- name: Copy the source files from the deploy server onto the destination server.
+  ansible.builtin.command:
+    cmd: "rsync -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' -aHPv {{ files.source.temp_dir }}/{{ files.source.build_id }}/ {{ ansible_play_hosts[0] }}:{{ files.target.files_dir }}/"
+  delegate_to: "localhost"
+  run_once: true
