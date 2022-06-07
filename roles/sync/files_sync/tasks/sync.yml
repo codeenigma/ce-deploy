@@ -14,8 +14,6 @@
   delegate_to: "localhost"
 
 - name: Copy the source files from the deploy server onto the destination server.
-  ansible.builtin.copy:
-    src: "{{ files.source.temp_dir }}/{{ files.source.build_id }}/"
-    dest: "{{ files.target.files_dir }}"
-    owner: "{{ deploy_user }}"
-    group: "{{ deploy_user }}"
+  ansible.builtin.command:
+    cmd: "rsync -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' -aHPv {{ files.source.temp_dir }}/{{ files.source.build_id }}/ {{ ansible_play_hosts[0] }}:{{ files.target.files_dir }}/"
+  delegate_to: "localhost"
