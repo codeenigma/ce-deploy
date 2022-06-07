@@ -1,0 +1,22 @@
+---
+- name: Create a temporary directory for source files on localhost.
+  ansible.builtin.file:
+    path: "/tmp/{{ files.source.build_id }}"
+    state: directory
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+  delegate_to: localhost
+  run_once: true
+
+- name: Copy the source files onto the deploy server.
+  ansible.posix.synchronize:
+    mode: pull
+    src: "{{ files.source.files_dir }}"
+    dest: "/tmp/{{ files.source.build_id }}"
+
+- name: Copy the source files from the deploy server onto the destination server.
+  ansible.builtin.copy:
+    src: "/tmp/{{ files.source.build_id }}"
+    dest: "{{ files.target.files_dir }}"
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
