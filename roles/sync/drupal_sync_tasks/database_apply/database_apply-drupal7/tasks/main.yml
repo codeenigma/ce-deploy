@@ -7,14 +7,6 @@
   loop_control:
     loop_var: site
 
-- name: Revert Drupal configuration with Features.
-  ansible.builtin.include_tasks: features.yml
-  with_items: "{{ drupal.sites }}"
-  loop_control:
-    loop_var: site
-  when:
-    - site.revert_features_command
-
 - name: Clear the cache.
   ansible.builtin.include_role:
     name: "sync/drupal_sync_tasks/cache_clear/cache_clear-{{ project_type }}"
