@@ -23,4 +23,4 @@
 
 - name: Clear the cache.
   ansible.builtin.include_role:
-    name: "sync/drupal_sync_tasks/clear_cache/clear_cache-{{ project_type }}"
+    name: "sync/drupal_sync_tasks/cache_clear/cache_clear-{{ project_type }}"
