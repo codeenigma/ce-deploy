@@ -1,0 +1,6 @@
+---
+- name: Apply database updates.
+  ansible.builtin.include_role:
+    name: "sync/drupal_sync_tasks/database_apply/database_apply-{{ project_type }}"
+  when: deploy_operation == 'deploy'
+  run_once: true
