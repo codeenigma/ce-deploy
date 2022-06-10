@@ -1,6 +1,7 @@
 ---
 # Common defaults. Given the "_init" role is mandatory,
 # this will ensure defaults to other roles too.
+# If you are using ce-provision to deploy infrastructure this must match the `user_deploy.username` variable
 deploy_user: "deploy"
 _mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 drupal:
