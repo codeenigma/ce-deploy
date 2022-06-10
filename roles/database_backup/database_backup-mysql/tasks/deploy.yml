@@ -88,8 +88,9 @@
 # to allow this role to be looped over,
 # for multisites or projects with multiple databases.
 # @see https://www.thesysadmin.rocks/2020/10/08/rds-mariadb-grant-all-permission-access-denied-for-user/ for why we cannot GRANT ALL.
+# As of MySQL 8.0 the GRANT operation has no password option, you must CREATE your user first.
 - name: Create/update mysql user.
-  command: mysql --defaults-extra-file={{ database.credentials_file }} -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON {{ _mysql_build_database_name }}.* TO '{{ _mysql_build_user_name }}'@'%' IDENTIFIED BY '{{ _mysql_build_password }}';"
+  command: mysql --defaults-extra-file={{ database.credentials_file }} -e "CREATE '{{ _mysql_build_user_name }}'@'%' IDENTIFIED BY '{{ _mysql_build_password }}'; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON {{ _mysql_build_database_name }}.* TO '{{ _mysql_build_user_name }}'@'%';"
   when: ( mysql_backup.credentials_handling == 'rotate' ) or ( mysql_backup.credentials_handling == 'static' )
   run_once: true
 
