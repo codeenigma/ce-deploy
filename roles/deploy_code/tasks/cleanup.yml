@@ -26,6 +26,18 @@
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "tarball"
+  run_once: true
+
+- name: Create a SquashFS image of the deployed codebases.
+  ansible.builtin.command:
+    cmd: "mksquashfs {{ deploy_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
   run_once: true
 
 - name: Create destination folder.
@@ -38,12 +50,24 @@
     - deploy_code.mount_sync | length > 1
   run_once: true
 
-- name: Move to final destination.
+- name: Move tar file to final destination.
   ansible.builtin.command:
     cmd: "mv /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.tar"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "tarball"
+  run_once: true
+
+- name: Move SquashFS image to final destination.
+  ansible.builtin.command:
+    cmd: "mv /tmp/{{ project_name }}_{{ build_type }}.sqsh {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.sqsh"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
   run_once: true
 
 - name: Trigger an infrastructure rebuild.
