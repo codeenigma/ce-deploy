@@ -18,7 +18,7 @@ deploy_code:
   # Whether to sync the local deploy base to a shared destination, after successful build.
   mount_sync: ""
   # Type of file to use for sync - 'squashfs' or 'tarball'
-  mount_type: ""
+  mount_type: "tarball"
   # mount_sync: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/deploy"
   # Path that you want to make sure has 755 permissions. Make sure to include the webroot WITHOUT the slash.
   perms_fix_path: ""
