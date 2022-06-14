@@ -26,17 +26,15 @@
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type is defined
     - deploy_code.mount_type == "tarball"
   run_once: true
 
 - name: Create a SquashFS image of the deployed codebases.
   ansible.builtin.command:
-    cmd: "mksquashfs {{ deploy_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh"
+    cmd: "mksquashfs {{ build_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
   run_once: true
 
@@ -56,7 +54,6 @@
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type is defined
     - deploy_code.mount_type == "tarball"
   run_once: true
 
@@ -66,9 +63,32 @@
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
   run_once: true
+
+- name: Copy SquashFS image to local server.
+  ansible.builtin.command:
+    cmd: "cp {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.sqsh {{ build_base_path }}/deploy.sqsh"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+
+- name: Unmount existing SquashFS image.
+  ansible.builtin.command:
+    cmd: "umount --force {{ deploy_base_path }}"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+
+- name: Mount new SquashFS image.
+  ansible.builtin.command:
+    cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
 
 - name: Trigger an infrastructure rebuild.
   ansible.builtin.include_role:
