@@ -1,26 +1,41 @@
 ---
 # Ensure default values for common variables.
 - name: Define deploy user.
-  set_fact:
+  ansible.builtin.set_fact:
     deploy_user: "{{ deploy_user | default('deploy') }}"
 - name: Define deploy base path.
-  set_fact:
+  ansible.builtin.set_fact:
     deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy/{{ project_name }}_{{ build_type }}') }}"
 - name: Define mounted directory for assets.
-  set_fact:
+  ansible.builtin.set_fact:
     deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/assets') }}"
 - name: Define webroot.
-  set_fact:
+  ansible.builtin.set_fact:
     webroot: "{{ webroot | default('web') }}"
 - name: Define build deploy path prefix.
-  set_fact:
+  ansible.builtin.set_fact:
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
 - name: Define build deploy path.
-  set_fact:
+  ansible.builtin.set_fact:
     deploy_path: "{{ deploy_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
 - name: Define live_symlink dest.
-  set_fact:
+  ansible.builtin.set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+
+# Manipulate variables for SquashFS builds.
+- name: Define image builds base path.
+  ansible.builtin.set_fact:
+    build_base_path: "/home/{{ deploy_user }}/builds/{{ project_name }}_{{ build_type }}"
+- name: Define image builds build path prefix.
+  ansible.builtin.set_fact:
+    build_path_prefix: "{{ build_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+- name: Overwrite deploy path if SquashFS deploy.
+  ansible.builtin.set_fact:
+    deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
 
 # Gather last known good build directly from symlink.
 # This can happen:
@@ -42,7 +57,7 @@
 
 # This is passed from caller.
 - name: Gather last known good build number.
-  set_fact:
+  ansible.builtin.set_fact:
     previous_build_number: "{{ previous_known_build_number }}"
 
 # - set_fact:
@@ -53,27 +68,27 @@
 
 # Make sure the deploy target exists.
 - name: Ensure deploy target directory exists.
-  file:
+  ansible.builtin.file:
     path: "{{ deploy_base_path }}"
     state: directory
 
 # Check for project specific init tasks.
 - name: Check that {{ project_type }}.yml exists.
-  stat:
+  ansible.builtin.stat:
     path: "{{ role_path }}/tasks/{{ project_type }}.yml"
   register: _project_type_task_result
   delegate_to: "localhost"
 
 # Project specific init tasks.
 - name: Include project init tasks.
-  include_tasks: "{{ project_type }}.yml"
+  ansible.builtin.include_tasks: "{{ project_type }}.yml"
   when:
     - _project_type_task_result.stat.exists
 
 - name: Define opcache cachetool path.
-  set_fact:
+  ansible.builtin.set_fact:
     cachetool_bin: "{{ cachetool_bin | default('/home/{{ deploy_user }}/.bin/cachetool.phar') }}"
 
 - name: Ensure we have a cachetool binary.
-  import_role:
+  ansible.builtin.import_role:
     name: cli/cachetool
