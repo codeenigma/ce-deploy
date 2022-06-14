@@ -11,6 +11,7 @@
     src: "{{ _live_symlink_build_target }}"
     dest: "{{ live_symlink_dest }}"
     state: link
+    force: true
 
 - name: Generate additional templates.
   template:
@@ -28,6 +29,7 @@
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
+    force: true
   with_items: "{{ live_symlink.symlinks }}"
   loop_control:
     loop_var: link
