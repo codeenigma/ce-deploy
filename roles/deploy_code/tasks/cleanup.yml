@@ -77,6 +77,8 @@
 - name: Unmount existing SquashFS image.
   ansible.builtin.command:
     cmd: "umount --force {{ deploy_base_path }}"
+  become: true
+  become_user: "{{ deploy_user }}"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
@@ -85,6 +87,8 @@
 - name: Mount new SquashFS image.
   ansible.builtin.command:
     cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
+  become: true
+  become_user: "{{ deploy_user }}"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
