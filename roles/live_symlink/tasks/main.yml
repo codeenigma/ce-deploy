@@ -1,20 +1,21 @@
 ---
-- set_fact:
+- ansible.builtin.set_fact:
     _live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ build_number }}"
 
-- set_fact:
+- ansible.builtin.set_fact:
     _live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ previous_build_number }}"
   when: deploy_operation == 'revert'
 
 - name: Symlink build.
-  file:
+  ansible.builtin.file:
     src: "{{ _live_symlink_build_target }}"
     dest: "{{ live_symlink_dest }}"
     state: link
+    follow: false
     force: true
 
 - name: Generate additional templates.
-  template:
+  ansible.builtin.template:
     src: "{{ template.src }}"
     dest: "{{ deploy_path }}/{{ template.dest }}"
   with_items: "{{ live_symlink.templates }}"
@@ -25,10 +26,11 @@
     - deploy_operation == 'deploy'
 
 - name: Create additional symlinks.
-  file:
+  ansible.builtin.file:
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
+    follow: false
     force: true
   with_items: "{{ live_symlink.symlinks }}"
   loop_control:

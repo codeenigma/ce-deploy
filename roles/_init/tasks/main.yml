@@ -29,9 +29,10 @@
 - name: Define image builds build path prefix.
   ansible.builtin.set_fact:
     build_path_prefix: "{{ build_base_path }}/{{ project_name }}_{{ build_type }}_build_"
-- name: Overwrite deploy path if SquashFS deploy.
+- name: Overwrite deploy and live_symlink paths if SquashFS deploy.
   ansible.builtin.set_fact:
     deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
+    live_symlink_dest: "{{ live_symlink_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
