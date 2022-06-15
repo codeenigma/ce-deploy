@@ -123,7 +123,7 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _mount_check | success
+    - _mount_check|success
 
 - name: Mount new SquashFS image.
   ansible.builtin.command:
@@ -134,7 +134,7 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _mount_check | failed
+    - _mount_check|failed
 
 - name: Trigger an infrastructure rebuild.
   ansible.builtin.include_role:
