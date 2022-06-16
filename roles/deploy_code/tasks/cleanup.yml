@@ -127,11 +127,11 @@
 
 - name: Reload any services that might be keeping the loop device busy.
   ansible.builtin.service:
-    name: "{{ ssl_service }}"
+    name: "{{ www_service }}"
     state: reloaded
   with_items: "{{ deploy_code.services }}"
   loop_control:
-    loop_var: ssl_service
+    loop_var: www_service
   become: true
   become_user: "{{ deploy_user }}"
   when:
