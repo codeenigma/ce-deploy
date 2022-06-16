@@ -20,6 +20,7 @@ deploy_code:
   # mount_sync: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/deploy"
   # Type of file to use for sync - 'squashfs' or 'tarball'
   # @see the _init role for SquashFS build dir paths
+  # @see the squashfs role in ce-provision which installs the special conditions required by the deploy user to use this behaviour
   mount_type: "tarball"
   # Path that you want to make sure has 755 permissions. Make sure to include the webroot WITHOUT the slash.
   perms_fix_path: ""
