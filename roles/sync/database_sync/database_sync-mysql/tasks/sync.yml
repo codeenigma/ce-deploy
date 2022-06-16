@@ -38,12 +38,6 @@
 - name: Register remote dump name (from database).
   set_fact:
     mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
-  when: not database.source.type == 'dump'
-
-- name: Register existing remote dump name.
-  set_fact:
-    mysql_sync_source_dump_path: "{{ database.source.database }}"
-  when: database.source.type == 'dump'
 
 - name: Get source last known good build number.
   command:
@@ -70,7 +64,6 @@
   shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
   delegate_to: "{{ database.source.host }}"
   when:
-    - not database.source.type == 'dump'
     - database.source.fresh_db
 
 - name: Find source database host.
@@ -97,12 +90,6 @@
 - name: Register tmp target dump name.
   set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}.sql.bz2"
-  when: not database.target.type == 'dump'
-
-- name: Register final target dump name.
-  set_fact:
-    mysql_sync_target_dump_path: "{{ database.target.database }}"
-  when: database.target.type == 'dump'
 
 - name: Get target last known good build number.
   command:
@@ -139,21 +126,17 @@
 
 - name: Drop target database.
   shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database if exists {{ mysql_sync_target_database }};'"
-  when: not database.target.type == 'dump'
 
 - name: Recreate target database.
   shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
-  when: not database.target.type == 'dump'
 
 - name: Repopulate database from dump.
   shell: "bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
-  when: not database.target.type == 'dump'
 
 - name: Remove tmp dump file.
   file:
     path: "{{ mysql_sync_target_dump_path }}"
     state: absent
-  when: not database.target.type == 'dump'
 
 - name: Enable all autoscale processes on source ASG.
   ansible.builtin.command: >
