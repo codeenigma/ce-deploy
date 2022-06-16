@@ -6,10 +6,17 @@
     _live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ previous_build_number }}"
   when: deploy_operation == 'revert'
 
+- ansible.builtin.set_fact:
+    _live_symlink_dest_target: "{{ live_symlink_dest }}"
+
+- ansible.builtin.set_fact:
+    _live_symlink_dest_target: "{{ live_symlink_build_dest }}"
+  when: deploy_code.mount_type == "squashfs"
+
 - name: Symlink build.
   ansible.builtin.file:
     src: "{{ _live_symlink_build_target }}"
-    dest: "{{ live_symlink_dest }}"
+    dest: "{{ _live_symlink_dest_target }}"
     state: link
     follow: false
     force: true
