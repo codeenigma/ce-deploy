@@ -114,9 +114,9 @@
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
 
-- name: Remount existing SquashFS image.
+- name: Unmount existing SquashFS image.
   ansible.builtin.command:
-    cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o remount"
+    cmd: "umount -l {{ deploy_base_path }}"
   become: true
   become_user: "{{ deploy_user }}"
   when:
@@ -124,6 +124,22 @@
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
     - _mount_check|success
+
+- name: Reload any services that might be keeping the loop device busy.
+  ansible.builtin.service:
+    name: "{{ www_service }}"
+    state: reloaded
+  with_items: "{{ deploy_code.services }}"
+  loop_control:
+    loop_var: www_service
+  become: true
+  become_user: "{{ deploy_user }}"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+    - _mount_check|success
+    - deploy_code.services | length > 0
 
 - name: Mount new SquashFS image.
   ansible.builtin.command:
@@ -134,7 +150,6 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _mount_check|failed
 
 - name: Trigger an infrastructure rebuild.
   ansible.builtin.include_role:
