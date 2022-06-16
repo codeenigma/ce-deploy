@@ -105,7 +105,7 @@
     - deploy_code.mount_type == "squashfs"
 
 - name: Check if we have a mount already.
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: "mount | grep {{ deploy_base_path }}"
   ignore_errors: true
   register: _mount_check
@@ -123,7 +123,7 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _mount_check|success
+    - _mount_check is succeeded
 
 - name: Reload any services that might be keeping the loop device busy.
   ansible.builtin.service:
@@ -138,7 +138,7 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _mount_check|success
+    - _mount_check is succeeded
     - deploy_code.services | length > 0
 
 - name: Mount new SquashFS image.
