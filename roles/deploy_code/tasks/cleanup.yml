@@ -104,46 +104,53 @@
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
 
-- name: Check if we have a mount already.
-  ansible.builtin.shell:
-    cmd: "mount | grep {{ deploy_base_path }}"
-  ignore_errors: true
-  register: _mount_check
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
+#- name: Check if we have a mount already.
+#  ansible.builtin.shell:
+#    cmd: "mount | grep {{ deploy_base_path }}"
+#  ignore_errors: true
+#  register: _mount_check
+#  when:
+#    - deploy_code.mount_sync is defined
+#    - deploy_code.mount_sync | length > 1
+#    - deploy_code.mount_type == "squashfs"
 
 - name: Unmount existing SquashFS image.
-  ansible.builtin.command:
-    cmd: "umount -l {{ deploy_base_path }}"
+  ansible.posix.mount:
+    path: "{{ deploy_base_path }}"
+    state: unmounted
   become: true
   become_user: "{{ deploy_user }}"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _mount_check is succeeded
+#    - _mount_check is succeeded
 
-- name: Reload any services that might be keeping the loop device busy.
-  ansible.builtin.service:
-    name: "{{ www_service }}"
-    state: reloaded
-  with_items: "{{ deploy_code.services }}"
-  loop_control:
-    loop_var: www_service
-  become: true
-  become_user: "{{ deploy_user }}"
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-    - _mount_check is succeeded
-    - deploy_code.services | length > 0
+#- name: Reload any services that might be keeping the loop device busy.
+#  ansible.builtin.service:
+#    name: "{{ www_service }}"
+#    state: reloaded
+#  with_items: "{{ deploy_code.services }}"
+#  loop_control:
+#    loop_var: www_service
+#  become: true
+#  become_user: "{{ deploy_user }}"
+#  when:
+#    - deploy_code.mount_sync is defined
+#    - deploy_code.mount_sync | length > 1
+#    - deploy_code.mount_type == "squashfs"
+#    - _mount_check is succeeded
+#    - deploy_code.services | length > 0
 
 - name: Mount new SquashFS image.
-  ansible.builtin.command:
-    cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
+  ansible.posix.mount:
+    #cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
+    src: "{{ build_base_path }}/deploy.sqsh"
+    path: "{{ deploy_base_path }}"
+    state: mounted
+    opts: loop
+    fstype: squashfs
+    boot: false
   become: true
   become_user: "{{ deploy_user }}"
   when:
