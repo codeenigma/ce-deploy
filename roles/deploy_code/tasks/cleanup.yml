@@ -6,19 +6,39 @@
   become: true
   when: "www_user != deploy_user"
 
-- name: Ensure permissions are set on directory.
+- name: Ensure permissions are set on deploy directory.
   ansible.builtin.shell:
     cmd: "if [ -d {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
   with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
   when:
     - deploy_code.perms_fix_path is defined
     - deploy_code.perms_fix_path | length > 1
+    - deploy_code.mount_type != "squashfs"
 
-- name: Delete codebases.
+- name: Ensure permissions are set on builds directory.
+  ansible.builtin.shell:
+    cmd: "if [ -d {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
+  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  when:
+    - deploy_code.perms_fix_path is defined
+    - deploy_code.perms_fix_path | length > 1
+    - deploy_code.mount_type == "squashfs"
+
+- name: Delete codebases from deploy directory.
   ansible.builtin.file:
     name: "{{ deploy_path_prefix }}{{ item }}"
     state: absent
   with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  when:
+    - deploy_code.mount_type != "squashfs"
+
+- name: Delete codebases from builds directory.
+  ansible.builtin.file:
+    name: "{{ build_path_prefix }}{{ item }}"
+    state: absent
+  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  when:
+    - deploy_code.mount_type == "squashfs"
 
 - name: Create a tarball of the deployed codebases.
   ansible.builtin.command:
@@ -26,6 +46,26 @@
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "tarball"
+  run_once: true
+
+- name: Ensure older SquashFS images are deleted.
+  ansible.builtin.file:
+    path: "{{ build_base_path }}/deploy.sqsh"
+    state: absent
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+  run_once: true
+
+- name: Create a SquashFS image of the deployed codebases.
+  ansible.builtin.command:
+    cmd: "mksquashfs {{ build_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
   run_once: true
 
 - name: Create destination folder.
@@ -38,13 +78,75 @@
     - deploy_code.mount_sync | length > 1
   run_once: true
 
-- name: Move to final destination.
+- name: Move tar file to final destination.
   ansible.builtin.command:
     cmd: "mv /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.tar"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "tarball"
   run_once: true
+
+- name: Move SquashFS image to final destination.
+  ansible.builtin.command:
+    cmd: "mv /tmp/{{ project_name }}_{{ build_type }}.sqsh {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.sqsh"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+  run_once: true
+
+- name: Copy SquashFS image to local server.
+  ansible.builtin.command:
+    cmd: "cp {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.sqsh {{ build_base_path }}/deploy.sqsh"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+
+- name: Check if we have a mount already.
+  ansible.builtin.shell:
+    cmd: "mount | grep {{ deploy_base_path }}"
+  ignore_errors: true
+  register: _mount_check
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+
+- name: Unmount existing SquashFS image.
+  ansible.builtin.command:
+    cmd: "umount -l {{ deploy_base_path }}"
+  become: true
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+    - _mount_check is succeeded
+
+- name: Reload any services that might be keeping the loop device busy.
+  ansible.builtin.service:
+    name: "{{ www_service }}"
+    state: reloaded
+  with_items: "{{ deploy_code.services }}"
+  loop_control:
+    loop_var: www_service
+  become: true
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+    - _mount_check is succeeded
+    - deploy_code.services | length > 0
+
+- name: Mount new SquashFS image.
+  ansible.builtin.command:
+    cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
+  become: true
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
 
 - name: Trigger an infrastructure rebuild.
   ansible.builtin.include_role:
