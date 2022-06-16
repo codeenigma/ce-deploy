@@ -26,17 +26,19 @@
 - name: Define image builds base path.
   ansible.builtin.set_fact:
     build_base_path: "/home/{{ deploy_user }}/builds/{{ project_name }}_{{ build_type }}"
+  when: deploy_code.mount_type == "squashfs"
 - name: Define image builds build path prefix.
   ansible.builtin.set_fact:
     build_path_prefix: "{{ build_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+  when: deploy_code.mount_type == "squashfs"
+- name: Define live_symlink dest for image builds.
+  ansible.builtin.set_fact:
+    live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+  when: deploy_code.mount_type == "squashfs"
 - name: Overwrite deploy and live_symlink paths if SquashFS deploy.
   ansible.builtin.set_fact:
     deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
-    live_symlink_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
+  when: deploy_code.mount_type == "squashfs"
 
 # Gather last known good build directly from symlink.
 # This can happen:
