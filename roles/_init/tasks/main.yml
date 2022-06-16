@@ -80,10 +80,7 @@
   ansible.builtin.file:
     path: "{{ build_base_path }}"
     state: directory
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
+  when: deploy_code.mount_type == "squashfs"
 
 # Check for project specific init tasks.
 - name: Check that {{ project_type }}.yml exists.
