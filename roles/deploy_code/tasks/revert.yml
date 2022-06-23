@@ -25,7 +25,7 @@
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
 
-- name: Unmount existing SquashFS image.
+- name: Unmount existing and presumed bad SquashFS image.
   ansible.builtin.command:
     cmd: "umount -l {{ deploy_base_path }}"
   become: true
@@ -52,7 +52,7 @@
     - deploy_code.services | length > 0
     - _deploy_code_revert_image.stat.islnk is defined
 
-- name: Mount new SquashFS image.
+- name: Mount SquashFS image from previous successful build.
   ansible.builtin.command:
     cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
   become: true
