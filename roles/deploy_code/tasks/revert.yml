@@ -2,6 +2,10 @@
   ansible.builtin.stat:
     path: "{{ build_base_path }}/deploy_previous.sqsh"
   register: _deploy_code_revert_image
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
 
 - name: Move previous SquashFS image back to be re-mounted.
   ansible.builtin.copy:
@@ -54,7 +58,7 @@
 
 - name: Mount SquashFS image from previous successful build.
   ansible.builtin.command:
-    cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
+    cmd: "mount {{ _deploy_code_revert_image }} {{ deploy_base_path }} -t squashfs -o loop"
   become: true
   when:
     - deploy_code.mount_sync is defined
