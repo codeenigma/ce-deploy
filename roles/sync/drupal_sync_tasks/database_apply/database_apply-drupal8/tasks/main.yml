@@ -9,6 +9,7 @@
   loop_control:
     loop_var: site
 
+# This only runs if the sync_config_import variable is not defined or it is defined and is true. If it's defined and false, this won't run.
 - name: Import configuration.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y {{ site.config_import_command }}"
@@ -20,6 +21,7 @@
     loop_var: site
   when:
     - site.config_import_command
+    - site.sync_config_import is not defined or site.sync_config_import
 
 - name: Clear the cache.
   ansible.builtin.include_role:
