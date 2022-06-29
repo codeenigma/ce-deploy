@@ -49,16 +49,6 @@
     - deploy_code.mount_type == "tarball"
   run_once: true
 
-- name: Ensure older SquashFS images are deleted.
-  ansible.builtin.file:
-    path: "{{ build_base_path }}/deploy.sqsh"
-    state: absent
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-  run_once: true
-
 - name: Create a SquashFS image of the deployed codebases.
   ansible.builtin.command:
     cmd: "mksquashfs {{ build_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh"
@@ -96,6 +86,36 @@
     - deploy_code.mount_type == "squashfs"
   run_once: true
 
+- name: Check if we have a SquashFS image already there.
+  ansible.builtin.stat:
+    path: "{{ build_base_path }}/deploy.sqsh"
+  register: _deploy_code_mount_image
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+
+- name: Copy previous SquashFS image in case of rollback.
+  ansible.builtin.copy:
+    remote_src: true
+    force: true
+    src: "{{ build_base_path }}/deploy.sqsh"
+    dest: "{{ build_base_path }}/deploy_previous.sqsh"
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+    - _deploy_code_mount_image.stat.islnk is defined
+
+- name: Ensure mounted SquashFS image is deleted.
+  ansible.builtin.file:
+    path: "{{ build_base_path }}/deploy.sqsh"
+    state: absent
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+
 - name: Copy SquashFS image to local server.
   ansible.builtin.command:
     cmd: "cp {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.sqsh {{ build_base_path }}/deploy.sqsh"
@@ -108,21 +128,11 @@
   ansible.builtin.shell:
     cmd: "mount | grep {{ deploy_base_path }}"
   ignore_errors: true
-  register: _mount_check
+  register: _deploy_code_mount_check
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-
-- name: Unmount existing SquashFS image.
-  ansible.builtin.command:
-    cmd: "umount -l {{ deploy_base_path }}"
-  become: true
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-    - _mount_check is succeeded
 
 - name: Reload any services that might be keeping the loop device busy.
   ansible.builtin.service:
@@ -136,8 +146,18 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _mount_check is succeeded
+    - _deploy_code_mount_check is succeeded
     - deploy_code.services | length > 0
+
+- name: Unmount existing SquashFS image.
+  ansible.builtin.command:
+    cmd: "umount {{ deploy_base_path }}"
+  become: true
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+    - _deploy_code_mount_check is succeeded
 
 - name: Mount new SquashFS image.
   ansible.builtin.command:
