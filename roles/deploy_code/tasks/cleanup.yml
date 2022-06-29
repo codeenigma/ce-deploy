@@ -90,6 +90,10 @@
   ansible.builtin.stat:
     path: "{{ build_base_path }}/deploy.sqsh"
   register: _deploy_code_mount_image
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
 
 - name: Copy previous SquashFS image in case of rollback.
   ansible.builtin.copy:
