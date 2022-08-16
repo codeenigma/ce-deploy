@@ -19,6 +19,11 @@
     loop_var: site
   when: previous_build_number == 0 or (site.force_install is defined and site.force_install)
 
+- name: Clear the cache.
+  ansible.builtin.include_role:
+    name: "cache_clear/cache_clear-{{ project_type }}"
+  when: previous_build_number > 0
+
 - name: Apply Drupal database updates.
   shell:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y updb"
