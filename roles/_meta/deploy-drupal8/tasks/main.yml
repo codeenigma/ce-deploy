@@ -21,8 +21,6 @@
 - import_role:
     name: config_generate
 - import_role:
-    name: cache_clear/cache_clear-drupal8
-- import_role:
     name: database_apply
 - import_role:
     name: sanitize/admin_creds
