@@ -95,17 +95,18 @@
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
 
-- name: Copy previous SquashFS image in case of rollback.
+- name: Copy previous SquashFS image to shared mount point in case of rollback.
   ansible.builtin.copy:
     remote_src: true
     force: true
     src: "{{ build_base_path }}/deploy.sqsh"
-    dest: "/tmp/{{ project_name }}_{{ build_type }}_previous.sqsh"
+    dest: "{{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}_previous.sqsh"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
     - _deploy_code_mount_image.stat.islnk is defined
+  run_once: true
 
 - name: Ensure mounted SquashFS image is deleted.
   ansible.builtin.file:
