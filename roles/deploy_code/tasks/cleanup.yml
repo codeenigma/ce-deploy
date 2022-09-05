@@ -51,7 +51,7 @@
 
 - name: Create a SquashFS image of the deployed codebases.
   ansible.builtin.command:
-    cmd: "mksquashfs {{ build_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh"
+    cmd: "mksquashfs {{ build_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh -e {{ build_base_path }}/deploy.sqsh"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
@@ -100,7 +100,7 @@
     remote_src: true
     force: true
     src: "{{ build_base_path }}/deploy.sqsh"
-    dest: "{{ build_base_path }}/deploy_previous.sqsh"
+    dest: "/tmp/{{ project_name }}_{{ build_type }}_previous.sqsh"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
