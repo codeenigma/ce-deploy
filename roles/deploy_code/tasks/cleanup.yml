@@ -42,7 +42,7 @@
 
 - name: Create a tarball of the deployed codebases.
   ansible.builtin.command:
-    cmd: "tar -cvf /tmp/{{ project_name }}_{{ build_type }}.tar --owner=0 --group=0 {{ deploy_base_path }}"
+    cmd: "tar -cvf /tmp/{{ project_name }}_{{ build_type }}_{{ build_number }}.tar --owner=0 --group=0 {{ deploy_base_path }}"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
@@ -51,7 +51,7 @@
 
 - name: Create a SquashFS image of the deployed codebases.
   ansible.builtin.command:
-    cmd: "mksquashfs {{ build_base_path }} /tmp/{{ project_name }}_{{ build_type }}.sqsh -e {{ build_base_path }}/deploy.sqsh"
+    cmd: "mksquashfs {{ build_base_path }} /tmp/{{ project_name }}_{{ build_type }}_{{ build_number }}.sqsh -e {{ build_base_path }}/deploy.sqsh"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
@@ -70,7 +70,7 @@
 
 - name: Move tar file to final destination.
   ansible.builtin.command:
-    cmd: "mv /tmp/{{ project_name }}_{{ build_type }}.tar {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.tar"
+    cmd: "mv /tmp/{{ project_name }}_{{ build_type }}_{{ build_number }}.tar {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.tar"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
@@ -79,7 +79,7 @@
 
 - name: Move SquashFS image to final destination.
   ansible.builtin.command:
-    cmd: "mv /tmp/{{ project_name }}_{{ build_type }}.sqsh {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.sqsh"
+    cmd: "mv /tmp/{{ project_name }}_{{ build_type }}_{{ build_number }}.sqsh {{ deploy_code.mount_sync }}/{{ project_name }}_{{ build_type }}.sqsh"
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
