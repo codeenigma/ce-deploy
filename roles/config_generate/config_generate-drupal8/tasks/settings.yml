@@ -1,29 +1,25 @@
 ---
-- name: set public files relative path.
-  set_fact:
+- name: Set public files relative path.
+  ansible.builtin.set_fact:
     build_public_file_path: "{{ site.public_files }}"
 
-- name: set public files path.
-  set_fact:
+- name: Set private files path.
+  ansible.builtin.set_fact:
     build_private_file_path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
 
-- name: set private files path.
-  set_fact:
-    build_private_file_path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_{{ site.folder }}_private_files"
-
-- name: set config directory path.
-  set_fact:
+- name: Set config directory path.
+  ansible.builtin.set_fact:
     build_config_sync_directory: "{{ deploy_path }}/{{ site.config_sync_directory }}"
 
 - name: Ensure file permissions on site folder.
-  file:
+  ansible.builtin.file:
     path: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
     state: directory
     mode: 0775
   become: "{{ false if www_user == deploy_user else true }}"
 
 - name: Generates settings.php file.
-  template:
+  ansible.builtin.template:
     src: "{{ item }}"
     dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
   with_first_found:
