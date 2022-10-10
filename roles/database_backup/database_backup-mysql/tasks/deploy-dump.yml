@@ -20,6 +20,7 @@
     state: directory
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
+  run_once: true
 
 - name: Take a database dump.
   ansible.builtin.shell: "mysqldump --defaults-extra-file={{ database.credentials_file }} {{ mysql_backup.mysqldump_params }} {{ database.database }} | bzip2 > {{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2"
