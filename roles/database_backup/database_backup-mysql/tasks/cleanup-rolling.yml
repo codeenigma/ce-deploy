@@ -1,7 +1,7 @@
 ---
 # We assume it's safe to only go back 50 build back.
 - name: Delete mysql databases.
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ database.database }}_{{ item }}"
     state: absent
     login_host: "{{ _mysql_host }}"
