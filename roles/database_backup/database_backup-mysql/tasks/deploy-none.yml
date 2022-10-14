@@ -1,11 +1,11 @@
 ---
-- set_fact:
+- ansible.builtin.set_fact:
     _mysql_build_database_name: "{{ database.database }}"
-- set_fact:
+- ansible.builtin.set_fact:
     _mysql_previous_build_database_name: "{{ database.database }}"
 
 - name: Create initial database.
-  mysql_db:
+  community.mysql.mysql_db:
     name: "{{ _mysql_build_database_name }}"
     state: present
     login_host: "{{ _mysql_host }}"
