@@ -1,17 +1,19 @@
 ---
 - name: Grab mysql credentials.
-  fetch:
+  ansible.builtin.fetch:
       src: "{{ database.credentials_file }}"
       dest: "{{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini"
       flat: true
 
 # Credentials for "managing" databases.
-- set_fact:
+- ansible.builtin.set_fact:
       _mysql_host: "{{ lookup('ini', 'host section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- set_fact:
+- ansible.builtin.set_fact:
       _mysql_user: "{{ lookup('ini', 'user section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- set_fact:
+- ansible.builtin.set_fact:
       _mysql_password: "{{ lookup('ini', 'password section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
 
-- include_tasks: "revert-{{ mysql_backup.handling }}.yml"
-  when: previous_build_number > 0
+- ansible.builtin.include_tasks: "revert-{{ mysql_backup.handling }}.yml"
+  when:
+    - previous_build_number > 0
+    - database_backup.revert
