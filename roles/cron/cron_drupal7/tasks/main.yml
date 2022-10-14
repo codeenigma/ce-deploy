@@ -1,6 +1,6 @@
 ---
 - name: Setup PATH in crontab.
-  cron:
+  ansible.builtin.cron:
     name: PATH
     env: true
     job: "/usr/bin:/usr/local/bin:/bin:/home/{{ deploy_user }}/.bin"
@@ -10,7 +10,7 @@
     - drupal.defer
 
 - name: Create site cron entries.
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: cron.yml
   with_items: "{{ drupal.sites }}"
   loop_control:
