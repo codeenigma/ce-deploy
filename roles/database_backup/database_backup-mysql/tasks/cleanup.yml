@@ -1,23 +1,23 @@
 ---
 - name: Grab mysql credentials.
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ database.credentials_file }}"
     dest: "{{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini"
     flat: true
 
 # Credentials for "managing" databases.
-- set_fact:
+- ansible.builtin.set_fact:
     _mysql_host: "{{ lookup('ini', 'host section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- set_fact:
+- ansible.builtin.set_fact:
     _mysql_user: "{{ lookup('ini', 'user section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- set_fact:
+- ansible.builtin.set_fact:
     _mysql_password: "{{ lookup('ini', 'password section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
 
-- include_tasks: "cleanup-{{ mysql_backup.handling }}.yml"
+- ansible.builtin.include_tasks: "cleanup-{{ mysql_backup.handling }}.yml"
 
 # We assume it's safe to only go back 50 build back.
 - name: Delete mysql users.
-  mysql_user:
+  community.mysql.mysql_user:
     name: "{{ database.user }}_{{ item }}"
     host_all: true
     state: absent

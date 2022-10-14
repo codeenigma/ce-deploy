@@ -1,9 +1,9 @@
 ---
-- set_fact:
+- ansible.builtin.set_fact:
     build_databases: []
 
 - name: Take database dumps.
-  include_role:
+  ansible.builtin.include_role:
     name: "database_backup/database_backup-{{ engine }}"
   with_items: "{{ database_backup.engines }}"
   loop_control:
