@@ -39,6 +39,11 @@
     - previous_build_number > 0
     - site.config_import_command != 'deploy'
 
+- name: Clear the opcache.
+  ansible.builtin.include_role:
+    name: cache_clear/cache_clear-opcache
+  when: previous_build_number > 0
+
 - name: Apply Drupal database updates.
   command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y updb"
