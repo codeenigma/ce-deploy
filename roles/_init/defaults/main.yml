@@ -10,7 +10,7 @@ drupal:
       public_files: "sites/default/files"
       # Drupal 8 variables
       config_sync_directory: "config/sync"
-      config_import_command: "" # i.e. "cim"
+      config_import_command: "" # i.e. "cim" - set this to "deploy" and cache rebuild and db updates will be skipped
       # End Drupal 8 variables
       # Drupal 7 variables
       revert_features_command: "" # i.e. "fra"
