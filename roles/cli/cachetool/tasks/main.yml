@@ -13,7 +13,7 @@
   when:
     - deploy_operation == 'deploy'
 
-- name: Download latest cachetool installer.
+- name: "PHP {{ php.version }} in use. > Download latest cachetool installer."
   get_url:
     url: "http://gordalina.github.io/cachetool/downloads/cachetool.phar"
     dest: "{{ cachetool_bin }}"
@@ -21,14 +21,37 @@
   when:
     - deploy_operation == 'deploy'
     - not cachetool_global.stat.exists
-    - cachetool.version == 'latest'
+    - php.version >= '8.1'
 
-- name: "Download cachetool version {{ cachetool.version }} installer."
+- name: "PHP {{ php.version }} in use. Download cachetool version 8.5.0 installer."
   get_url:
-    url: "http://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
+    url: "http://gordalina.github.io/cachetool/downloads/cachetool-8.5.0.phar"
     dest: "{{ cachetool_bin }}"
     mode: 0755
   when:
     - deploy_operation == 'deploy'
     - not cachetool_global.stat.exists
-    - cachetool.version != 'latest'
+    - php.version >= '8.0'
+    - php.version < '8.1'
+
+- name: "PHP {{ php.version }} in use. Download cachetool version 7.1.0 installer."
+  get_url:
+    url: "http://gordalina.github.io/cachetool/downloads/cachetool-7.1.0.phar"
+    dest: "{{ cachetool_bin }}"
+    mode: 0755
+  when:
+    - deploy_operation == 'deploy'
+    - not cachetool_global.stat.exists
+    - php.version >= '7.3'
+    - php.version < '8.0'
+
+- name: "PHP {{ php.version }} in use. Download cachetool version 5.1.3 installer."
+  get_url:
+    url: "http://gordalina.github.io/cachetool/downloads/cachetool-5.1.3.phar"
+    dest: "{{ cachetool_bin }}"
+    mode: 0755
+  when:
+    - deploy_operation == 'deploy'
+    - not cachetool_global.stat.exists
+    - php.version >= '7.2'
+    - php.version < '7.3'
