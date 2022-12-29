@@ -14,6 +14,9 @@ drupal:
       cron: # These are the relevant parts for cron.
         - minute: "*/{{ 10 | random(start=1) }}"
           # hour: 2
+          # day:
+          # weekday:
+          # month:
           job: cron
   # If the sites are being deployed to an ASG, setting defer to true will create the crontab entry on the deploy server rather than all of the app servers.
   defer: false
