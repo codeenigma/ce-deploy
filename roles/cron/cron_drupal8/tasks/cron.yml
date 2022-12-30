@@ -1,6 +1,6 @@
 ---
 - name: Setup Drupal cron tasks.
-  include_tasks:
+  ansible.builtin.include_tasks:
     file: job.yml
   with_items: "{{ site.cron }}"
   loop_control:

@@ -25,6 +25,9 @@
     name: "{{ project_name }}_{{ site.folder }}_{{ build_type }}_{{ entry.job }}"
     minute: "{{ entry.minute }}"
     hour: "{{ entry.hour | default(omit) }}"
+    day: "{{ entry.day | default(omit) }}"
+    weekday: "{{ entry.weekday | default(omit) }}"
+    month: "{{ entry.month | default(omit) }}"
     job: "{{ _cron_job_command }}"
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
