@@ -144,6 +144,23 @@
     loop_var: www_service
   become: true
   when:
+    - deploy_code.service_action == "reload"
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+    - _deploy_code_mount_check is succeeded
+    - deploy_code.services | length > 0
+
+- name: Stop any services that might be keeping the loop device busy.
+  ansible.builtin.service:
+    name: "{{ www_service }}"
+    state: stopped
+  with_items: "{{ deploy_code.services }}"
+  loop_control:
+    loop_var: www_service
+  become: true
+  when:
+    - deploy_code.service_action == "stop"
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
@@ -168,6 +185,22 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
+
+- name: Start any services we stopped.
+  ansible.builtin.service:
+    name: "{{ www_service }}"
+    state: started
+  with_items: "{{ deploy_code.services }}"
+  loop_control:
+    loop_var: www_service
+  become: true
+  when:
+    - deploy_code.service_action == "stop"
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
+    - _deploy_code_mount_check is succeeded
+    - deploy_code.services | length > 0
 
 - name: Trigger an infrastructure rebuild.
   ansible.builtin.include_role:
