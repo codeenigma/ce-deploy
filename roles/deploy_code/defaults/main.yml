@@ -25,11 +25,14 @@ deploy_code:
   # Path that you want to make sure has 755 permissions. Make sure to include the webroot WITHOUT the slash.
   perms_fix_path: ""
   # perms_fix_path: "www/sites/default"
-  # List of services to reload to free the loop device for 'squashfs' builds, post lazy umount.
+  # List of services to manipulate to free the loop device for 'squashfs' builds, post lazy umount.
   # @see the squashfs role in ce-provision where special permissions for deploy user to manipulate services get granted.
   services: []
   # services:
   #   - php8.0-fpm
+  # What action to take against the services, 'reload' or 'stop'.
+  # Busy websites will require a hard stop of services to achieve the umount command.
+  service_action: reload
   # Trigger an API call to rebuild infra after a deploy, e.g. if you need to repack an AMI.
   rebuild_infra: false
   # Details of API call to trigger. See api_call role.
