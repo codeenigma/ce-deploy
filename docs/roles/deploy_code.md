@@ -11,7 +11,7 @@ deploy_code:
   # Specify any additional symlink to create, with src (target) and dest (link).
   # src: can be either absolute or relative to the dest (eg. '/var/my_data', '/home/deploy/simplesaml', '../../../myconfig')
   # dest: can only be relative to the root of your repository (eg. 'www/themes/myassets', 'var/cache')
-  # create: wether to create the target if it does not exists.
+  # create: whether to create the target if it does not exists.
   #  - src: '/home/{{ deploy_user }}//{{ project_name }}_{{ build_type }}/simplesaml'
   #    dest: 'vendor/simplesamlphp/simplesamlphp/config'
   #  - src: '/var/simplesaml/etc'
@@ -23,12 +23,45 @@ deploy_code:
   templates: []
   # Number of builds to keep. Note this is independant of databases/dump.
   keep: 10
-  # Wether to sync the local deploy base to a shared destination, after successful build.
+  # Whether to sync the local deploy base to a shared destination, after successful build.
   mount_sync: ""
   # mount_sync: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/deploy"
+  # Type of file to use for sync - 'squashfs' or 'tarball'
+  # @see the _init role for SquashFS build dir paths
+  # @see the squashfs role in ce-provision which installs the special conditions required by the deploy user to use this behaviour
+  mount_type: "tarball"
   # Path that you want to make sure has 755 permissions. Make sure to include the webroot WITHOUT the slash.
   perms_fix_path: ""
   # perms_fix_path: "www/sites/default"
+  # List of services to manipulate to free the loop device for 'squashfs' builds, post lazy umount.
+  # @see the squashfs role in ce-provision where special permissions for deploy user to manipulate services get granted.
+  services: []
+  # services:
+  #   - php8.0-fpm
+  # What action to take against the services, 'reload' or 'stop'.
+  # Busy websites will require a hard stop of services to achieve the umount command.
+  service_action: reload
+  # Trigger an API call to rebuild infra after a deploy, e.g. if you need to repack an AMI.
+  rebuild_infra: false
+  # Details of API call to trigger. See api_call role.
+  api_call:
+    type: gitlab
+    base_url: https://gitlab.example.com/api/v4/
+    path: projects/1/ref/main/trigger/pipeline
+    method: POST
+    token: asdf-1234
+    token_type: trigger
+    variables: []
+    # example build parameters
+    #  - "[ENV]=dev"
+    #  - "[PLAY]=myserver.yml"
+    #  - "[RESOURCE]=myserver-example-com"
+    #  - "[REGION]=eu-west-1"
+    #  - "[EXTRA_PARAMS]=--force"
+    status_codes:
+      - 200
+      - 201
+      - 202
 
 ```
 
