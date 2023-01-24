@@ -10,14 +10,16 @@ These variables **must** be set in the `deploy/common.yml` file, at least.
 ---
 # Common defaults. Given the "_init" role is mandatory,
 # this will ensure defaults to other roles too.
+# If you are using ce-provision to deploy infrastructure this must match the `user_deploy.username` variable
 deploy_user: "deploy"
+_mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 drupal:
   sites:
     - folder: "default"
       public_files: "sites/default/files"
       # Drupal 8 variables
       config_sync_directory: "config/sync"
-      config_import_command: "" # i.e. "cim"
+      config_import_command: "" # i.e. "cim" - set this to "deploy" and cache rebuild and db updates will be skipped
       # End Drupal 8 variables
       # Drupal 7 variables
       revert_features_command: "" # i.e. "fra"

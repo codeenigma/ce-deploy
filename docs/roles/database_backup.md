@@ -7,7 +7,7 @@ Generate backups for each build.
 database_backup:
   engines:
     - mysql
-
+  revert: true
 ```
 
 <!--ENDROLEVARS-->

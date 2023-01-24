@@ -7,6 +7,7 @@ Generate MySQL backups for each build.
 mysql_backup:
   handling: rolling
   dumps_directory: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/db_backups/mysql/build"
+  mysqldump_params: "{{ _mysqldump_params }}" # set in _init but you can override here
   # Number of dumps/db to keep. Note this is independant from the build codebases.
   keep: 10
   # This can be one of the following:
