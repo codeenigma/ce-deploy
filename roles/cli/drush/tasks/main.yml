@@ -1,6 +1,6 @@
 ---
 - name: Check if we already have a global Drush.
-  stat:
+  ansible.builtin.stat:
     path: "{{ drush_bin }}"
   register: drush_global
   when:
@@ -16,22 +16,48 @@
   register: drush_global_directory
 
 - name: Check if installed Drush version match.
-  shell: "{{ drush_bin }} --version | grep -o '[0-9]\\.[0-9]\\.[0-9]'"
+  ansible.builtin.shell: "{{ drush_bin }} --version | grep -o '[0-9]\\.[0-9]\\.[0-9]'"
   register: drush_global_version
   when:
     - deploy_operation == 'deploy'
     - drush_global.stat.exists
     - not drush.use_vendor
 
-- name: Download Drush installer.
-  get_url:
+# @TODO - we can remove this when Drupal 7 reaches EOL.
+- name: Download Drush installer for Drupal 7.
+  ansible.builtin.get_url:
     url: "https://github.com/drush-ops/drush/releases/download/{{ drush.version }}/drush.phar"
     dest: "{{ drush_bin }}"
+    mode: 0755
+    force: true
+  when:
+    - deploy_operation == 'deploy'
+    - not drush.use_vendor
+    - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
+    - drush.version < 9
+
+- name: Download Drush archive.
+  ansible.builtin.get_url:
+    url: "https://github.com/drush-ops/drush/archive/refs/tags/{{ drush.version }}.tar.gz"
+    dest: /tmp/drush.tar.gz
+    mode: 0755
+    force: true
+  when:
+    - deploy_operation == 'deploy'
+    - not drush.use_vendor
+    - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
+    - drush.version >= 9
+
+- name: "Extract drush.tar.gz into {{ drush_bin | dirname }}"
+  ansible.builtin.unarchive:
+    src: /tmp/drush.tar.gz
+    dest: "{{ drush_bin | dirname }}"
     mode: 0755
   when:
     - deploy_operation == 'deploy'
     - not drush.use_vendor
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
+    - drush.version >= 9
 
 - name: Create .bashrc file if it does not exist
   ansible.builtin.file:
@@ -49,7 +75,7 @@
     - deploy_operation == 'deploy'
 
 - name: Trigger Drush init tasks.
-  command: "{{ drush_bin }} init -y"
+  ansible.builtin.command: "{{ drush_bin }} init -y"
   when:
     - deploy_operation == 'deploy'
     - not drush.use_vendor
