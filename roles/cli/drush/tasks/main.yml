@@ -1,7 +1,7 @@
 ---
 - name: Set Drush major version integer.
   ansible.builtin.set_fact:
-    _drush_major_version: "{{ drush.version[0] | int }}"
+    _drush_major_version: "{{ drush.version[0] }}"
 
 - name: Check if we already have a global Drush.
   ansible.builtin.stat:
@@ -38,7 +38,7 @@
     - deploy_operation == 'deploy'
     - not drush.use_vendor
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
-    - _drush_major_version < 9
+    - _drush_major_version == '8'
 
 - name: Download Drush archive.
   ansible.builtin.get_url:
@@ -50,7 +50,7 @@
     - deploy_operation == 'deploy'
     - not drush.use_vendor
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
-    - _drush_major_version >= 9
+    - _drush_major_version != '8'
 
 - name: "Extract drush.tar.gz into {{ drush_bin | dirname }}"
   ansible.builtin.unarchive:
@@ -61,7 +61,7 @@
     - deploy_operation == 'deploy'
     - not drush.use_vendor
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
-    - _drush_major_version >= 9
+    - _drush_major_version != '8'
 
 - name: Create .bashrc file if it does not exist
   ansible.builtin.file:
