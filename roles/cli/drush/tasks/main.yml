@@ -57,6 +57,7 @@
     src: /tmp/drush.tar.gz
     dest: "{{ drush_bin | dirname }}"
     mode: 0755
+    remote_src: true
   when:
     - deploy_operation == 'deploy'
     - not drush.use_vendor
