@@ -1,12 +1,11 @@
 ---
-
 - name: Generate project specific configuration.
-  include_role:
+  ansible.builtin.include_role:
     name: "config_generate/config_generate-{{ project_type }}"
   when: deploy_operation == 'deploy'
 
 - name: Generate additional templates.
-  template:
+  ansible.builtin.template:
     src: "{{ template.src }}"
     dest: "{{ deploy_path }}/{{ template.dest }}"
   with_items: "{{ config_generate.templates }}"
@@ -17,7 +16,7 @@
     - deploy_operation == 'deploy'
 
 - name: Create additional symlinks.
-  file:
+  ansible.builtin.file:
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
