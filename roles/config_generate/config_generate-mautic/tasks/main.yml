@@ -1,15 +1,14 @@
 ---
-
-- name: set public files path.
-  set_fact:
+- name: Set public files path.
+  ansible.builtin.set_fact:
     build_image_path: "{{ mautic.image_path }}"
 
-- name: set private files path.
-  set_fact:
+- name: Set private files path.
+  ansible.builtin.set_fact:
     build_upload_dir: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_private_files"
 
 - name: Generates local.php file.
-  template:
+  ansible.builtin.template:
     src: '{{ item }}'
     dest: "{{ deploy_path }}/{{ webroot }}/app/config/local.php"
   with_first_found:
