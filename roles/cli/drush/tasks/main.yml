@@ -17,6 +17,7 @@
   when:
     - deploy_operation == 'deploy'
     - not drush.use_vendor
+    - _drush_major_version == '8'
   register: drush_global_directory
 
 - name: Check if installed Drush version match.
@@ -52,10 +53,10 @@
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
     - _drush_major_version != '8'
 
-- name: "Extract drush.tar.gz into {{ drush_bin | dirname }}"
+- name: "Extract drush.tar.gz into {{ bin_directory }}"
   ansible.builtin.unarchive:
     src: /tmp/drush.tar.gz
-    dest: "{{ drush_bin | dirname }}"
+    dest: "{{ bin_directory }}"
     mode: 0755
     remote_src: true
   when:
