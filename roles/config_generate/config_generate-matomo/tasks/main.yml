@@ -1,7 +1,6 @@
 ---
-
 - name: Generates config file.
-  template:
+  ansible.builtin.template:
     src: '{{ item }}'
     dest: "{{ deploy_path }}/{{ webroot }}/config/config.ini.php"
   with_first_found:

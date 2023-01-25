@@ -5,7 +5,7 @@ Installs the `drush` command-line tool for the deploy user.
 ```yaml
 ---
 cachetool:
-  version: 8.2.2
+  version: latest # # enter three-digit version number, e.g. "7.0.0", to install a specific version
 ```
 
 <!--ENDROLEVARS-->

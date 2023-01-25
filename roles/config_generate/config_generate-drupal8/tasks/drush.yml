@@ -1,7 +1,6 @@
 ---
-
 - name: Generates drush.yml file.
-  template:
+  ansible.builtin.template:
     src: '{{ item }}'
     dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/drush.yml"
   with_first_found:

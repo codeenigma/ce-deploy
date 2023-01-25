@@ -1,6 +1,5 @@
 ---
 drush:
-  # Note: This is the "default" version,
-  # but projects should define theirs in composer.json.
-  version: 8.2.2
+  # Where possible always load drush in your Drupal website with composer.
+  version: 8.4.11
   use_vendor: false
