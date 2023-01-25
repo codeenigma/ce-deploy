@@ -34,7 +34,7 @@ drupal:
 mautic:
   image_path: "media/images"
   force_install: false
-
+bin_directory: "/home/{{ deploy_user }}/.bin"
 ```
 
 <!--ENDROLEVARS-->
