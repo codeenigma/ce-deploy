@@ -13,16 +13,6 @@
   when:
     - deploy_operation == 'deploy'
 
-- name: Download latest cachetool installer.
-  get_url:
-    url: "http://gordalina.github.io/cachetool/downloads/cachetool.phar"
-    dest: "{{ cachetool_bin }}"
-    mode: 0755
-  when:
-    - deploy_operation == 'deploy'
-    - not cachetool_global.stat.exists
-    - cachetool.version == 'latest'
-
 - name: "Download cachetool version {{ cachetool.version }} installer."
   get_url:
     url: "http://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
@@ -31,4 +21,51 @@
   when:
     - deploy_operation == 'deploy'
     - not cachetool_global.stat.exists
-    - cachetool.version != 'latest'
+    - cachetool.version is defined
+    - cachetool.version | length > 0
+
+- name: Install cachetool depending on php version used
+  block:
+    - name: Get latest php installed
+      ansible.builtin.shell:
+        cmd: "ls /etc/php/ | tail -1"
+      register: _php_version
+
+    - name: "PHP is {{ _php_version }}. > Download latest cachetool installer."
+      get_url:
+        url: "http://gordalina.github.io/cachetool/downloads/cachetool.phar"
+        dest: "{{ cachetool_bin }}"
+        mode: 0755
+      when:
+        - _php_version >= '8.1'
+
+    - name: "PHP is {{ _php_version }}. Download cachetool version 8.5.0 installer."
+      get_url:
+        url: "http://gordalina.github.io/cachetool/downloads/cachetool-8.5.0.phar"
+        dest: "{{ cachetool_bin }}"
+        mode: 0755
+      when:
+        - _php_version >= '8.0'
+        - _php_version < '8.1'
+
+    - name: "PHP is {{ _php_version }}. Download cachetool version 7.1.0 installer."
+      get_url:
+        url: "http://gordalina.github.io/cachetool/downloads/cachetool-7.1.0.phar"
+        dest: "{{ cachetool_bin }}"
+        mode: 0755
+      when:
+        - _php_version >= '7.3'
+        - _php_version < '8.0'
+
+    - name: "PHP is {{ _php_version }}. Download cachetool version 5.1.3 installer."
+      get_url:
+        url: "http://gordalina.github.io/cachetool/downloads/cachetool-5.1.3.phar"
+        dest: "{{ cachetool_bin }}"
+        mode: 0755
+      when:
+        - _php_version >= '7.2'
+        - _php_version < '7.3'
+  when:
+    - deploy_operation == 'deploy'
+    - not cachetool_global.stat.exists
+    - cachetool.version is not defined
