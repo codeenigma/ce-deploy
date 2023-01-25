@@ -1,8 +1,4 @@
 ---
 - name: Define Drush path.
   set_fact:
-    drush_bin: "{{ drush_bin | default('{{ bin_directory }}/drush') }}"
-
-- name: Ensure we have Drush binary.
-  import_role:
-    name: cli/drush
+    drush_bin: "{{ drush_bin | default('{{ deploy_path }}/vendor/bin/drush') }}"
