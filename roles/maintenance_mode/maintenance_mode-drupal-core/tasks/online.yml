@@ -2,8 +2,6 @@
 - name: Disable maintenance mode.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} state:set system.maintenance_mode 0 --input-format=integer --root {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
-  args:
-    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   when:
@@ -12,8 +10,6 @@
 - name: Disable maintenance mode D7.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} vset maintenance_mode 0 --root {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
-  args:
-    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   when:
