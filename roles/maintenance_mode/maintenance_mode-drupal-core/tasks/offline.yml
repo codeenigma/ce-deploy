@@ -1,8 +1,8 @@
 ---
-# @todo this needs refactoring for multisite.
 - name: Enable maintenance mode.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} state:set system.maintenance_mode 1 --input-format=integer"
+  args:
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
@@ -13,6 +13,7 @@
 - name: Enable maintenance mode D7.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} vset maintenance_mode 1"
+  args:
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
