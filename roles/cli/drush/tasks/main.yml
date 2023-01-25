@@ -1,5 +1,5 @@
 ---
-- name: Set Drush major version integer.
+- name: Set Drush major version.
   ansible.builtin.set_fact:
     _drush_major_version: "{{ drush.version[0] }}"
 
@@ -40,6 +40,19 @@
     - not drush.use_vendor
     - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
     - _drush_major_version == '8'
+
+# Standalone drush requires the drush-launcher from version 9.x onwards.
+- name: Download Drush Launcher for standalone Drush.
+  ansible.builtin.get_url:
+    url: https://github.com/drush-ops/drush-launcher/releases/latest/download/drush.phar
+    dest: "{{ drush_bin }}"
+    mode: 0755
+    force: true
+  when:
+    - deploy_operation == 'deploy'
+    - not drush.use_vendor
+    - not drush_global.stat.exists or not drush_global_version.stdout == drush.version
+    - _drush_major_version != '8'
 
 - name: Download Drush archive.
   ansible.builtin.get_url:
