@@ -72,7 +72,6 @@
   when:
     - deploy_operation == 'deploy'
     - not cachetool_global.stat.exists
-    - cachetool.version == 'latest'
     - cachetool.version is not defined
 
 - name: "Download cachetool version {{ cachetool.version }} installer."
