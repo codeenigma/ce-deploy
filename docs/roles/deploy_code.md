@@ -66,7 +66,7 @@ deploy_code:
 Finally, as with the `tarball` method, the packed image is copied up to the NAS to be available to all future servers and is always named `deploy.sqsh`. The previous codebase is *also* packed and copied to the NAS, named `deploy_previous.sqsh` in the same directory.
 
 ### Rolling back
-Rolling back from a bad `squashfs` build means copying `deploy_previous.sqsh` down from the NAS to a sensible location in the `ce-deploy` user's home directory, unmounting the current image and mounting `deploy_previous.sqsh` in its place.
+Rolling back from a bad `squashfs` build means copying `deploy_previous.sqsh` down from the NAS to a sensible location in the `ce-deploy` user's home directory, unmounting the current image and mounting `deploy_previous.sqsh` in its place. Once you've done that, to ensure future autoscaling events do not load the bad code, on the NAS you will need to rename `deploy.sqsh` to something else (or delete it entirely if you're sure you don't want it) and rename `deploy_previous.sqsh` as `deploy.sqsh`, so it is used on an autoscale event.
 
 Same as with the `tarball` method, as long as the `database_backup` is using the `rolling` method then the "roll back" database will still exist and the credentials will be correct in the `deploy_previous.sqsh` image. Again, if the backup method is `dump` then you will need to inspect [the `mysql_backup.dumps_directory` variable](https://github.com/codeenigma/ce-deploy/blob/1.x/roles/database_backup/database_backup-mysql/defaults/main.yml#L4) to see where the backup was saved in order to restore it.
 
