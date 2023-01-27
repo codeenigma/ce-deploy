@@ -21,7 +21,7 @@
       register: _php_version_str
 
     - name: Download latest cachetool installer if PHP is 8.1 or newer.
-      get_url:
+      ansible.builtin.get_url:
         url: "http://gordalina.github.io/cachetool/downloads/cachetool.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
@@ -29,7 +29,7 @@
         - _php_version_str.stdout | int >= 81
 
     - name: Download cachetool version 8.5.0 installer if PHP is 8.0.
-      get_url:
+      ansible.builtin.get_url:
         url: "http://gordalina.github.io/cachetool/downloads/cachetool-8.5.0.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
@@ -37,7 +37,7 @@
         - _php_version_str.stdout | int == 80
 
     - name: Download cachetool version 7.1.0 installer if PHP is 7.3 or newer.
-      get_url:
+      ansible.builtin.get_url:
         url: "http://gordalina.github.io/cachetool/downloads/cachetool-7.1.0.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
@@ -46,7 +46,7 @@
         - _php_version_str.stdout | int < 80
 
     - name: Download cachetool version 5.1.3 installer if PHP is 7.2.
-      get_url:
+      ansible.builtin.get_url:
         url: "http://gordalina.github.io/cachetool/downloads/cachetool-5.1.3.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
@@ -54,7 +54,7 @@
         - _php_version_str.stdout | int == 72
 
     - name: Download cachetool version 4.1.1 installer if PHP is 7.1.
-      get_url:
+      ansible.builtin.get_url:
         url: "http://gordalina.github.io/cachetool/downloads/cachetool-4.1.1.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
@@ -62,7 +62,7 @@
         - _php_version_str.stdout | int == 71
 
     - name: Download cachetool version 3.2.2 installer if PHP version is too old.
-      get_url:
+      ansible.builtin.get_url:
         url: "http://gordalina.github.io/cachetool/downloads/cachetool-3.2.2.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
@@ -72,10 +72,10 @@
   when:
     - deploy_operation == 'deploy'
     - not cachetool_global.stat.exists
-    - cachetool.version is not defined
+    - cachetool.version | length == 0
 
 - name: "Download cachetool version {{ cachetool.version }} installer."
-  get_url:
+  ansible.builtin.get_url:
     url: "http://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
     dest: "{{ cachetool_bin }}"
     mode: 0755
