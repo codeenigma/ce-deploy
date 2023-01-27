@@ -9,7 +9,7 @@ The shell script that wraps Ansible to handle the various build steps has variou
 * `mautic`
 * `simplesamlphp`
 
-Patches to support other common applications are always welcome! Also, Ansible inheritance being what it is, you can create your own custom deploy role in the same directory as your deployment playbook and Ansible will detect it and make it available to you. For example, if you create `./deploy_code/deploy_code-myapp/tasks/main.yml` relative to your playbook and set `project_type: myapp` in your project variables then `ce-deploy` will load in those tasks.
+Patches to support other common applications are always welcome! Also, Ansible inheritance being what it is, you can create your own custom deploy role in the same directory as your deployment playbook and Ansible will detect it and make it available to you. For example, if you create `./roles/deploy_code/deploy_code-myapp/tasks/main.yml` relative to your playbook and set `project_type: myapp` in your project variables then `ce-deploy` will load in those tasks.
 
 # Autoscale deployment
 For autoscaling clusters - no matter the underlying tech - the build code needs to be stored somewhere central and accessible to any potential new servers in the cluster. Because the performance of network attached storage (NAS) is often too poor or unreliable, we do not deploy the code to NAS - although this would be the simplest approach. Instead the technique we use is to build the code on each current server in the cluster, as though it were a static cluster or standalone machine, but *also* copy the code to the NAS so it is available to all future machines. This makes the existence of mounted NAS that is attached to all new servers a pre-requisite for `ce-deploy` to work with autoscaling.
