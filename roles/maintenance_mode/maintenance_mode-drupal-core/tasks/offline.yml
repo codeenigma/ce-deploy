@@ -12,7 +12,7 @@
 
 - name: Enable maintenance mode D7.
   ansible.builtin.command:
-    cmd: "{{ drush_bin }} -l {{ site.folder }} vset maintenance_mode 1 --root {{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
+    cmd: "{{ drush_bin }} -l {{ site.folder }} vset maintenance_mode 1"
   args:
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
