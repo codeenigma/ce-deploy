@@ -37,7 +37,7 @@
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
-        - _php_version_int == 80
+        - _php_version_int | int == 80
 
     - name: Download cachetool version 7.1.0 installer if PHP is 7.3 or newer.
       get_url:
@@ -45,8 +45,8 @@
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
-        - _php_version_int >= 73
-        - _php_version_int < 80
+        - _php_version_int | int >= 73
+        - _php_version_int | int < 80
 
     - name: Download cachetool version 5.1.3 installer if PHP is 7.2.
       get_url:
@@ -54,7 +54,7 @@
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
-        - _php_version_int == 72
+        - _php_version_int | int == 72
 
     - name: Download cachetool version 4.1.1 installer if PHP is 7.1.
       get_url:
@@ -62,7 +62,7 @@
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
-        - _php_version_int == 71
+        - _php_version_int | int == 71
 
     - name: Download cachetool version 3.2.2 installer if PHP version is too old.
       get_url:
@@ -70,7 +70,7 @@
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
-        - _php_version_int < 71
+        - _php_version_int | int < 71
 
   when:
     - deploy_operation == 'deploy'
