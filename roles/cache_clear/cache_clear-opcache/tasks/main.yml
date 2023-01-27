@@ -4,17 +4,21 @@
     cmd: "ls /etc/php/ | tail -1"
   register: _php_version
 
+- name: Set cachetool adapter.
+  ansible.builtin.set_fact:
+    _cachetool_adapter: "{{ cache_clear_opcache.adapter | default('127.0.0.1:90' + _php_version | replace('.','')) }}"
+
 - name: Clear opcache.
   command:
-    cmd: "{{ cachetool_bin }} {{ cache_clear_opcache.adapter }} -n opcache:reset"
+    cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n opcache:reset"
   when: cache_clear_opcache.clear_opcache
 
 - name: Clear apcu.
   command:
-    cmd: "{{ cachetool_bin }} {{ cache_clear_opcache.adapter }} -n apcu:cache:clear all"
+    cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n apcu:cache:clear all"
   when: cache_clear_opcache.clear_apcu
 
 - name: Clear stats.
   command:
-    cmd: "{{ cachetool_bin }} {{ cache_clear_opcache.adapter }} -n stat:clear"
+    cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n stat:clear"
   when: cache_clear_opcache.clear_stat
