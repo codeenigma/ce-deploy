@@ -1,6 +1,6 @@
 ---
 - name: Remove previous cachetool if exists.
-  file:
+  ansible.builtin.file:
     path: "{{ cachetool_bin }}"
     state: absent
 
