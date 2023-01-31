@@ -3,6 +3,8 @@
   ansible.builtin.file:
     path: "{{ cachetool_bin }}"
     state: absent
+  when:
+    - deploy_operation == 'deploy'
 
 - name: Download cachetool depending on latest php version installed. # If not specified manually, according to https://github.com/gordalina/cachetool#compatibility
   block:
@@ -64,7 +66,7 @@
     - deploy_operation == 'deploy'
     - cachetool.version | length == 0
 
-- name: "Download cachetool version {{ cachetool.version }} installer."
+- name: "Download the specified {{ cachetool.version }} cachetool version installer."
   ansible.builtin.get_url:
     url: "http://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
     dest: "{{ cachetool_bin }}"
