@@ -66,7 +66,7 @@
     - deploy_operation == 'deploy'
     - cachetool.version | length == 0
 
-- name: "Download cachetool version {{ cachetool.version }} installer."
+- name: "Download the specified {{ cachetool.version }} cachetool version installer."
   ansible.builtin.get_url:
     url: "http://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
     dest: "{{ cachetool_bin }}"
