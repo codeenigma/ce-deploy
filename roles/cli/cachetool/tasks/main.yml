@@ -1,4 +1,11 @@
 ---
+- name: Ensure bin directory exists.
+  ansible.builtin.file:
+    path: "{{ cachetool_bin | dirname }}"
+    state: directory
+  when:
+    - deploy_operation == 'deploy'
+
 - name: Remove previous cachetool if exists.
   ansible.builtin.file:
     path: "{{ cachetool_bin }}"
