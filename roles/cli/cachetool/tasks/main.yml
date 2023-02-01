@@ -6,6 +6,13 @@
   when:
     - deploy_operation == 'deploy'
 
+- name: Ensure bin directory exists.
+  ansible.builtin.file:
+    path: "{{ cachetool_bin | dirname }}"
+    state: directory
+  when:
+    - deploy_operation == 'deploy'
+
 - name: Download cachetool depending on latest php version installed. # If not specified manually, according to https://github.com/gordalina/cachetool#compatibility
   block:
     - name: Get latest php installed
