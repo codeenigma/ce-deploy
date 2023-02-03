@@ -1,6 +1,6 @@
 ---
 - name: Apply Drupal database updates.
-  ansible.builtin.shell:
+  ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y updb"
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   with_items: "{{ drupal.sites }}"

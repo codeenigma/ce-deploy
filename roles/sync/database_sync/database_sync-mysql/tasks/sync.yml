@@ -36,11 +36,11 @@
     - database.target.asg | length > 0
 
 - name: Register remote dump name (from database).
-  set_fact:
+  ansible.builtin.set_fact:
     mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
 
 - name: Get source last known good build number.
-  command:
+  ansible.builtin.command:
     argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
@@ -51,17 +51,17 @@
   when: database.source.type == 'rolling'
 
 - name: Register source database name.
-  set_fact:
+  ansible.builtin.set_fact:
     mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_sync_source_build_number.stdout }}"
   when: database.source.type == 'rolling'
 
 - name: Register source database name.
-  set_fact:
+  ansible.builtin.set_fact:
     mysql_sync_source_database: "{{ database.source.database }}"
   when: not database.source.type == 'rolling'
 
 - name: Take a dump from source database.
-  shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
+  ansible.builtin.shell: "mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
   delegate_to: "{{ database.source.host }}"
   when:
     - database.source.fresh_db
@@ -88,11 +88,11 @@
   when: not database.source.fresh_db
 
 - name: Register tmp target dump name.
-  set_fact:
+  ansible.builtin.set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}.sql.bz2"
 
 - name: Get target last known good build number.
-  command:
+  ansible.builtin.command:
     argv:
       - "/bin/sh"
       - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
@@ -103,38 +103,40 @@
   when: database.target.type == 'rolling'
 
 - name: Register target database name.
-  set_fact:
+  ansible.builtin.set_fact:
     mysql_sync_target_database: "{{ database.target.database }}_{{ mysql_sync_target_build_number.stdout }}"
   when: database.target.type == 'rolling'
 
 - name: Register target database name.
-  set_fact:
+  ansible.builtin.set_fact:
     mysql_sync_target_database: "{{ database.target.database }}"
   when: not database.target.type == 'rolling'
 
 - name: Fetch dump file.
-  fetch:
+  ansible.builtin.fetch:
     src: "{{ mysql_sync_source_dump_path }}"
     dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
     flat: true
   delegate_to: "{{ database.source.host }}"
 
 - name: Copy dump file to destination.
-  copy:
+  ansible.builtin.copy:
     src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
     dest: "{{ mysql_sync_target_dump_path }}"
 
 - name: Drop target database.
-  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database if exists {{ mysql_sync_target_database }};'"
+  ansible.builtin.command:
+    cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database if exists {{ mysql_sync_target_database }};'"
 
 - name: Recreate target database.
-  shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
+  ansible.builtin.command:
+    cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
 
 - name: Repopulate database from dump.
-  shell: "bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
+  ansible.builtin.shell: "bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
 
 - name: Remove tmp dump file.
-  file:
+  ansible.builtin.file:
     path: "{{ mysql_sync_target_dump_path }}"
     state: absent
 
