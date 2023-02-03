@@ -1,6 +1,6 @@
 ---
 - name: Sync files.
-  include_tasks: "sync.yml"
+  ansible.builtin.include_tasks: "sync.yml"
   with_items: "{{ files_sync.directories }}"
   loop_control:
     loop_var: files

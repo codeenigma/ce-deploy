@@ -1,4 +1,13 @@
 ---
+# Drupal 8 ships drush with the website code so we need the previous build in the path.
+- name: Stash the drush_bin variable.
+  ansible.builtin.set_fact:
+    _drush_bin_deploy: "{{ drush_bin }}"
+
+- name: Update location of drush for the sync cache clear command.
+  ansible.builtin.set_fact:
+    drush_bin: "{{ live_symlink_dest }}/vendor/bin/drush"
+
 - name: Apply Drupal database updates.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y updb"
@@ -26,3 +35,7 @@
 - name: Clear the cache.
   ansible.builtin.include_role:
     name: "sync/drupal_sync_tasks/cache_clear/cache_clear-{{ project_type }}"
+
+- name: Restore the drush_bin variable.
+  ansible.builtin.set_fact:
+    drush_bin: "{{ _drush_bin_deploy }}"
