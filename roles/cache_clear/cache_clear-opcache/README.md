@@ -14,7 +14,7 @@ cache_clear_opcache:
   # eg.
   # --fcgi=127.0.0.1:9000
   # Leave blank to use /etc/cachetool.yml
-  adapter: ""
+  # adapter: "127.0.0.1:9081" # Leave commented to automatically detect the adapter based on PHP version.
   # Bins to clear.
   clear_opcache: true
   clear_apcu: false

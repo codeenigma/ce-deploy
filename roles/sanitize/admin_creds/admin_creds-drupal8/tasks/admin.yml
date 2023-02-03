@@ -1,16 +1,16 @@
 ---
 # For some unknown reason, updating the field_user_data table did not work reliably,
 # nor did drush upwd for the password.
-# Loading the user directly is akward, but at least means we don't bypass entity update.
+# Loading the user directly is awkward, but at least means we don't bypass entity update.
 - name: Reset admin username.
-  command:
+  ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} php-eval '$admin = \\Drupal\\user\\Entity\\User::load(1); $admin->setUsername(\"{{ admin_creds.username }}\");$admin->save();' "
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   when:
     - admin_creds.username | length > 1
 
 - name: Reset admin password.
-  command:
+  ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} php-eval '$admin = \\Drupal\\user\\Entity\\User::load(1); $admin->setPassword(\"{{ admin_creds.password }}\");$admin->save();' "
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   when:
