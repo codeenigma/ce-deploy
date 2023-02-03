@@ -4,7 +4,7 @@
   ansible.builtin.set_fact:
     _drush_bin_deploy: "{{ drush_bin }}"
 
-- name: Update location of drush for the sync cache clear command.
+- name: Update location of drush for the update/config import commands.
   ansible.builtin.set_fact:
     drush_bin: "{{ live_symlink_dest }}/vendor/bin/drush"
 
