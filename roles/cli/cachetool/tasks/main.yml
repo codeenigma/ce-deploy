@@ -1,13 +1,13 @@
 ---
-- name: Check if we already have cachetool.
-  stat:
+- name: Remove previous cachetool if exists.
+  ansible.builtin.file:
     path: "{{ cachetool_bin }}"
-  register: cachetool_global
+    state: absent
   when:
     - deploy_operation == 'deploy'
 
 - name: Ensure bin directory exists.
-  file:
+  ansible.builtin.file:
     path: "{{ cachetool_bin | dirname }}"
     state: directory
   when:
@@ -71,16 +71,14 @@
 
   when:
     - deploy_operation == 'deploy'
-    - not cachetool_global.stat.exists
     - cachetool.version | length == 0
 
-- name: "Download cachetool version {{ cachetool.version }} installer."
+- name: "Download the specified {{ cachetool.version }} cachetool version installer."
   ansible.builtin.get_url:
     url: "http://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
     dest: "{{ cachetool_bin }}"
     mode: 0755
   when:
     - deploy_operation == 'deploy'
-    - not cachetool_global.stat.exists
     - cachetool.version is defined
     - cachetool.version | length > 0
