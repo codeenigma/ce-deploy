@@ -1,7 +1,7 @@
 ---
 
 - name: Sync databases.
-  include_role:
+  ansible.builtin.include_role:
     name: "sync/database_sync/database_sync-{{ engine }}"
   with_items: "{{ database_sync.engines }}"
   loop_control:

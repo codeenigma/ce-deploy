@@ -1,8 +1,12 @@
 ---
 - name: Check if Ctools module is enabled.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} &&{{ drush_bin }}pm-info ctools | grep ':  enabled' | wc -l"
+  ansible.builtin.shell:
+    cmd: "{{ drush_bin }} pm-info ctools | grep ':  enabled' | wc -l"
+    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   register: ctools_enabled
 
 - name: Revert Drupal configuration from Ctools.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} &&{{ drush_bin }}-y ctools-export-revert --all"
+  ansible.builtin.command:
+    cmd: "{{ drush_bin }} -y ctools-export-revert --all"
+    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   when: ctools_enabled.stdout == "1"
