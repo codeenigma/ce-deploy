@@ -4,11 +4,12 @@
 - ansible.builtin.set_fact:
     _admin_pwd: "{{ lookup('password', '/tmp/{{ project_name }}-{{ site.folder }}-{{ build_type }}-{{ build_number }}-pwd chars=ascii_letters') }}"
 
+# For some reason D7 drush doesn't respect 'chdir' with command, using shell instead.
 - name: Reset admin username.
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: "{{ drush_bin }} -l {{ site.folder }} sql-query \"UPDATE users SET name='{{ _admin_user }}' WHERE uid=1;\""
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
 - name: Reset admin password.
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: "{{ drush_bin }} -l {{ site.folder }} upwd {{ _admin_user }} --password='{{ _admin_pwd }}'"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
