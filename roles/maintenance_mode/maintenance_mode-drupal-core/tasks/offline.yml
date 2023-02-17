@@ -10,10 +10,10 @@
     - previous_build_number > 0
     - project_type == 'drupal8'
 
+# For some reason D7 drush doesn't respect 'chdir' with command, using shell instead.
 - name: Enable maintenance mode D7.
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: "{{ drush_bin }} -l {{ site.folder }} vset maintenance_mode 1"
-  args:
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
