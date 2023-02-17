@@ -1,8 +1,9 @@
 ---
+# For some reason D7 drush doesn't respect 'chdir' with command, using shell instead.
 - name: Check if Features module is enabled.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} pm-info features | grep ':  enabled' | wc -l"
+  ansible.builtin.shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} pm-info features | grep ':  enabled' | wc -l"
   register: features_enabled
 
 - name: Revert Drupal configuration from Features.
-  shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} -y {{ site.revert_features_command }}"
+  ansible.builtin.shell: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drush_bin }} -l {{ site.folder }} -y {{ site.revert_features_command }}"
   when: features_enabled.stdout == "1"
