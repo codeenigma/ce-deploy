@@ -1,6 +1,7 @@
 ---
+# For some reason D7 drush doesn't respect 'chdir' with command, using shell instead.
 - name: Clear Drupal 7 cache.
-  ansible.builtin.command:
+  ansible.builtin.shell:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y cc all"
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
