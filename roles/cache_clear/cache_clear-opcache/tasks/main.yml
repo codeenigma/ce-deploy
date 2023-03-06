@@ -1,7 +1,7 @@
 ---
 - name: Get latest php installed
   ansible.builtin.shell:
-    cmd: cmd: "netstat -anp | grep php-fpm | grep tcp | awk '{print $4}' | cut -d: -f2 | sort -r | head -n1 | awk '{print substr($0, length-1)}'"
+    cmd: "netstat -anp | grep php-fpm | grep tcp | awk '{print $4}' | cut -d: -f2 | sort -r | head -n1 | awk '{print substr($0, length-1)}'"
   register: _php_version
   become: yes
 
