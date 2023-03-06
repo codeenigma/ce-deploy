@@ -17,8 +17,9 @@
   block:
     - name: Get latest php installed
       ansible.builtin.shell:
-        cmd: "ls /etc/php/ | tail -1 | sed -e 's/\\.//g'"
+        cmd: "netstat -anp | grep php-fpm | grep tcp | awk '{print $4}' | cut -d: -f2 | sort -r | head -n1 | awk '{print substr($0, length-1)}'"
       register: _php_version_str
+      become: yes
 
     - name: Download latest cachetool installer if PHP is 8.1 or newer.
       ansible.builtin.get_url:
