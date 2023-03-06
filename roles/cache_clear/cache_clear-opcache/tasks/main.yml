@@ -1,7 +1,7 @@
 ---
 - name: Get latest php installed
   ansible.builtin.shell:
-    cmd: "ls /etc/php/ | tail -1"
+    cmd: 'ls -1 /etc/php/ | while read ver; do if [ -d "/etc/php/$ver/fpm" ]; then echo "$ver"; fi; done | tail -1'
   register: _php_version
 
 - name: Set cachetool adapter.
