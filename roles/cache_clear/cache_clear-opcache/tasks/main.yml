@@ -1,12 +1,13 @@
 ---
 - name: Get latest php installed
   ansible.builtin.shell:
-    cmd: "ls /etc/php/ | tail -1"
+    cmd: cmd: "netstat -anp | grep php-fpm | grep tcp | awk '{print $4}' | cut -d: -f2 | sort -r | head -n1 | awk '{print substr($0, length-1)}'"
   register: _php_version
+  become: yes
 
 - name: Set cachetool adapter.
   ansible.builtin.set_fact:
-    _cachetool_adapter: "{{ cache_clear_opcache.adapter | default('--fcgi=127.0.0.1:90' + _php_version.stdout | replace('.','')) }}"
+    _cachetool_adapter: "{{ cache_clear_opcache.adapter | default('--fcgi=127.0.0.1:90' + _php_version.stdout) }}"
 
 - name: Clear opcache.
   command:
