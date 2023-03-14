@@ -15,7 +15,7 @@
 
 - name: Clear apcu.
   command:
-    cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n apcu:cache:clear all"
+    cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n apcu:cache:clear"
   when: cache_clear_opcache.clear_apcu
 
 - name: Clear stats.
