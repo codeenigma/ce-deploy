@@ -23,7 +23,14 @@
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
-    cachetool_bin: "{{ cachetool_bin | default('{{ deploy_base_path }}/cachetool.phar') }}"
+    cachetool_bin: "{{ deploy_base_path }}/cachetool.phar"
+  when: cache_clear_opcache.cachetool_bin is not defined
+- name: Set opcache cachetool path from variable.
+  ansible.builtin.set_fact:
+    cachetool_bin: "{{ cache_clear_opcache.cachetool_bin }}"
+  when:
+    - cache_clear_opcache.cachetool_bin is defined
+    - cache_clear_opcache.cachetool_bin | length > 0
 
 # Manipulate variables for SquashFS builds.
 - name: Define image builds base path.
@@ -56,6 +63,7 @@
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
+    - cache_clear_opcache.cachetool_bin is not defined
 
 # Gather last known good build directly from symlink.
 # This can happen:
