@@ -59,7 +59,7 @@
     - deploy_code.mount_type == "squashfs"
 - name: Overwrite cachetool path if SquashFS deploy.
   ansible.builtin.set_fact:
-    cachetool_bin: "{{ cachetool_bin | default('{{ build_base_path }}/cachetool.phar') }}"
+    cachetool_bin: "{{ build_base_path }}/cachetool.phar"
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
