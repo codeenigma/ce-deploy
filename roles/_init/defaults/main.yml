@@ -14,6 +14,7 @@ drupal:
       # End Drupal 8 variables
       # Drupal 7 variables
       revert_features_command: "" # i.e. "fra"
+      revert_ctools: true
       # End Drupal 7 variables
       sanitize_command: "sql-sanitize"
       base_url: https://www.example.com
