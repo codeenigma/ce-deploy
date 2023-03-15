@@ -24,8 +24,7 @@
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ deploy_base_path }}/cachetool.phar"
-  when: cache_clear_opcache.cachetool_bin is not defined
-- name: Set opcache cachetool path from variable.
+- name: Set opcache cachetool path from variable if provided.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ cache_clear_opcache.cachetool_bin }}"
   when:
@@ -57,7 +56,7 @@
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
-- name: Overwrite cachetool path if SquashFS deploy.
+- name: Overwrite cachetool path if SquashFS deploy and path not provided.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ build_base_path }}/cachetool.phar"
   when:
