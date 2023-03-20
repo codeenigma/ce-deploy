@@ -23,6 +23,6 @@
     login_host: "{{ _mysql_host }}"
     login_user: "{{ _mysql_user }}"
     login_password: "{{ _mysql_password }}"
-  with_sequence: start={{ [previous_build_number | int - mysql_backup.cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - mysql_backup.keep, 0] | max }}
+  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - mysql_backup.keep, 0] | max }}
   when: mysql_backup.credentials_handling == 'rotate'
   run_once: true
