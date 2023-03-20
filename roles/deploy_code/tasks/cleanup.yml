@@ -2,14 +2,14 @@
 - name: Ensure codebase is writable.
   ansible.builtin.shell:
     cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod -R 777 {{ deploy_path_prefix }}{{ item }}; fi"
-  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  with_sequence: start={{ [previous_build_number | int - deploy_code.cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
   become: true
   when: "www_user != deploy_user"
 
 - name: Ensure permissions are set on deploy directory.
   ansible.builtin.shell:
     cmd: "if [ -d {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
-  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  with_sequence: start={{ [previous_build_number | int - deploy_code.cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
   when:
     - deploy_code.perms_fix_path is defined
     - deploy_code.perms_fix_path | length > 1
@@ -18,7 +18,7 @@
 - name: Ensure permissions are set on builds directory.
   ansible.builtin.shell:
     cmd: "if [ -d {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
-  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  with_sequence: start={{ [previous_build_number | int - deploy_code.cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
   when:
     - deploy_code.perms_fix_path is defined
     - deploy_code.perms_fix_path | length > 1
@@ -28,7 +28,7 @@
   ansible.builtin.file:
     name: "{{ deploy_path_prefix }}{{ item }}"
     state: absent
-  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  with_sequence: start={{ [previous_build_number | int - deploy_code.cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
   when:
     - deploy_code.mount_type != "squashfs"
 
@@ -36,7 +36,7 @@
   ansible.builtin.file:
     name: "{{ build_path_prefix }}{{ item }}"
     state: absent
-  with_sequence: start={{ [previous_build_number | int - 50, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+  with_sequence: start={{ [previous_build_number | int - deploy_code.cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
   when:
     - deploy_code.mount_type == "squashfs"
 

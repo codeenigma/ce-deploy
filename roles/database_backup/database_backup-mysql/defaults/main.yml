@@ -5,6 +5,8 @@ mysql_backup:
   mysqldump_params: "{{ _mysqldump_params }}" # set in _init but you can override here
   # Number of dumps/db to keep. Note this is independant from the build codebases.
   keep: 10
+  # Number of dumps/db to look up for cleanup. Note this is independent of databases/dump.
+  cleanup_history_depth: 50
   # This can be one of the following:
   # - rotate:
   # Generates a new user/pwd pair per builds.
