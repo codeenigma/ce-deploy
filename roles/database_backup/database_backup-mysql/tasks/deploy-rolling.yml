@@ -10,7 +10,7 @@
   # @TODO fix this so we check if the database exists and exit with
   # the proper plugin instead of using command.
 - name: Create new database.
-  ansible.builtin.command: mysql --defaults-extra-file={{ database.credentials_file }} -e "CREATE DATABASE \`{{ _mysql_build_database_name }}\`;"
+  ansible.builtin.command: mysql --defaults-extra-file={{ database.credentials_file }} -e "CREATE DATABASE `{{ _mysql_build_database_name }}`;"
   run_once: true
 
 #- name: Create a new database.
