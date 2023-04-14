@@ -2,12 +2,12 @@
 - name: Check if 'lhci' is available.
   ansible.builtin.command: "which lhci"
   register: _lhci_run_check_result
-  ignore_errors: true
+  failed_when: false
 
 - name: Check if 'Xvfb' is running.
   ansible.builtin.shell: "pgrep Xvfb"
   register: _lhci_run_check_xvfb_result
-  ignore_errors: true
+  failed_when: false
   when:
     - _lhci_run_check_result.rc == 0
 
