@@ -3,7 +3,8 @@
 # this will ensure defaults to other roles too.
 # If you are using ce-provision to deploy infrastructure this must match the `user_deploy.username` variable
 deploy_user: "deploy"
-_mysqldump_params: "--set-gtid-purged=OFF --skip-definer --max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
+# for MySQL CE you might want to add '--set-gtid-purged=OFF --skip-definer' here
+_mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 drupal:
   sites:
     - folder: "default"

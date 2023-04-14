@@ -128,7 +128,7 @@
 - name: Check if we have a mount already.
   ansible.builtin.shell:
     cmd: "mount | grep {{ deploy_base_path }}"
-  ignore_errors: true
+  failed_when: false
   register: _deploy_code_mount_check
   when:
     - deploy_code.mount_sync is defined
