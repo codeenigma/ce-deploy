@@ -62,6 +62,8 @@
 
 - name: Take a dump from source database.
   ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
+  args:
+    executable: /bin/bash
   delegate_to: "{{ database.source.host }}"
   when:
     - database.source.fresh_db
@@ -134,6 +136,8 @@
 
 - name: Repopulate database from dump.
   ansible.builtin.shell: "set -o pipefail && bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
+  args:
+    executable: /bin/bash
 
 - name: Remove tmp dump file.
   ansible.builtin.file:
