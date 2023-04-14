@@ -128,6 +128,8 @@
 - name: Check if we have a mount already.
   ansible.builtin.shell:
     cmd: "set -o pipefail && mount | grep {{ deploy_base_path }}"
+  args:
+    executable: /bin/bash
   failed_when: false
   register: _deploy_code_mount_check
   when:

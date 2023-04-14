@@ -4,6 +4,8 @@
   ansible.builtin.shell:
     cmd: "set -o pipefail && {{ drush_bin }} pm-info ctools | grep ':  enabled' | wc -l"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  args:
+    executable: /bin/bash
   register: ctools_enabled
 
 - name: Revert Drupal configuration from Ctools.
