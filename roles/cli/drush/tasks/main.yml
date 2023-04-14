@@ -17,6 +17,8 @@
 
 - name: Check if installed Drush version match.
   ansible.builtin.shell: "set -o pipefail && {{ drush_bin }} --version | grep -o '[0-9]\\.[0-9]\\.[0-9]'"
+  args:
+    executable: /bin/bash
   register: drush_global_version
   when:
     - deploy_operation == 'deploy'
