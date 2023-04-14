@@ -14,6 +14,9 @@
     - deploy_operation == 'deploy'
 
 - name: Download cachetool depending on latest php version installed. # If not specified manually, according to https://github.com/gordalina/cachetool#compatibility
+  when:
+    - deploy_operation == 'deploy'
+    - cachetool.version | length == 0
   block:
     - name: Get latest php installed
       ansible.builtin.shell:
@@ -68,10 +71,6 @@
         mode: 0755
       when:
         - _php_version_str.stdout | int < 71
-
-  when:
-    - deploy_operation == 'deploy'
-    - cachetool.version | length == 0
 
 - name: "Download the specified {{ cachetool.version }} cachetool version installer."
   ansible.builtin.get_url:
