@@ -20,7 +20,9 @@
   block:
     - name: Get latest php installed
       ansible.builtin.shell:
-        cmd: 'ls -1 /etc/php/ | while read ver; do if [ -d "/etc/php/$ver/fpm" ]; then echo "$ver"; fi; done | tail -1 | sed -e "s/\\.//g"'
+        cmd: 'set -o pipefail && ls -1 /etc/php/ | while read ver; do if [ -d "/etc/php/$ver/fpm" ]; then echo "$ver"; fi; done | tail -1 | sed -e "s/\\.//g"'
+      args:
+        executable: /bin/bash
       register: _php_version_str
 
     - name: Download latest cachetool installer if PHP is 8.1 or newer.
