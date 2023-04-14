@@ -6,3 +6,4 @@ skip_list:
   - risky-file-permissions
   - no-jinja-nesting
   - command-instead-of-shell # some Drupal 7 drush commands require shell
+  - command-instead-of-module
