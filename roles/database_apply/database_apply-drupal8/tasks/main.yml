@@ -1,6 +1,6 @@
 ---
 - name: Fix file permissions for settings.php.
-  file:
+  ansible.builtin.file:
     state: file
     path: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
     owner: "{{ www_user }}"
@@ -14,7 +14,7 @@
     - previous_build_number == 0
 
 - name: Install Drupal.
-  command:
+  ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} {{ site.install_command }}"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
@@ -25,8 +25,10 @@
   when: (previous_build_number == 0) or (site.force_install is defined and site.force_install)
 
 - name: Fix permissions on Drupal directory.
-  shell:
-    cmd: "chmod 755 {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  ansible.builtin.file:
+    path: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+    state: directory
+    mode: '0755'
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site
@@ -48,7 +50,7 @@
   when: previous_build_number > 0
 
 - name: Apply Drupal database updates.
-  command:
+  ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y updb"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
@@ -59,7 +61,7 @@
   when: site.config_import_command != 'deploy'
 
 - name: Import configuration.
-  command:
+  ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y {{ site.config_import_command }}"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
