@@ -1,7 +1,9 @@
 ---
 - name: Get latest php installed
   ansible.builtin.shell:
-    cmd: 'ls -1 /etc/php/ | while read ver; do if [ -d "/etc/php/$ver/fpm" ]; then echo "$ver"; fi; done | tail -1'
+    cmd: 'set -o pipefail && ls -1 /etc/php/ | while read ver; do if [ -d "/etc/php/$ver/fpm" ]; then echo "$ver"; fi; done | tail -1'
+  args:
+    executable: /bin/bash
   register: _php_version
 
 - name: Set cachetool adapter.
@@ -9,16 +11,16 @@
     _cachetool_adapter: "{{ cache_clear_opcache.adapter | default('--fcgi=127.0.0.1:90' + _php_version.stdout | replace('.','')) }}"
 
 - name: Clear opcache.
-  command:
+  ansible.builtin.command:
     cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n opcache:reset"
   when: cache_clear_opcache.clear_opcache
 
 - name: Clear apcu.
-  command:
+  ansible.builtin.command:
     cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n apcu:cache:clear"
   when: cache_clear_opcache.clear_apcu
 
 - name: Clear stats.
-  command:
+  ansible.builtin.command:
     cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n stat:clear"
   when: cache_clear_opcache.clear_stat

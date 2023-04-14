@@ -2,8 +2,10 @@
 # For some reason D7 drush doesn't respect 'chdir' with command, using shell instead.
 - name: Check if Ctools module is enabled.
   ansible.builtin.shell:
-    cmd: "{{ drush_bin }} pm-info ctools | grep ':  enabled' | wc -l"
+    cmd: "set -o pipefail && {{ drush_bin }} pm-info ctools | grep ':  enabled' | wc -l"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  args:
+    executable: /bin/bash
   register: ctools_enabled
 
 - name: Revert Drupal configuration from Ctools.
