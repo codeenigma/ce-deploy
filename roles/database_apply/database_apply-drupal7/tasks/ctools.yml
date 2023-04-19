@@ -10,6 +10,6 @@
 
 - name: Revert Drupal configuration from Ctools.
   ansible.builtin.shell:
-    cmd: "{{ drush_bin }} -y ctools-export-revert --all"
+    cmd: "{{ drush_bin }} -y {{ site.revert_ctools_command }}"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   when: ctools_enabled.stdout == "1"
