@@ -12,6 +12,7 @@ These variables **must** be set in the `deploy/common.yml` file, at least.
 # this will ensure defaults to other roles too.
 # If you are using ce-provision to deploy infrastructure this must match the `user_deploy.username` variable
 deploy_user: "deploy"
+# for MySQL CE you might want to add '--set-gtid-purged=OFF --skip-definer' here
 _mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 drupal:
   sites:
@@ -23,6 +24,7 @@ drupal:
       # End Drupal 8 variables
       # Drupal 7 variables
       revert_features_command: "" # i.e. "fra"
+      revert_ctools_command: "ctools-export-revert --all"
       # End Drupal 7 variables
       sanitize_command: "sql-sanitize"
       base_url: https://www.example.com
@@ -35,6 +37,9 @@ mautic:
   image_path: "media/images"
   force_install: false
 bin_directory: "/home/{{ deploy_user }}/.bin"
+# Number of dumps/db to look up for cleanup.
+cleanup_history_depth: 50
+
 ```
 
 <!--ENDROLEVARS-->
