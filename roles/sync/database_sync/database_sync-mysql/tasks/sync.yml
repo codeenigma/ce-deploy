@@ -37,7 +37,7 @@
 
 - name: Register remote dump name (from database).
   ansible.builtin.set_fact:
-    mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
+    mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}_{{ build_number }}_source.sql.bz2"
 
 - name: Get source last known good build number.
   ansible.builtin.command:
@@ -91,7 +91,7 @@
 
 - name: Register tmp target dump name.
   ansible.builtin.set_fact:
-    mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}.sql.bz2"
+    mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.bz2"
 
 - name: Get target last known good build number.
   ansible.builtin.command:
