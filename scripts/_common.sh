@@ -9,6 +9,7 @@ export ANSIBLE_CONFIG="$OWN_DIR/ansible.cfg"
 TARGET_DEPLOY_REPO=""
 TARGET_DEPLOY_PLAYBOOK=""
 TARGET_DEPLOY_BRANCH=""
+TARGET_DEPLOY_HOST=""
 PREVIOUS_BUILD_NUMBER=""
 CURRENT_BUILD_NUMBER=""
 ANSIBLE_EXTRA_VARS=""
@@ -48,6 +49,10 @@ parse_options(){
       "--playbook")
           shift
           TARGET_DEPLOY_PLAYBOOK="$1"
+        ;;
+      "--host")
+          shift
+          TARGET_DEPLOY_HOST="$1"
         ;;
       "--build-number")
           shift
@@ -143,6 +148,25 @@ cleanup_build_workspace(){
 cleanup_build_tmp_dir(){
   if [ -n "$BUILD_TMP_DIR" ] && [ -d "$BUILD_TMP_DIR" ]; then
     rm -rf "$BUILD_TMP_DIR"
+  fi
+}
+
+# Call Ansible playbook to ensure host exists.
+ansible_host_check(){
+  if [ -n "$TARGET_DEPLOY_HOST" ]; then
+    ANSIBLE_BIN=$(command -v ansible-playbook)
+    ANSIBLE_CMD="$ANSIBLE_BIN $OWN_DIR/scripts/host-check.yml"
+    if [ "$DRY_RUN" = "yes" ]; then
+      ANSIBLE_CMD="$ANSIBLE_CMD --check"
+    fi
+    if [ "$VERBOSE" = "yes" ]; then
+      ANSIBLE_CMD="$ANSIBLE_CMD -vvvv"
+    fi
+    if [ -n "$BOTO_PROFILE" ]; then
+      export AWS_PROFILE="$BOTO_PROFILE"
+    fi
+    $ANSIBLE_CMD --extra-vars "{_deploy_host: $TARGET_DEPLOY_HOST}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
+    return $?
   fi
 }
 

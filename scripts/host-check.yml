@@ -1,0 +1,15 @@
+- hosts: localhost
+  connection: local
+  become: false
+  tasks:
+    - name: Ensure the hostname check variable is empty.
+      ansible.builtin.set_fact:
+        _ce_deploy_ansible_host_check: ""
+    - name: Check to see if the Ansible host or hostgroup exists.
+      ansible.builtin.set_fact:
+        _ce_deploy_ansible_host_check: "{{ item }}"
+      with_inventory_hostnames:
+        - "{{ _deploy_host }}"
+    - ansible.builtin.fail:
+        msg: "Host does not exist!"
+      when: _ce_deploy_ansible_host_check | length == 0
