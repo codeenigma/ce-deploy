@@ -1,7 +1,12 @@
 ---
 - name: Register file sync location.
   ansible.builtin.set_fact:
+    file_sync_path: "{{ files.source.temp_dir }}/{{ files.source.build_id }}"
+
+- name: Register unique file sync location.
+  ansible.builtin.set_fact:
     file_sync_path: "{{ files.source.temp_dir }}/{{ files.source.build_id }}_{{ build_number }}"
+  when: files_sync.unique_workspace
 
 - name: Create a temporary directory for source files on localhost.
   ansible.builtin.file:
@@ -15,11 +20,19 @@
 - name: Copy the source files onto the deploy server.
   ansible.builtin.command:
     cmd: "rsync -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' -aHPv {{ files.source.host }}:{{ files.source.files_dir }}/ {{ file_sync_path }}/"
-  delegate_to: "localhost"
+  delegate_to: localhost
   run_once: true
 
 - name: Copy the source files from the deploy server onto the destination server.
   ansible.builtin.command:
     cmd: "rsync -e 'ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no' -aHPv {{ file_sync_path }}/ {{ ansible_play_hosts[0] }}:{{ files.target.files_dir }}/"
-  delegate_to: "localhost"
+  delegate_to: localhost
   run_once: true
+
+- name: Delete synced files on deploy server.
+  ansible.builtin.file:
+    path: "{{ file_sync_path }}"
+    state: absent
+  delegate_to: localhost
+  when:
+    - files_sync.cleanup
