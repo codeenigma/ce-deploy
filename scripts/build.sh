@@ -19,6 +19,7 @@ usage(){
   echo '--branch: The branch to deploy.'
   echo ''
   echo 'Available options:'
+  echo '--host: Valid Ansible hostname, if you want to run a host check. Can also be a group name.'
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
   echo '--previous-stable-build-number: an incremental build number that '
   echo '--dry-run: Do not perform any action but run the playbooks in --check mode.'
@@ -93,6 +94,9 @@ fi
 
 # Get Ansible defaults.
 get_ansible_defaults_vars
+
+# Optionally carry out a host check.
+ansible_host_check
 
 # From this point on, we want to trigger the "revert" if anything fails.
 ANSIBLE_BUILD_RESULT=1

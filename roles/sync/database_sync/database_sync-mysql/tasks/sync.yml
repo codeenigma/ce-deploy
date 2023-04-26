@@ -37,7 +37,7 @@
 
 - name: Register remote dump name (from database).
   ansible.builtin.set_fact:
-    mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}.sql.bz2"
+    mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}_{{ build_number }}_source.sql.bz2"
 
 - name: Get source last known good build number.
   ansible.builtin.command:
@@ -91,7 +91,7 @@
 
 - name: Register tmp target dump name.
   ansible.builtin.set_fact:
-    mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}.sql.bz2"
+    mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.bz2"
 
 - name: Get target last known good build number.
   ansible.builtin.command:
@@ -104,12 +104,12 @@
   delegate_to: localhost
   when: database.target.type == 'rolling'
 
-- name: Register target database name.
+- name: Register target rolling database name.
   ansible.builtin.set_fact:
     mysql_sync_target_database: "{{ database.target.database }}_{{ mysql_sync_target_build_number.stdout }}"
   when: database.target.type == 'rolling'
 
-- name: Register target database name.
+- name: Register target static database name.
   ansible.builtin.set_fact:
     mysql_sync_target_database: "{{ database.target.database }}"
   when: not database.target.type == 'rolling'
@@ -139,10 +139,24 @@
   args:
     executable: /bin/bash
 
-- name: Remove tmp dump file.
+- name: Delete temporary dump file on target.
   ansible.builtin.file:
     path: "{{ mysql_sync_target_dump_path }}"
     state: absent
+
+- name: Delete temporary dump file on source.
+  ansible.builtin.file:
+    path: "{{ mysql_sync_source_dump_path }}"
+    state: absent
+  delegate_to: "{{ database.source.host }}"
+
+- name: Delete temporary dump file on deploy server.
+  ansible.builtin.file:
+    path: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
+    state: absent
+  delegate_to: localhost
+  when:
+    - mysql_sync.cleanup
 
 - name: Enable all autoscale processes on source ASG.
   ansible.builtin.command: >
