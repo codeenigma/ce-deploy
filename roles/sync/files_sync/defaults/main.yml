@@ -1,5 +1,8 @@
 ---
 files_sync:
+  unique_workspace: false # set to true to grab a complete full set of files every sync
+  # Generally speaking you will *not* want to clean up after file syncs, as leaving the files there makes the next rsync far quicker.
+  cleanup: false # set to true to delete the synced files after a sync
   directories:
     - source:
         # Location of the files to sync from. DO NOT INCLUDE TRAILING SLASH!

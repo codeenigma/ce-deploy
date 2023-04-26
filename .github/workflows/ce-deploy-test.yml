@@ -48,7 +48,7 @@ jobs:
           git config --global user.name "Code Enigma CI"
 
       # Uses the ce-dev stack to run a test Drupal deploy
-      - name: Run a test ce-dev deploy
+      - name: Run a test ce-dev deploy with Drupal 8
         run: |
           ce-dev create -p test -t drupal8 -d ~/test
           cd ~/test
