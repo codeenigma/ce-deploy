@@ -156,9 +156,6 @@ ansible_host_check(){
   if [ -n "$TARGET_DEPLOY_HOST" ]; then
     ANSIBLE_BIN=$(command -v ansible-playbook)
     ANSIBLE_CMD="$ANSIBLE_BIN $OWN_DIR/scripts/host-check.yml"
-    if [ "$DRY_RUN" = "yes" ]; then
-      ANSIBLE_CMD="$ANSIBLE_CMD --check"
-    fi
     if [ "$VERBOSE" = "yes" ]; then
       ANSIBLE_CMD="$ANSIBLE_CMD -vvvv"
     fi
@@ -167,6 +164,9 @@ ansible_host_check(){
     fi
     $ANSIBLE_CMD --extra-vars "{_deploy_host: $TARGET_DEPLOY_HOST}" --extra-vars "$ANSIBLE_DEFAULT_EXTRA_VARS" --extra-vars "$ANSIBLE_EXTRA_VARS"
     return $?
+  # No host to check provided, just return a clean exit code.
+  else
+    return 0
   fi
 }
 

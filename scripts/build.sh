@@ -95,8 +95,14 @@ fi
 # Get Ansible defaults.
 get_ansible_defaults_vars
 
-# Optionally carry out a host check.
+# Optionally carry out a host check if --host is provided.
 ansible_host_check
+ANSIBLE_HOST_CHECK_RESULT=$?
+# Exit early if host not found.
+if [ -n "$ANSIBLE_HOST_CHECK_RESULT" ] && [ "$ANSIBLE_HOST_CHECK_RESULT" != 0 ]; then
+  echo "ce-deploy failed to find the host. Aborting."
+  exit 1
+fi
 
 # From this point on, we want to trigger the "revert" if anything fails.
 ANSIBLE_BUILD_RESULT=1
@@ -113,5 +119,5 @@ if [ -n "$ANSIBLE_BUILD_RESULT" ] && [ "$ANSIBLE_BUILD_RESULT" = 0 ]; then
   exit 0
 fi
 # Failed somehow. Normally unreachable in strict mode.
-echo "Something went wrong. Please fill a bug report against ce-deploy."
+echo "Something went unexpectedly wrong with ce-deploy. Please file a bug report - https://github.com/codeenigma/ce-deploy/issues/new"
 exit 1
