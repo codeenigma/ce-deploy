@@ -96,7 +96,6 @@ fi
 get_ansible_defaults_vars
 
 # Optionally carry out a host check if --host is provided.
-ANSIBLE_HOST_CHECK_RESULT=1
 ansible_host_check
 ANSIBLE_HOST_CHECK_RESULT=$?
 # Exit early if host not found.
