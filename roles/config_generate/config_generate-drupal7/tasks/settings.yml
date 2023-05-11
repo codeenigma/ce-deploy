@@ -19,6 +19,6 @@
     src: "{{ item }}"
     dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
   with_first_found:
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php.j2"
+    - "{{ playbook_dir }}/{{ site.folder }}/{{ build_type }}.settings.php.j2"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php"
     - "settings.php.j2"

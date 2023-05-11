@@ -6,6 +6,7 @@ Sync MySQL databases between environments.
 ---
 mysql_sync:
   mysqldump_params: "{{ _mysqldump_params }}" # set in _init but you can override here
+  cleanup: true # if false leaves tmp database dump on deploy server for debugging purposes
   databases:
     - source:
         # Name of the database to take a dump from.
