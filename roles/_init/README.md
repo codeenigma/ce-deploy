@@ -39,6 +39,7 @@ mautic:
 bin_directory: "/home/{{ deploy_user }}/.bin"
 # Number of dumps/db to look up for cleanup.
 cleanup_history_depth: 50
+install_php_cachetool: true # set to false if you don't need cachetool, e.g. for a nodejs app
 
 ```
 
