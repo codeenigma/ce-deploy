@@ -150,7 +150,7 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check is succeeded
+    - _deploy_code_mount_check.rc == 0
     - deploy_code.services | length > 0
 
 - name: Stop any services that might be keeping the loop device busy.
@@ -166,7 +166,7 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check is succeeded
+    - _deploy_code_mount_check.rc == 0
     - deploy_code.services | length > 0
 
 - name: Unmount existing SquashFS image.
@@ -177,7 +177,7 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check is succeeded
+    - _deploy_code_mount_check.rc == 0
 
 - name: Mount new SquashFS image.
   ansible.builtin.command:
