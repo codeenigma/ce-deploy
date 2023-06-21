@@ -17,3 +17,5 @@
   ansible.builtin.file:
     path: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql"
     state: absent
+  run_once: true
+  when: previous_build_number > 0
