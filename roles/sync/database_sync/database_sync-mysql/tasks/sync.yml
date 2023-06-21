@@ -93,7 +93,7 @@
   ansible.builtin.set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.bz2"
 
-- name: Register tmp target unpacked dump name.
+- name: Register tmp unpacked target dump name.
   ansible.builtin.set_fact:
     mysql_sync_target_dump_unpacked_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql"
 
@@ -149,10 +149,11 @@
     cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
 
 - name: Repopulate database from dump.
-  ansible.builtin.command:
-    cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }} < {{ mysql_sync_target_dump_unpacked_path }}"
+  ansible.builtin.shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }} < {{ mysql_sync_target_dump_unpacked_path }}"
+  args:
+    executable: /bin/bash
 
-- name: Delete temporary dump file on target.
+- name: Delete temporary unpacked dump file on target.
   ansible.builtin.file:
     path: "{{ mysql_sync_target_dump_unpacked_path }}"
     state: absent
