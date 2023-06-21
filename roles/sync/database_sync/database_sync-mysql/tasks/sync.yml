@@ -75,6 +75,7 @@
   delegate_to: "{{ database.source.host }}"
   when:
     - database.source.fresh_db
+    - not mysql_sync.use_gzip
 
 - name: Take a dump from source database - GZIP.
   ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | gzip > {{ mysql_sync_source_dump_path }}"
@@ -179,6 +180,8 @@
   ansible.builtin.shell: "bzip2 -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
   args:
     executable: /bin/bash
+  when:
+    - not mysql_sync.use_gzip
 
 - name: Unpack dump file - GZIP.
   ansible.builtin.shell: "gzip -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
