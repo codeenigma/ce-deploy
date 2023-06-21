@@ -15,6 +15,7 @@ deploy_user: "deploy"
 # for MySQL CE you might want to add '--set-gtid-purged=OFF --skip-definer' here
 _mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 drupal:
+  drush_verbose_output: false
   sites:
     - folder: "default"
       public_files: "sites/default/files"
