@@ -38,6 +38,8 @@
 - name: Register remote dump name (from database) - BZIP2.
   ansible.builtin.set_fact:
     mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}_{{ build_number }}_source.sql.bz2"
+  when: 
+    - not mysql_sync.use_gzip
 
 - name: Register remote dump name (from database) - GZIP.
   ansible.builtin.set_fact:
@@ -73,6 +75,7 @@
   delegate_to: "{{ database.source.host }}"
   when:
     - database.source.fresh_db
+    - not mysql_sync.use_gzip
 
 - name: Take a dump from source database - GZIP.
   ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | gzip > {{ mysql_sync_source_dump_path }}"
@@ -107,6 +110,8 @@
 - name: Register tmp target dump name - BZIP2.
   ansible.builtin.set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.bz2"
+  when: 
+    - not mysql_sync.use_gzip
 
 - name: Register tmp target dump name - GZIP.
   ansible.builtin.set_fact:
@@ -145,6 +150,8 @@
     dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
     flat: true
   delegate_to: "{{ database.source.host }}"
+  when: 
+    - not mysql_sync.use_gzip
 
 - name: Fetch dump file - GZIP.
   ansible.builtin.fetch:
@@ -159,6 +166,8 @@
   ansible.builtin.copy:
     src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
     dest: "{{ mysql_sync_target_dump_path }}"
+  when: 
+    - not mysql_sync.use_gzip
 
 - name: Copy dump file to destination - GZIP.
   ansible.builtin.copy:
@@ -171,6 +180,8 @@
   ansible.builtin.shell: "bzip2 -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
   args:
     executable: /bin/bash
+  when:
+    - not mysql_sync.use_gzip
 
 - name: Unpack dump file - GZIP.
   ansible.builtin.shell: "gzip -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
@@ -210,11 +221,14 @@
 
 - name: Delete temporary dump file on deploy server.
   ansible.builtin.file:
-    path: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
+    path: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql{{ item }}"
     state: absent
   delegate_to: localhost
   when:
     - mysql_sync.cleanup
+  with_items:
+    - ".bz2"
+    - ".gz"
 
 - name: Enable all autoscale processes on source ASG.
   ansible.builtin.command: >
