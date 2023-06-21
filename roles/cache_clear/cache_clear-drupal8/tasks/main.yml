@@ -1,6 +1,6 @@
 ---
 - name: Clear Drupal cache.
-  command:
+  ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y cr"
     chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
@@ -9,3 +9,10 @@
   loop_control:
     loop_var: site
   run_once: true
+  register: _drush_output
+
+- name: Show drush output.
+  ansible.builtin.debug:
+    msg: "{{ _drush_output }}"
+  when: drupal.drush_verbose_output
+
