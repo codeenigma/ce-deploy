@@ -1,7 +1,14 @@
 ---
-- name: Revert database from dump.
-  ansible.builtin.shell: "set -o pipefail && bzcat {{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2 | mysql --defaults-extra-file={{ database.credentials_file }} {{ database.database }}"
-  args:
-    executable: /bin/bash
-  when: previous_build_number > 0
+- name: Unpack dump file.
+  ansible.builtin.unarchive:
+    src: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2"
+    dest: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql"
   run_once: true
+  when: previous_build_number > 0
+
+- name: Revert database from dump.
+  ansible.builtin.command:
+    cmd: "mysql --defaults-extra-file={{ database.credentials_file }} {{ database.database }} < /tmp/{{ database.database }}-{{ previous_build_number }}.sql"
+  delegate_to: localhost
+  run_once: true
+  when: previous_build_number > 0
