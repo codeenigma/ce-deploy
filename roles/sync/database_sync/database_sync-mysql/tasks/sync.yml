@@ -93,6 +93,10 @@
   ansible.builtin.set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.bz2"
 
+- name: Register tmp unpacked target dump name.
+  ansible.builtin.set_fact:
+    mysql_sync_target_dump_unpacked_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql"
+
 - name: Get target last known good build number.
   ansible.builtin.command:
     argv:
@@ -126,6 +130,16 @@
     src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
     dest: "{{ mysql_sync_target_dump_path }}"
 
+- name: Unpack dump file.
+  ansible.builtin.unarchive:
+    src: "{{ mysql_sync_target_dump_path }}"
+    dest: "{{ mysql_sync_target_dump_unpacked_path }}"
+
+- name: Delete temporary dump file on target.
+  ansible.builtin.file:
+    path: "{{ mysql_sync_target_dump_path }}"
+    state: absent
+
 - name: Drop target database.
   ansible.builtin.command:
     cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database if exists {{ mysql_sync_target_database }};'"
@@ -135,13 +149,13 @@
     cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
 
 - name: Repopulate database from dump.
-  ansible.builtin.shell: "set -o pipefail && bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
+  ansible.builtin.shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }} < {{ mysql_sync_target_dump_unpacked_path }}"
   args:
     executable: /bin/bash
 
-- name: Delete temporary dump file on target.
+- name: Delete temporary unpacked dump file on target.
   ansible.builtin.file:
-    path: "{{ mysql_sync_target_dump_path }}"
+    path: "{{ mysql_sync_target_dump_unpacked_path }}"
     state: absent
 
 - name: Delete temporary dump file on source.
