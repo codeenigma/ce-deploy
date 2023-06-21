@@ -24,6 +24,8 @@ mysql_sync:
         dumps_directory: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/db_backups/mysql/regular"
         # If the source is on an ASG, provide the ASG name here. Otherwise, leave empty.
         asg: ""
+        # Default is bzip2, set to true if you want to use gzip.
+        use_gzip: false
       target:
         database: "{{ project_name }}_dev"
         credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
