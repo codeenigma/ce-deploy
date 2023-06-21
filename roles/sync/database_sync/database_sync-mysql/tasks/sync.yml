@@ -189,6 +189,8 @@
   ansible.builtin.shell: "{{ archival_command }} -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
   args:
     executable: /bin/bash
+  when:
+    - not mysql_sync.use_gzip
 
 - name: Delete temporary unpacked dump file on target.
   ansible.builtin.file:
