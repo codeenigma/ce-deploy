@@ -128,6 +128,10 @@
   ansible.builtin.set_fact:
     mysql_sync_target_dump_unpacked_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql"
 
+- name: Register tmp unpacked target dump name.
+  ansible.builtin.set_fact:
+    mysql_sync_target_dump_unpacked_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql"
+
 - name: Get target last known good build number.
   ansible.builtin.command:
     argv:
@@ -171,9 +175,9 @@
   args:
     executable: /bin/bash
 
-- name: Delete temporary dump file on target.
+- name: Delete temporary unpacked dump file on target.
   ansible.builtin.file:
-    path: "{{ mysql_sync_target_dump_path }}"
+    path: "{{ mysql_sync_target_dump_unpacked_path }}"
     state: absent
 
 - name: Drop target database.
