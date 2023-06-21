@@ -3,6 +3,7 @@
   ansible.builtin.unarchive:
     src: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2"
     dest: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql"
+    remote_src: true
   run_once: true
   when: previous_build_number > 0
 

@@ -134,6 +134,7 @@
   ansible.builtin.unarchive:
     src: "{{ mysql_sync_target_dump_path }}"
     dest: "{{ mysql_sync_target_dump_unpacked_path }}"
+    remote_src: true
 
 - name: Delete temporary dump file on target.
   ansible.builtin.file:
