@@ -131,7 +131,8 @@
 - name: Register tmp target dump name - GZIP.
   ansible.builtin.set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.gz"
-  when: database.source.use_gzip
+  when:
+    - mysql_sync.use_gzip
 
 - name: Register tmp unpacked target dump name.
   ansible.builtin.set_fact:
@@ -167,7 +168,8 @@
     dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.gz"
     flat: true
   delegate_to: "{{ database.source.host }}"
-  when: database.source.use_gzip
+  when:
+    - mysql_sync.use_gzip
 
 - name: Copy dump file to destination - BZIP2.
   ansible.builtin.copy:
