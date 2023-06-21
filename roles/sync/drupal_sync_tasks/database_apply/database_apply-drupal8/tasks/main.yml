@@ -17,6 +17,12 @@
   with_items: "{{ drupal.sites }}"
   loop_control:
     loop_var: site
+  register: _drush_output
+
+- name: Show drush output.
+  ansible.builtin.debug:
+    msg: "{{ _drush_output }}"
+  when: drupal.drush_verbose_output
 
 # This only runs if the sync_config_import variable is not defined or it is defined and is true. If it's defined and false, this won't run.
 - name: Import configuration.
@@ -31,6 +37,12 @@
   when:
     - site.config_import_command
     - site.sync_config_import is not defined or site.sync_config_import
+  register: _drush_output
+
+- name: Show drush output.
+  ansible.builtin.debug:
+    msg: "{{ _drush_output }}"
+  when: drupal.drush_verbose_output
 
 - name: Clear the cache.
   ansible.builtin.include_role:
