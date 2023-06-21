@@ -42,8 +42,7 @@
 - name: Register remote dump name (from database) - GZIP.
   ansible.builtin.set_fact:
     mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}_{{ build_number }}_source.sql.gz"
-  when:
-    - database.source.use_gzip
+  when: database.source.use_gzip
 
 - name: Get source last known good build number.
   ansible.builtin.command:
@@ -111,8 +110,7 @@
 - name: Register tmp target dump name - GZIP.
   ansible.builtin.set_fact:
     mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.gz"
-  when:
-    - database.source.use_gzip
+  when: database.source.use_gzip
 
 - name: Register tmp unpacked target dump name.
   ansible.builtin.set_fact:
@@ -152,8 +150,7 @@
     dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.gz"
     flat: true
   delegate_to: "{{ database.source.host }}"
-  when:
-    - database.source.use_gzip
+  when: database.source.use_gzip
 
 - name: Copy dump file to destination - BZIP2.
   ansible.builtin.copy:
@@ -164,8 +161,7 @@
   ansible.builtin.copy:
     src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.gz"
     dest: "{{ mysql_sync_target_dump_path }}"
-  when:
-    - database.source.use_gzip
+  when: database.source.use_gzip
 
 - name: Unpack dump file - BZIP2.
   ansible.builtin.shell: "bzip2 -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
@@ -176,8 +172,7 @@
   ansible.builtin.shell: "gzip -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
   args:
     executable: /bin/bash
-  when:
-    - database.source.use_gzip
+  when: database.source.use_gzip
 
 - name: Delete temporary dump file on target.
   ansible.builtin.file:
