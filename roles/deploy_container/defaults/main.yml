@@ -2,6 +2,7 @@
 deploy_container:
   container_name: "example/example"
   container_tag: latest # tag will take format container_name:container_tag
+  docker_registry_name: index.docker.io
   docker_registry_url: https://index.docker.io/v1/
   docker_registry_user: example
   docker_registry_pass: asdf1234
