@@ -44,7 +44,7 @@
   community.docker.docker_image:
     build:
       path: "{{ deploy_container.docker_build_dir }}"
-    repository: "{{ deploy_container.docker_registry_url }}"
+    repository: "{{ deploy_container.docker_registry_name }}"
     name: "{{ deploy_container.container_name }}"
     tag: "{{ deploy_container.container_tag | default('latest') }}"
     push: true
