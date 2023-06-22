@@ -1,0 +1,49 @@
+---
+# @TODO - for AWS ECR we'll need certain policies attaching to the deploy IAM user
+- name: Create Dockerfile from template.
+  local_action:
+    module: ansible.builtin.template
+    src: Dockerfile.j2
+    dest: "{{ deploy_container.docker_build_dir }}/Dockerfile"
+
+- name: Set Docker registry username and password.
+  ansible.builtin.set_fact:
+    _docker_registry_username: "{{ deploy_container.docker_registry_user }}"
+    _docker_registry_password: "{{ deploy_container.docker_registry_pass }}"
+
+# Token valid for 12 hours
+- name: Fetch AWS ECR registry login token.
+  ansible.builtin.command:
+    command: "aws ecr get-login-password --region {{ deploy_container.aws_ecr.region }} --profile {{ deploy_container.aws_ecr.profile }}"
+  when: deploy_container.aws_ecr.enabled
+  register: _docker_registry_ecr_token
+
+- name: Set AWS ECR registry password.
+  ansible.builtin.set_fact:
+    _docker_registry_password: "{{ _docker_registry_ecr_token.stdout }}"
+  when: deploy_container.aws_ecr.enabled
+
+- name: Set AWS ECR registry username.
+  ansible.builtin.set_fact:
+    _docker_registry_username: "AWS"
+  when: deploy_container.aws_ecr.enabled
+
+- name: Log into Docker registry.
+  community.docker.docker_login:
+    registry_url: "{{ deploy_container.docker_registry_url }}"
+    username: "{{ _docker_registry_username }}"
+    password: "{{ _docker_registry_password }}"
+    reauthorize: true
+  delegate_to: localhost
+  when: deploy_container.docker_registry_login
+
+- name: Build and push container image.
+  community.docker.docker_image:
+    build:
+      path: "{{ deploy_container.docker_build_dir }}"
+    repository: "{{ deploy_container.docker_registry_url }}"
+    name: "{{ deploy_container.container_name }}"
+    tag: "{{ deploy_container.container_tag | default('latest') }}"
+    push: true
+    source: build
+  delegate_to: localhost
