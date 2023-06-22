@@ -3,7 +3,7 @@
 - name: Create Dockerfile from template.
   local_action:
     module: ansible.builtin.template
-    src: Dockerfile.j2
+    src: "{{ deploy_container.dockerfile_template }}"
     dest: "{{ deploy_container.docker_build_dir }}/Dockerfile"
 
 - name: Set Docker registry username and password.
