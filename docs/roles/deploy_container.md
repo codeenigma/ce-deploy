@@ -18,9 +18,9 @@ AWS ECR registries require the AWS CLI user provided for `ce-deploy` to have the
 ```yaml
 ---
 deploy_container:
-  container_name: "example/example"
+  container_name: example
   container_tag: latest # tag will take format container_name:container_tag
-  docker_registry_url: https://index.docker.io/v1/
+  docker_registry_name: index.docker.io/example # combines with container_name to make the full registry name, docker_registry_name/container_name
   docker_registry_user: example
   docker_registry_pass: asdf1234
   docker_base_command: "docker image build"
