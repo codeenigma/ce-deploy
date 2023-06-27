@@ -31,6 +31,10 @@
   when: deploy_container.aws_ecr.enabled
   delegate_to: localhost
 
+- name: Log out of Docker registry to force a login.
+  community.docker.docker_login:
+    state: absent
+
 - name: Log into Docker registry.
   community.docker.docker_login:
     registry_url: "{{ deploy_container.docker_registry_url }}"
@@ -275,7 +279,7 @@
     launch_type: "{{ deploy_container.aws_ecs.launch_type }}"
     platform_version: LATEST
     load_balancers: # see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LoadBalancer.html
-      - containerName: "{{ deploy_container.aws_ecs.service_elb_container_name }}"
+      - containerName: "{{ deploy_container.container_name }}"
         containerPort: "{{ deploy_container.aws_ecs.target_group_port }}"
         targetGroupArn: "{{ _aws_ecs_target_group.target_group_arn }}"
     network_configuration:
