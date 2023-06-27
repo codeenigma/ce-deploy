@@ -1,6 +1,6 @@
 - name: Gather public subnet information.
   amazon.aws.ec2_vpc_subnet_info:
-    profile: "{{ deploy_container.aws_ecs.profile }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
     region: "{{ deploy_container.aws_ecs.region }}"
     filters:
       vpc-id: "{{ _aws_ecs_cluster_vpc_id }}"
