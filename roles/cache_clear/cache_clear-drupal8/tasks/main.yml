@@ -15,4 +15,3 @@
   ansible.builtin.debug:
     msg: "{{ _drush_output }}"
   when: drupal.drush_verbose_output
-
