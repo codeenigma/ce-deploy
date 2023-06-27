@@ -62,8 +62,8 @@ deploy_container:
     service_autoscale_target_value: 70 # the value to trigger a scaling event at
     execution_role_arn: "arn:aws:iam::000000000000:role/ecsTaskExecutionRole" # ARN of the IAM role to run the task as, must have access to the ECR repository if applicable
     containers: [] # list of container definitions, see docs: https://docs.ansible.com/ansible/latest/collections/community/aws/ecs_taskdefinition_module.html#parameter-containers
-    #cpu: 512 # these values can be set globally or per container
-    #memory: 1024
+    cpu: 512 # these values can be set globally or per container
+    memory: 1024
     launch_type: FARGATE
     network_mode: awsvpc
     #volumes: [] # list of additional volumes to attach
