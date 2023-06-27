@@ -8,7 +8,27 @@ sudo usermod -aG docker deploy
 
 This can be handled automatically by [`ce-provision`](https://github.com/codeenigma/ce-provision) using the `ce_deploy` and `docker_ce` roles.
 
-AWS ECR registries require the AWS CLI user provided for `ce-deploy` to have the managed AWS `EC2InstanceProfileForImageBuilderECRContainerBuilds` policy attached via IAM to allow access to fetch credentials and push containers.
+## AWS IAM requirements
+AWS integration requires the AWS CLI user provided for `ce-deploy` to have certain managed AWS policies attached.
+
+If you enable AWS ECR registry integration by setting `deploy_container.aws_ecr.enabled` to `true` then you will need the `EC2InstanceProfileForImageBuilderECRContainerBuilds` policy attached via IAM to allow access to fetch credentials and push containers.
+
+Similarly, if you set `deploy_container.aws_ecs.acm.create_cert` to `true` then you will need the `AWSCertificateManagerFullAccess` policy attaching to create SSL certificates.
+
+If you enable full AWS ECS integration by setting `deploy_container.aws_ecs.enabled` to `true` then this requires the following policies to be attached to the AWS CLI user:
+* `AmazonECS_FullAccess` - to create task definitions and services
+* `ElasticLoadBalancingFullAccess` - to create load balancers and target groups
+
+Finally, if you set `deploy_container.aws_ecs.route_53.zone` to another other than an empty string then you will also need `AmazonRoute53FullAccess` attaching to manipulate DNS entries in Route 53.
+
+The full list is:
+* `EC2InstanceProfileForImageBuilderECRContainerBuilds` - to manipulate images in AWS ECR
+* `AWSCertificateManagerFullAccess` - to manage SSL certificates
+* `AmazonECS_FullAccess` - to create task definitions and services
+* `ElasticLoadBalancingFullAccess` - to create load balancers and target groups
+* `AmazonRoute53FullAccess` - to manage DNS entries
+
+Naturally you can always create custom policies and roles to have tighter access control. This document simply gives you the broad strokes AWS managed policies you can use in conjunction with this Ansible role.
 
 <!--TOC-->
 <!--ENDTOC-->
