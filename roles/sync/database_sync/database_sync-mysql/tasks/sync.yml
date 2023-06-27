@@ -40,14 +40,14 @@
   ansible.builtin.set_fact:
     archive_file_type: "bz2"
     archival_command: "bzip2"
-  when: 
+  when:
     - mysql_sync.archival_method == 'bzip2'
 
 - name: Register gunzip archive type vars.
   ansible.builtin.set_fact:
     archive_file_type: "gz"
     archival_command: "gzip"
-  when: 
+  when:
     - mysql_sync.archival_method == 'gzip'
 
 - name: Register remote dump name (from database).
