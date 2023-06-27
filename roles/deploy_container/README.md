@@ -20,13 +20,14 @@ AWS ECR registries require the AWS CLI user provided for `ce-deploy` to have the
 deploy_container:
   container_name: example
   container_tag: latest # tag will take format container_name:container_tag
+  container_force_build: true # force Docker to build and tag a new image
   docker_registry_name: index.docker.io/example # combines with container_name to make the full registry name, docker_registry_name/container_name
   docker_registry_user: example
   docker_registry_pass: asdf1234
   docker_base_command: "docker image build"
   docker_build_dir: "{{ _ce_deploy_build_dir }}"
   dockerfile_template: example.j2 # provide a templates directory next to your playbook and change this to match your Dockerfile template name
-  environment_vars: {} # dictionary you can populate for use in a custom Dockerfile template   
+  environment_vars: {} # dictionary you can populate for use in a custom Dockerfile template
   # Requires the deploy IAM user to have the managed EC2InstanceProfileForImageBuilderECRContainerBuilds policy attached
   aws_ecr:
     enabled: false # set to true if using AWS ECR
