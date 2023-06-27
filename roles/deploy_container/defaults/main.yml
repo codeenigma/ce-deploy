@@ -2,6 +2,7 @@
 deploy_container:
   container_name: example
   container_tag: latest # tag will take format container_name:container_tag
+  container_force_build: true # force Docker to build and tag a new image
   docker_registry_name: index.docker.io/example # combines with container_name to make the full registry name, docker_registry_name/container_name
   docker_registry_user: example
   docker_registry_pass: asdf1234
