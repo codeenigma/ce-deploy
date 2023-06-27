@@ -1,10 +1,10 @@
 ---
 # Build and ship a container image
 - name: Create Dockerfile from template.
-  local_action:
-    module: ansible.builtin.template
+  ansible.builtin.template:
     src: "{{ deploy_container.dockerfile_template }}"
     dest: "{{ deploy_container.docker_build_dir }}/Dockerfile"
+  delegate_to: localhost
 
 - name: Set Docker registry username and password.
   ansible.builtin.set_fact:
