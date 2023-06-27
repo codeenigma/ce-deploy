@@ -153,7 +153,7 @@
     target_type: ip
     targets: "{{ deploy_container.aws_ecs.targets }}"
     state: present
-    wait_timeout: 200
+    wait_timeout: "{{ deploy_container.aws_ecs.target_group_wait_timeout }}"
     wait: true
   register: _aws_ecs_target_group
   delegate_to: localhost

@@ -70,6 +70,7 @@ deploy_container:
     target_group_name: example # 32 character limit
     target_group_protocol: http
     target_group_port: 80
+    target_group_wait_timeout: 200 # how long to wait for target group events to complete
     targets: [] # typically we do not specify targets at this point, this will be handled automatically by the ECS service
       #- Id: 10.0.0.2
       #  Port: 80
