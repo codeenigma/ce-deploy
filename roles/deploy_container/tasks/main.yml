@@ -34,6 +34,7 @@
 - name: Log out of Docker registry to force a login.
   community.docker.docker_login:
     state: absent
+  delegate_to: localhost
 
 - name: Log into Docker registry.
   community.docker.docker_login:
