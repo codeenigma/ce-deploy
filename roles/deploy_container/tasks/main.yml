@@ -255,7 +255,7 @@
     security_groups: "{{ deploy_container.aws_ecs.elb_security_groups }}"
     listeners: "{{ _aws_ecs_cluster_listeners }}"
     idle_timeout: "{{ deploy_container.aws_ecs.elb_idle_timeout }}"
-    ip_address_type: "{{ aws_elb.ip_address_type }}"
+    ip_address_type: "{{ deploy_container.aws_ecs.elb_ip_address_type }}"
   register: _aws_ecs_cluster_alb
   delegate_to: localhost
   when: deploy_container.aws_ecs.enabled
