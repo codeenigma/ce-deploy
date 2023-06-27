@@ -164,6 +164,9 @@
     name: aws_acm
   vars:
     aws_acm:
+      region: "{{ deploy_container.aws_ecs.region }}"
+      aws_profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+      tags: "{{ deploy_container.aws_ecs.tags }}"
       export: false
       domain_name: "{{ deploy_container.aws_ecs.domain_name }}"
       extra_domains: "{{ deploy_container.aws_ecs.acm.extra_domains }}"
