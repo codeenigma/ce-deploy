@@ -31,9 +31,10 @@
   when: deploy_container.aws_ecr.enabled
   delegate_to: localhost
 
-- name: Log out of Docker registry to force a login.
-  community.docker.docker_login:
+- name: Remove Docker credentials file.
+  ansible.builtin.file:
     state: absent
+    path: "/home/{{ deploy_user }}/.docker/config.json"
   delegate_to: localhost
 
 - name: Log into Docker registry.
