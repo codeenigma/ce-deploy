@@ -55,7 +55,6 @@
     source: build
     force_source: "{{ deploy_container.container_force_build }}"
     force_tag: "{{ deploy_container.container_force_build }}"
-    force: "{{ deploy_container.container_force_build }}"
   delegate_to: localhost
 
 # Fetch the ACM role from ce-provision
