@@ -138,6 +138,7 @@
     state: present
     network_mode: "{{ deploy_container.aws_ecs.network_mode }}"
     volumes: "{{ deploy_container.aws_ecs.volumes | default(omit) }}"
+    force_create: "{{ deploy_container.aws_ecs.task_definition_force_create }}"
   delegate_to: localhost
   when: deploy_container.aws_ecs.enabled
 
@@ -294,6 +295,7 @@
       security_groups: "{{ deploy_container.aws_ecs.security_groups }}"
       assign_public_ip: true # must be true for now - details: https://stackoverflow.com/a/66802973
     tags: "{{ deploy_container.aws_ecs.tags }}"
+    force_new_deployment: "{{ deploy_container.aws_ecs.service_force_refresh }}"
     wait: true
   delegate_to: localhost
   when: deploy_container.aws_ecs.enabled
