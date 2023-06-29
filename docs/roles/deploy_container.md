@@ -38,7 +38,7 @@ Naturally you can always create custom policies and roles to have tighter access
 ```yaml
 ---
 deploy_container:
-  container_name: example
+  container_name: example-container
   container_tag: latest # tag will take format container_name:container_tag
   container_force_build: true # force Docker to build and tag a new image
   docker_registry_name: index.docker.io/example # combines with container_name to make the full registry name, docker_registry_name/container_name
@@ -70,8 +70,8 @@ deploy_container:
       - example-dev-a
       - example-dev-b
     security_groups: [] # list of security groups, accepts names or IDs
-    cluster_name: example
-    family_name: example
+    cluster_name: example-cluster
+    family_name: example-task-definition
     task_definition_revision: "" # integer, but must be presented as a string for Jinja2
     task_count: 1
     task_minimum_count: 1
@@ -82,7 +82,19 @@ deploy_container:
     service_autoscale_down_cooldown: 120
     service_autoscale_target_value: 70 # the value to trigger a scaling event at
     execution_role_arn: "arn:aws:iam::000000000000:role/ecsTaskExecutionRole" # ARN of the IAM role to run the task as, must have access to the ECR repository if applicable
-    containers: [] # list of container definitions, see docs: https://docs.ansible.com/ansible/latest/collections/community/aws/ecs_taskdefinition_module.html#parameter-containers
+    containers: # list of container definitions, see docs: https://docs.ansible.com/ansible/latest/collections/community/aws/ecs_taskdefinition_module.html#parameter-containers
+      - name: example-container
+        essential: true
+        image: index.docker.io/example:latest
+        portMappings:
+          - containerPort: 8080 # should match target_group_port
+            hostPort: 8080
+        logConfiguration:
+          logDriver: awslogs
+          options:
+            awslogs-group: /ecs/example-cluster
+            awslogs-region: eu-west-1
+            awslogs-stream-prefix: "ecs-example-task"
     cpu: 512 # these values can be set globally or per container
     memory: 1024
     launch_type: FARGATE
@@ -90,7 +102,7 @@ deploy_container:
     #volumes: [] # list of additional volumes to attach
     target_group_name: example # 32 character limit
     target_group_protocol: http
-    target_group_port: 80
+    target_group_port: 8080 # ports lower than 1024 will require the app to be configured to run as a privileged user in the Dockerfile
     target_group_wait_timeout: 200 # how long to wait for target group events to complete
     targets: [] # typically we do not specify targets at this point, this will be handled automatically by the ECS service
       #- Id: 10.0.0.2
