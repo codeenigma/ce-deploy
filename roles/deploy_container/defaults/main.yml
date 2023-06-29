@@ -44,6 +44,8 @@ deploy_container:
     service_autoscale_up_cooldown: 120
     service_autoscale_down_cooldown: 120
     service_autoscale_target_value: 70 # the value to trigger a scaling event at
+    service_public_container_ip: false # set to true to make containers appear on an EIP - more details: https://stackoverflow.com/a/66802973
+    service_enable_ssm: false # set to true to allow arbitrary command execution on containers via the AWS API
     service_force_refresh: false # forces a refresh of all containers if set to true
     execution_role_arn: "arn:aws:iam::000000000000:role/ecsTaskExecutionRole" # ARN of the IAM role to run the task as, must have access to the ECR repository if applicable
     containers: # list of container definitions, see docs: https://docs.ansible.com/ansible/latest/collections/community/aws/ecs_taskdefinition_module.html#parameter-containers

@@ -293,8 +293,9 @@
     network_configuration:
       subnets: "{{ _aws_ecs_cluster_public_subnets_ids }}"
       security_groups: "{{ deploy_container.aws_ecs.security_groups }}"
-      assign_public_ip: true # must be true for now - details: https://stackoverflow.com/a/66802973
+      assign_public_ip: "{{ deploy_container.aws_ecs.service_public_container_ip }}"
     tags: "{{ deploy_container.aws_ecs.tags }}"
+    enable_execute_command: "{{ deploy_container.aws_ecs.service_enable_ssm }}"
     force_new_deployment: "{{ deploy_container.aws_ecs.service_force_refresh }}"
     wait: true
   delegate_to: localhost
