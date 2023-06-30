@@ -30,6 +30,9 @@ The full list is:
 
 Naturally you can always create custom policies and roles to have tighter access control. This document simply gives you the broad strokes AWS managed policies you can use in conjunction with this Ansible role.
 
+# Peculiarities of AWS ECS
+It is worth noting that even if you put your containers on private subnets and configure your apps to use internal addressing, traffic will pass via the public interface. Therefore any safelisting of IP addresses needs to include the IP addresses of the NAT gateways of your private subnets. [More on how this works here.](https://docs.aws.amazon.com/AmazonECS/latest/bestpracticesguide/networking-connecting-vpc.html)
+
 <!--TOC-->
 <!--ENDTOC-->
 
