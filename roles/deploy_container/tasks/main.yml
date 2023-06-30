@@ -115,11 +115,19 @@
 - name: Reset subnets lists.
   ansible.builtin.set_fact:
     _aws_ecs_cluster_public_subnets_ids: []
+    _aws_ecs_cluster_private_subnets_ids: []
   when: deploy_container.aws_ecs.enabled
 
 - name: Construct list of public subnet IDs.
-  ansible.builtin.include_tasks: subnet.yml
-  with_items: "{{ deploy_container.aws_ecs.subnets }}"
+  ansible.builtin.include_tasks: subnet-public.yml
+  with_items: "{{ deploy_container.aws_ecs.elb_subnets }}"
+  loop_control:
+    loop_var: subnet
+  when: deploy_container.aws_ecs.enabled
+
+- name: Construct list of private subnet IDs.
+  ansible.builtin.include_tasks: subnet-private.yml
+  with_items: "{{ deploy_container.aws_ecs.service_subnets }}"
   loop_control:
     loop_var: subnet
   when: deploy_container.aws_ecs.enabled
@@ -130,7 +138,8 @@
     region: "{{ deploy_container.aws_ecs.region }}"
     profile: "{{ deploy_container.aws_ecs.aws_profile }}"
     family: "{{ deploy_container.aws_ecs.family_name }}"
-    execution_role_arn: "{{ deploy_container.aws_ecs.execution_role_arn }}"
+    execution_role_arn: "{{ deploy_container.aws_ecs.task_execution_role_arn }}"
+    task_role_arn: "{{ deploy_container.aws_ecs.task_role_arn | default(omit) }}"
     containers: "{{ deploy_container.aws_ecs.containers }}"
     launch_type: "{{ deploy_container.aws_ecs.launch_type }}"
     cpu: "{{ deploy_container.aws_ecs.cpu | default(omit) }}"
@@ -291,7 +300,7 @@
         containerPort: "{{ deploy_container.aws_ecs.target_group_port }}"
         targetGroupArn: "{{ _aws_ecs_target_group.target_group_arn }}"
     network_configuration:
-      subnets: "{{ _aws_ecs_cluster_public_subnets_ids }}"
+      subnets: "{{ _aws_ecs_cluster_private_subnets_ids }}" # internal private subnet
       security_groups: "{{ deploy_container.aws_ecs.security_groups }}"
       assign_public_ip: "{{ deploy_container.aws_ecs.service_public_container_ip }}"
     tags: "{{ deploy_container.aws_ecs.tags }}"
