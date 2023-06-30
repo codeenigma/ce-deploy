@@ -30,6 +30,9 @@ The full list is:
 
 Naturally you can always create custom policies and roles to have tighter access control. This document simply gives you the broad strokes AWS managed policies you can use in conjunction with this Ansible role.
 
+# Peculiarities of AWS ECS
+It is worth noting that even if you put your containers on private subnets and configure your apps to use internal addressing, traffic will pass via the public interface. Therefore any safelisting of IP addresses needs to include the IP addresses of the NAT gateways of your private subnets. [More on how this works here.](https://docs.aws.amazon.com/AmazonECS/latest/bestpracticesguide/networking-connecting-vpc.html)
+
 <!--TOC-->
 <!--ENDTOC-->
 
@@ -66,17 +69,20 @@ deploy_container:
       aws_profile: example2 # might not be the same account
     vpc_name: example
     #vpc_id: vpc-XXXXXXX # optionally specify VPC ID to use
-    subnets: # list of public subnet names
-      - example-dev-a
-      - example-dev-b
     security_groups: [] # list of security groups, accepts names or IDs
     cluster_name: example-cluster
     family_name: example-task-definition
     task_definition_revision: "" # integer, but must be presented as a string for Jinja2
     task_definition_force_create: false # creates a task definition revision every time if set to true
+    task_execution_role_arn: "arn:aws:iam::000000000000:role/ecsTaskExecutionRole" # ARN of the IAM role to run the task as, must have access to the ECR repository if applicable
+    #task_role_arn: "" # required if you set service_enable_ssm to true
     task_count: 1
     task_minimum_count: 1
     task_maximum_count: 4
+    # These subnets are usually the subnets created by ce-provision when you made your ECS cluster and must have a NAT gateway for ECR access.
+    service_subnets: # list of private subnet names
+      - example-cluster-dev-a
+      - example-cluster-dev-b
     # See docs for values: https://docs.aws.amazon.com/autoscaling/application/APIReference/API_TargetTrackingScalingPolicyConfiguration.html
     service_autoscale_metric_type: ECSServiceAverageCPUUtilization
     service_autoscale_up_cooldown: 120
@@ -85,7 +91,6 @@ deploy_container:
     service_public_container_ip: false # set to true to make containers appear on an EIP - more details: https://stackoverflow.com/a/66802973
     service_enable_ssm: false # set to true to allow arbitrary command execution on containers via the AWS API
     service_force_refresh: false # forces a refresh of all containers if set to true
-    execution_role_arn: "arn:aws:iam::000000000000:role/ecsTaskExecutionRole" # ARN of the IAM role to run the task as, must have access to the ECR repository if applicable
     containers: # list of container definitions, see docs: https://docs.ansible.com/ansible/latest/collections/community/aws/ecs_taskdefinition_module.html#parameter-containers
       - name: example-container
         essential: true
@@ -122,6 +127,9 @@ deploy_container:
       extra_domains: [] # list of Subject Alternative Name domains and zones
     ssl_certificate_ARN: "" # optional SSL cert ARN if you imported one into AWS Certificate Manager
     elb_security_groups: [] # default SG is used if none provided - module supports names or IDs
+    elb_subnets: # must be public subnets for public facing applications
+      - example-dev-a
+      - example-dev-b
     elb_http_port: 80
     elb_https_port: 443
     elb_ssl_policy: ELBSecurityPolicy-TLS13-1-2-2021-06 # see https://docs.aws.amazon.com/elasticloadbalancing/latest/application/create-https-listener.html#describe-ssl-policies
