@@ -35,9 +35,24 @@
     - database.target.asg is defined
     - database.target.asg | length > 0
 
+
+- name: Register bzip2 archive type vars.
+  ansible.builtin.set_fact:
+    archive_file_type: "bz2"
+    archival_command: "bzip2"
+  when:
+    - mysql_sync.archival_method == 'bzip2'
+
+- name: Register gunzip archive type vars.
+  ansible.builtin.set_fact:
+    archive_file_type: "gz"
+    archival_command: "gzip"
+  when:
+    - mysql_sync.archival_method == 'gzip'
+
 - name: Register remote dump name (from database).
   ansible.builtin.set_fact:
-    mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}_{{ build_number }}_source.sql.bz2"
+    mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}_{{ build_number }}_source.sql.{{ archive_file_type }}"
 
 - name: Get source last known good build number.
   ansible.builtin.command:
@@ -61,7 +76,7 @@
   when: not database.source.type == 'rolling'
 
 - name: Take a dump from source database.
-  ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | bzip2 > {{ mysql_sync_source_dump_path }}"
+  ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | {{ archival_command }} > {{ mysql_sync_source_dump_path }}"
   args:
     executable: /bin/bash
   delegate_to: "{{ database.source.host }}"
@@ -91,7 +106,11 @@
 
 - name: Register tmp target dump name.
   ansible.builtin.set_fact:
-    mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.bz2"
+    mysql_sync_target_dump_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql.{{ archive_file_type }}"
+
+- name: Register tmp unpacked target dump name.
+  ansible.builtin.set_fact:
+    mysql_sync_target_dump_unpacked_path: "/tmp/{{ database.target.database }}_{{ build_number }}_target.sql"
 
 - name: Get target last known good build number.
   ansible.builtin.command:
@@ -117,14 +136,24 @@
 - name: Fetch dump file.
   ansible.builtin.fetch:
     src: "{{ mysql_sync_source_dump_path }}"
-    dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
+    dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.{{ archive_file_type }}"
     flat: true
   delegate_to: "{{ database.source.host }}"
 
 - name: Copy dump file to destination.
   ansible.builtin.copy:
-    src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
+    src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.{{ archive_file_type }}"
     dest: "{{ mysql_sync_target_dump_path }}"
+
+- name: Unpack dump file.
+  ansible.builtin.shell: "{{ archival_command }} -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
+  args:
+    executable: /bin/bash
+
+- name: Delete temporary dump file on target.
+  ansible.builtin.file:
+    path: "{{ mysql_sync_target_dump_path }}"
+    state: absent
 
 - name: Drop target database.
   ansible.builtin.command:
@@ -135,13 +164,13 @@
     cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
 
 - name: Repopulate database from dump.
-  ansible.builtin.shell: "set -o pipefail && bzcat {{ mysql_sync_target_dump_path }} | mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }}"
+  ansible.builtin.shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }} < {{ mysql_sync_target_dump_unpacked_path }}"
   args:
     executable: /bin/bash
 
-- name: Delete temporary dump file on target.
+- name: Delete temporary unpacked dump file on target.
   ansible.builtin.file:
-    path: "{{ mysql_sync_target_dump_path }}"
+    path: "{{ mysql_sync_target_dump_unpacked_path }}"
     state: absent
 
 - name: Delete temporary dump file on source.
@@ -152,11 +181,14 @@
 
 - name: Delete temporary dump file on deploy server.
   ansible.builtin.file:
-    path: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.bz2"
+    path: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql{{ item }}"
     state: absent
   delegate_to: localhost
   when:
     - mysql_sync.cleanup
+  with_items:
+    - ".bz2"
+    - ".gz"
 
 - name: Enable all autoscale processes on source ASG.
   ansible.builtin.command: >
