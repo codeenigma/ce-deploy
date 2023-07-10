@@ -31,6 +31,7 @@
      - [Data backups](/roles/database_backup)
        - [MySQL backups](/roles/database_backup/database_backup-mysql)
      - [Deploy](/roles/deploy_code)
+     - [Deploy container](/roles/deploy_container)
      - [Init](/roles/_init)
      - [LHCI run](/roles/lhci_run)
      - ["Meta"](/roles/_meta)

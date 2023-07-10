@@ -1,0 +1,13 @@
+- name: Gather public subnet information.
+  amazon.aws.ec2_vpc_subnet_info:
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    region: "{{ deploy_container.aws_ecs.region }}"
+    filters:
+      vpc-id: "{{ _aws_ecs_cluster_vpc_id }}"
+      tag:Name: "{{ subnet }}"
+  register: _aws_ecs_cluster_public_subnet
+  delegate_to: localhost
+
+- name: Add public subnet to the list.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_public_subnets_ids: "{{ _aws_ecs_cluster_public_subnets_ids + [ _aws_ecs_cluster_public_subnet.subnets[0].subnet_id ] }}"
