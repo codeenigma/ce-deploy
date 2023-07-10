@@ -23,6 +23,12 @@
   loop_control:
     loop_var: site
   when: (previous_build_number == 0) or (site.force_install is defined and site.force_install)
+  register: _drush_output
+
+- name: Show drush output.
+  ansible.builtin.debug:
+    msg: "{{ _drush_output }}"
+  when: drupal.drush_verbose_output
 
 - name: Fix permissions on Drupal directory.
   ansible.builtin.file:
@@ -54,6 +60,12 @@
   loop_control:
     loop_var: site
   when: site.config_import_command != 'deploy'
+  register: _drush_output
+
+- name: Show drush output.
+  ansible.builtin.debug:
+    msg: "{{ _drush_output }}"
+  when: drupal.drush_verbose_output
 
 - name: Import configuration.
   ansible.builtin.command:
@@ -67,3 +79,9 @@
   when:
     - previous_build_number > 0
     - site.config_import_command
+  register: _drush_output
+
+- name: Show drush output.
+  ansible.builtin.debug:
+    msg: "{{ _drush_output }}"
+  when: drupal.drush_verbose_output
