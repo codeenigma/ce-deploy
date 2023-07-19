@@ -37,14 +37,15 @@
   pre_tasks:
     # You can safely remove these steps once you have a working composer.json.
     - name: Download composer file.
-      get_url:
-        url: https://raw.githubusercontent.com/drupal/recommended-project/9.3.x/composer.json
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/drupal/recommended-project/9.5.x/composer.json
         dest: "{{ deploy_path }}/composer.json"
-        force: no
+        force: false
     - name: Install drush.
-      command:
-        cmd: composer require drush/drush:11.*
-        chdir: "{{ deploy_path }}"
+      community.general.composer:
+        command: require
+        arguments: drush/drush:11.*
+        working_dir: "{{ deploy_path }}"
   roles:
     - _init # Sets some variables the deploy scripts rely on.
     - composer # Composer install step.
