@@ -37,18 +37,40 @@
   pre_tasks:
     # You can safely remove these steps once you have a working composer.json.
     - name: Download composer file.
-        get_url:
-          url: https://raw.githubusercontent.com/drupal/recommended-project/9.3.x/composer.json
-          dest: "{{ deploy_path }}/composer.json"
-          force: false
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/drupal/recommended-project/9.1.x/composer.json
+        dest: "{{ deploy_path }}/composer.json"
+        force: false
+    - name: Adding composer/installers plugin to composer config.
+      community.general.composer:
+        command: config
+        arguments: allow-plugins.composer/installers true
+        working_dir: "{{ deploy_path }}"
+    - name: Adding drupal/core-composer-scaffold plugin to composer config.
+      community.general.composer:
+        command: config
+        arguments: allow-plugins.drupal/core-composer-scaffold true
+        working_dir: "{{ deploy_path }}"
+    - name: Adding drupal/core-project-message plugin to composer config.
+      community.general.composer:
+        command: config
+        arguments: allow-plugins.drupal/core-project-message true
+        working_dir: "{{ deploy_path }}"
+    - name: Adding dealerdirect/phpcodesniffer-composer-installer plugin to composer config.
+      community.general.composer:
+        command: config
+        arguments: allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
+        working_dir: "{{ deploy_path }}"
     - name: Install drush.
-        command:
-          cmd: composer require drush/drush:11.*
-          chdir: "{{ deploy_path }}"
+      community.general.composer:
+        command: require
+        arguments: drush/drush:10.*
+        working_dir: "{{ deploy_path }}"
     - name: Install localgov.
-        command:
-          cmd: composer require localgovdrupal/localgov
-          chdir: "{{ deploy_path }}"
+      community.general.composer:
+        command: require
+        arguments: localgovdrupal/localgov
+        working_dir: "{{ deploy_path }}"
   roles:
     - _init # Sets some variables the deploy scripts rely on.
     - composer # Composer install step.
