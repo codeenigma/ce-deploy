@@ -61,6 +61,11 @@
         command: config
         arguments: allow-plugins.dealerdirect/phpcodesniffer-composer-installer true
         working_dir: "{{ deploy_path }}"
+    - name: Adding cweagans/composer-patches plugin to composer config.
+      community.general.composer:
+        command: config
+        arguments: allow-plugins.cweagans/composer-patches true
+        working_dir: "{{ deploy_path }}"
     - name: Install drush.
       community.general.composer:
         command: require
