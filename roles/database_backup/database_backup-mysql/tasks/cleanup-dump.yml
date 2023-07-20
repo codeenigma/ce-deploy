@@ -2,7 +2,7 @@
 # We assume it's safe to only go back 50 build back.
 - name: Delete mysql dumps.
   ansible.builtin.file:
-    path: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ item }}.sql.bz2"
+    path: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ item }}.sql.*"
     state: absent
   with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - mysql_backup.keep, 0] | max }}
   run_once: true
