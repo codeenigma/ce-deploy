@@ -157,11 +157,11 @@
 
 - name: Drop target database.
   ansible.builtin.command:
-    cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database if exists {{ mysql_sync_target_database }};'"
+    cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'drop database if exists `{{ mysql_sync_target_database }}`;'"
 
 - name: Recreate target database.
   ansible.builtin.command:
-    cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database {{ mysql_sync_target_database }};'"
+    cmd: "mysql --defaults-extra-file={{ database.target.credentials_file }} -e 'create database `{{ mysql_sync_target_database }}`;'"
 
 - name: Repopulate database from dump.
   ansible.builtin.shell: "mysql --defaults-extra-file={{ database.target.credentials_file }} {{ mysql_sync_target_database }} < {{ mysql_sync_target_dump_unpacked_path }}"
