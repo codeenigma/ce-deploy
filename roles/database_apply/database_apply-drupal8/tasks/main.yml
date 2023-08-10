@@ -25,6 +25,32 @@
   when: (previous_build_number == 0) or (site.force_install is defined and site.force_install)
   register: _drush_output
 
+- name: Sync database.
+  ansible.builtin.import_role:
+    name: sync/database_sync
+  vars:
+    mysql_sync: "{{ site.mysql_sync }}"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+  when:
+    - (previous_build_number == 0) or (site.force_install is defined and site.force_install)
+    - site.feature_branch | default(false)
+    - site.mysql_sync | length > 0
+
+- name: Sync files.
+  ansible.builtin.import_role:
+    name: sync/files_sync
+  vars:
+    files_sync: "{{ site.files_sync }}"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+  when:
+    - (previous_build_number == 0) or (site.force_install is defined and site.force_install)
+    - site.feature_branch | default(false)
+    - site.files_sync | length > 0
+
 - name: Show drush output.
   ansible.builtin.debug:
     msg: "{{ _drush_output }}"
