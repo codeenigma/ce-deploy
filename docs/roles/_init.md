@@ -34,9 +34,17 @@ drupal:
       cron:
         - minute: "*/{{ 10 | random(start=1) }}"
           job: cron
+      feature_branch: false # whether or not this build is a feature branch that should sync assets from another environment
+      # For syncing database and files on a feature branch initial build
+      mysql_sync: # see sync/database_sync for docs
+        databases: []
+      files_sync: # see sync/files_sync for docs
+        cleanup: true
+        directories: []
 mautic:
   image_path: "media/images"
   force_install: false
+# Used for custom build time tools like cachetool
 bin_directory: "/home/{{ deploy_user }}/.bin"
 # Number of dumps/db to look up for cleanup.
 cleanup_history_depth: 50
