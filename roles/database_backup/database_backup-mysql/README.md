@@ -22,8 +22,8 @@ mysql_backup:
   # This is useful for locked-down setups where you do not have GRANT permissions.
   credentials_handling: rotate
   databases:
-    - database: "{{ project_name }}_{{ build_type }}"
-      user: "{{ project_name }}_{{ build_type }}"
+    - database: "{{ (project_name + '_' + build_type) | regex_replace('-', '_') }}" # avoid hyphens in MySQL database names
+      user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}" # 32 char limit
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
 
 ```

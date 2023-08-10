@@ -26,7 +26,7 @@
   register: _drush_output
 
 - name: Sync database.
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: sync/database_sync
   vars:
     mysql_sync: "{{ site.mysql_sync }}"
@@ -39,7 +39,7 @@
     - site.mysql_sync | length > 0
 
 - name: Sync files.
-  ansible.builtin.import_role:
+  ansible.builtin.include_role:
     name: sync/files_sync
   vars:
     files_sync: "{{ site.files_sync }}"
