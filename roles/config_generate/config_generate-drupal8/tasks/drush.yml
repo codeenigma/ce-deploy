@@ -4,6 +4,7 @@
     src: '{{ item }}'
     dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/drush.yml"
   with_first_found:
-    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.drush.yml.j2"
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.drush.yml"
+    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.{{ config_generate_drupal.drush_settings_file_name }}.j2"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.{{ config_generate_drupal.drush_settings_file_name }}"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ config_generate_drupal.drush_settings_file_name }}"
     - "drush.yml.j2"
