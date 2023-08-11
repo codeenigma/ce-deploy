@@ -35,12 +35,16 @@ drupal:
         - minute: "*/{{ 10 | random(start=1) }}"
           job: cron
       feature_branch: false # whether or not this build is a feature branch that should sync assets from another environment
-      # For syncing database and files on a feature branch initial build
-      mysql_sync: # see sync/database_sync for docs
-        databases: []
-      files_sync: # see sync/files_sync for docs
-        cleanup: true
-        directories: []
+      # For syncing database and files on a feature branch initial build - include all variables if used
+      mysql_sync: {} # see sync/database_sync for docs
+      #  mysqldump_params: "{{ _mysqldump_params }}"
+      #  cleanup: true
+      #  archival_method: gzip
+      #  databases: []
+      files_sync: {} # see sync/files_sync for docs
+      #  unique_workspace: false
+      #  cleanup: true
+      #  directories: []
 mautic:
   image_path: "media/images"
   force_install: false
