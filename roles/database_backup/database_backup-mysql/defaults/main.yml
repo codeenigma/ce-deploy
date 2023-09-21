@@ -20,3 +20,4 @@ mysql_backup:
     - database: "{{ (project_name + '_' + build_type) | regex_replace('-', '_') }}" # avoid hyphens in MySQL database names
       user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}" # 32 char limit
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
+_mysql_password_path: "/tmp/{{ project_name }}_{{ build_type }}_{{ build_number }}"

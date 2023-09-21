@@ -79,7 +79,7 @@
     _mysql_build_user_name: "{{ database.user }}_{{ build_number }}"
   when: mysql_backup.credentials_handling == 'rotate'
 - ansible.builtin.set_fact:
-    _mysql_build_password: "{{ lookup('password', '/dev/shm/{{ project_name }}_{{ build_type }}_{{ build_number }}') }}"
+    _mysql_build_password: "{{ lookup('password', '{{ _mysql_password_path }}') }}"
   when: mysql_backup.credentials_handling == 'rotate'
 
 - ansible.builtin.include_tasks: "deploy-{{ mysql_backup.handling }}.yml"
