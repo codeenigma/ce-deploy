@@ -37,7 +37,8 @@
 
 # Making it clear if we skipped the population of the new database
 - name: Populating database skipped.
-  ansible.builtin.debug: "### Attention - the new database was NOT populated!"
+  ansible.builtin.debug:
+    msg: "### Attention - the new database was NOT populated!"
   when:
     - previous_build_number > 0
     - _previous_db_status.rc != 0
