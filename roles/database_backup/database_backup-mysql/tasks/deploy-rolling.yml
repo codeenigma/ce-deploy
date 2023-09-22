@@ -10,6 +10,8 @@
   register: _build_db_status
   failed_when: _build_db_status.rc == 0 # we want the build to fail if the database exists
   run_once: true
+  args:
+    executable: /bin/bash
 
 - name: Create a new database.
   community.mysql.mysql_db:
@@ -24,6 +26,8 @@
   register: _previous_db_status
   failed_when: _previous_db_status.rc > 1 # only fail if we get an unexpected exitcode
   run_once: true
+  args:
+    executable: /bin/bash
 
 # Importing with shell for speed, we cannot import with mysql_db unless we create a dump file first
 - name: Populate new database.
