@@ -23,6 +23,7 @@
     src: "{{ item }}"
     dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/settings.php"
   with_first_found:
-    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php.j2"
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.settings.php"
+    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.{{ config_generate_drupal.drupal_settings_file_name }}.j2"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.{{ config_generate_drupal.drupal_settings_file_name }}"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ config_generate_drupal.drupal_settings_file_name }}"
     - "settings.php.j2"
