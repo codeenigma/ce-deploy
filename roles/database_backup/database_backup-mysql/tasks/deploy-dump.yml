@@ -37,5 +37,3 @@
     executable: /bin/bash
   when: previous_build_number > 0
   run_once: true
-  args:
-    executable: /bin/bash
