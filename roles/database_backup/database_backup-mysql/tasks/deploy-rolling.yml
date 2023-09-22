@@ -6,9 +6,9 @@
     _mysql_previous_build_database_name: "{{ database.database }}_{{ previous_build_number }}"
 
 - name: Check if the new database name exists already.
-   ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_build_database_name }}"
-   register: _build_db_status
-   failed_when: _build_db_status.rc == 0 # we want the build to fail if the database exists
+  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_build_database_name }}"
+    register: _build_db_status
+    failed_when: _build_db_status.rc == 0 # we want the build to fail if the database exists
   run_once: true
 
 - name: Create a new database.
@@ -20,9 +20,9 @@
   run_once: true
 
 - name: Check if the previous database exists.
-   ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_previous_build_database_name }}"
-   register: _previous_db_status
-   failed_when: _previous_db_status.rc > 1 # only fail if we get an unexpected exitcode
+  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_previous_build_database_name }}"
+    register: _previous_db_status
+    failed_when: _previous_db_status.rc > 1 # only fail if we get an unexpected exitcode
   run_once: true
 
 # Importing with shell for speed, we cannot import with mysql_db unless we create a dump file first
