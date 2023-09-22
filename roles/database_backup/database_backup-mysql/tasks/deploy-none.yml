@@ -5,7 +5,7 @@
     _mysql_previous_build_database_name: "{{ database.database }}"
 
 - name: Check if the database exists already.
-  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_build_database_name }}"
+  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep -w {{ _mysql_build_database_name }}"
   register: _build_db_status
   failed_when: _build_db_status.rc > 1 # only exit on abnormal errors
   run_once: true
