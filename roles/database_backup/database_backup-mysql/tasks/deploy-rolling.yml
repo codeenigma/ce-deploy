@@ -4,26 +4,33 @@
     _mysql_build_database_name: "{{ database.database }}_{{ build_number }}"
 - ansible.builtin.set_fact:
     _mysql_previous_build_database_name: "{{ database.database }}_{{ previous_build_number }}"
-  # Note: we don't use the mysql_db Ansible module on purpose.
-  # If database already exists, we want to fail and not override it
-  # with previous build.
-  # @TODO fix this so we check if the database exists and exit with
-  # the proper plugin instead of using command.
-- name: Create new database.
-  ansible.builtin.command: mysql --defaults-extra-file={{ database.credentials_file }} -e "CREATE DATABASE `{{ _mysql_build_database_name }}`;"
+
+- name: Check if the new database name exists already.
+   ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_build_database_name }}"
+   register: _build_db_status
+   failed_when: _build_db_status.rc == 0 # we want the build to fail if the database exists
   run_once: true
 
-#- name: Create a new database.
-#  community.mysql.mysql_db:
-#    name: "{{ _mysql_build_database_name }}"
-#    state: present
-#    config_file: "{{ database.credentials_file }}"
-#    config_overrides_defaults: true
-#  run_once: true
+- name: Create a new database.
+  community.mysql.mysql_db:
+    name: "{{ _mysql_build_database_name }}"
+    state: present
+    config_file: "{{ database.credentials_file }}"
+    config_overrides_defaults: true
+  run_once: true
 
+- name: Check if the previous database exists.
+   ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_previous_build_database_name }}"
+   register: _previous_db_status
+   failed_when: _previous_db_status.rc > 1 # only fail if we get an unexpected exitcode
+  run_once: true
+
+# Importing with shell for speed, we cannot import with mysql_db unless we create a dump file first
 - name: Populate new database.
   ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.credentials_file }} {{ mysql_backup.mysqldump_params }} {{ _mysql_previous_build_database_name }} | mysql --defaults-extra-file={{ database.credentials_file }} {{ _mysql_build_database_name }}"
   args:
     executable: /bin/bash
-  when: previous_build_number > 0
+  when:
+    - previous_build_number > 0
+    - _previous_db_status.rc == 0 # only run if we have a database
   run_once: true
