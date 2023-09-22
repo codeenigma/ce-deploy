@@ -82,7 +82,7 @@
     _mysql_build_password: "{{ lookup('password', '/dev/shm/{{ project_name }}_{{ build_type }}_{{ build_number }}') }}"
   when: mysql_backup.credentials_handling == 'rotate'
 
-- name: Set database handling type.
+- name: "Set database handling type to {{ mysql_backup.handling }}."
   ansible.builtin.set_fact:
     _mysql_handling: "{{ mysql_backup.handling }}"
 # If we have a specific instruction for handling this database differently, use it.
