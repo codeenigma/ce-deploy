@@ -6,7 +6,7 @@
     _mysql_previous_build_database_name: "{{ database.database }}_{{ previous_build_number }}"
 
 - name: Check if the new database exists already.
-  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_build_database_name }}"
+  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep -w {{ _mysql_build_database_name }}"
   register: _build_db_status
   failed_when: _build_db_status.rc == 0 # we want the build to fail if the database exists
   run_once: true
@@ -22,7 +22,7 @@
   run_once: true
 
 - name: Check if the previous database exists.
-  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep {{ _mysql_previous_build_database_name }}"
+  ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep -w {{ _mysql_previous_build_database_name }}"
   register: _previous_db_status
   failed_when: _previous_db_status.rc > 1 # only fail if we get an unexpected exitcode
   run_once: true
