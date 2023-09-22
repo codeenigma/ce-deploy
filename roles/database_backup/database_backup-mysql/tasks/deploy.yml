@@ -82,7 +82,15 @@
     _mysql_build_password: "{{ lookup('password', '/dev/shm/{{ project_name }}_{{ build_type }}_{{ build_number }}') }}"
   when: mysql_backup.credentials_handling == 'rotate'
 
-- ansible.builtin.include_tasks: "deploy-{{ mysql_backup.handling }}.yml"
+- ansible.builtin.set_fact:
+    _mysql_handling: "{{ mysql_backup.handling }}"
+# If we have a specific instruction for handling this database differently, use it.
+- ansible.builtin.set_fact:
+    _mysql_handling: "{{ mysql_backup.database.handling }}"
+  when:
+    - mysql_backup.database.handling is defined
+    - mysql_backup.database.handling | length > 0
+- ansible.builtin.include_tasks: "deploy-{{ _mysql_handling }}.yml"
 
 # We append privileges instead of replacing,
 # to allow this role to be looped over,
