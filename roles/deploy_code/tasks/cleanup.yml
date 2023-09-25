@@ -144,7 +144,6 @@
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-  throttle: 1 # execute one machine at a time
   block:
     - name: Check if we have a mount already.
       ansible.builtin.shell:
