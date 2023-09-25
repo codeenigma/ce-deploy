@@ -139,25 +139,21 @@
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
 
-- name: Check if we have a mount already.
-  ansible.builtin.shell:
-    cmd: "set -o pipefail && mount | grep {{ deploy_base_path }}"
-  args:
-    executable: /bin/bash
-  failed_when: false
-  register: _deploy_code_mount_check
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-
 - name: Unmount and remount squashfs images.
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check.rc == 0
+  throttle: 1 # execute one machine at a time
   block:
+    - name: Check if we have a mount already.
+      ansible.builtin.shell:
+        cmd: "set -o pipefail && mount | grep {{ deploy_base_path }}"
+      args:
+        executable: /bin/bash
+      failed_when: false
+      register: _deploy_code_mount_check
+
     - name: Reload any services that might be keeping the loop device busy.
       ansible.builtin.service:
         name: "{{ www_service }}"
@@ -167,6 +163,7 @@
         loop_var: www_service
       become: true
       when:
+        - _deploy_code_mount_check.rc == 0
         - deploy_code.service_action == "reload"
         - deploy_code.services | length > 0
 
@@ -179,6 +176,7 @@
         loop_var: www_service
       become: true
       when:
+        - _deploy_code_mount_check.rc == 0
         - deploy_code.service_action == "stop"
         - deploy_code.services | length > 0
 
@@ -186,6 +184,8 @@
       ansible.builtin.command:
         cmd: "umount {{ deploy_base_path }}"
       become: true
+      when:
+        - _deploy_code_mount_check.rc == 0
 
     - name: Mount new SquashFS image.
       ansible.builtin.command:
@@ -201,6 +201,7 @@
         loop_var: www_service
       become: true
       when:
+        - _deploy_code_mount_check.rc == 0
         - deploy_code.service_action == "stop"
         - deploy_code.services | length > 0
 
