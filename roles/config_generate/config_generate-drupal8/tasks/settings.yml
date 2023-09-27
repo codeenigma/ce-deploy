@@ -20,7 +20,7 @@
 
 - name: Generate or retrieve hash salt value.
   ansible.builtin.set_fact:
-    _drupal_hash_salt: "{{ lookup('ansible.builtin.password', _ce_deploy_data_dir + '/' + project_name  + '_' + build_type + '/drupal/hash_salt', length=74, chars=['ascii_letters', 'digits']) }}"
+    _drupal_hash_salt: "{{ lookup('ansible.builtin.password', _ce_deploy_data_dir + '/' + project_name  + '_' + build_type + '/drupal/hash_salt length=74 chars=ascii_letters,digits') }}"
 
 - name: Generates settings.php file.
   ansible.builtin.template:
