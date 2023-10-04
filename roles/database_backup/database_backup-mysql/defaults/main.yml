@@ -23,4 +23,3 @@ mysql_backup:
       user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}" # 32 char limit
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
       #handling: static # optional override to the main handling method on a per database basis
-
