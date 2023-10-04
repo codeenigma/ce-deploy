@@ -71,6 +71,11 @@
     - _legacy_static_creds.stat.exists
 ### End of legacy handling.
 
+- name: Ensure the temporary password directory exists.
+  ansible.builtin.file:
+    state: directory
+    path: "{{ mysql_backup.mysql_password_path }}"
+
 - ansible.builtin.set_fact:
     _mysql_build_password: "{{ lookup('password', '{{ _ce_deploy_data_dir }}/{{ project_name }}_{{ build_type }}/mysql/{{ _mysql_host }}/{{ database.database }}') }}"
   when: mysql_backup.credentials_handling == 'static'
@@ -79,7 +84,7 @@
     _mysql_build_user_name: "{{ database.user }}_{{ build_number }}"
   when: mysql_backup.credentials_handling == 'rotate'
 - ansible.builtin.set_fact:
-    _mysql_build_password: "{{ lookup('password', '/dev/shm/{{ project_name }}_{{ build_type }}_{{ build_number }}') }}"
+    _mysql_build_password: "{{ lookup('password', '{{ mysql_backup.mysql_password_path }}') }}"
   when: mysql_backup.credentials_handling == 'rotate'
 
 - name: "Set database handling type to {{ mysql_backup.handling }}."
