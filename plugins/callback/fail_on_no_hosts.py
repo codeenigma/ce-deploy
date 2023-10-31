@@ -1,5 +1,6 @@
 import sys
 
+from ansible import constants as C
 from ansible.plugins.callback import CallbackBase
 
 DOCUMENTATION = '''
