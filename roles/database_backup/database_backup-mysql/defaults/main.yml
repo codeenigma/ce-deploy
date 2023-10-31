@@ -3,6 +3,8 @@ mysql_backup:
   handling: rolling
   dumps_directory: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/db_backups/mysql/build"
   mysqldump_params: "{{ _mysqldump_params }}" # set in _init but you can override here
+  # Location on deploy server where the generated MySQL password will be stashed - should be temporary storage
+  mysql_password_path: "/tmp/.ce-deploy/{{ project_name }}_{{ build_type }}_{{ build_number }}"
   # Number of dumps/db to keep. Note this is independant from the build codebases.
   keep: 10
   # This can be one of the following:
