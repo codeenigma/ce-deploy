@@ -1,4 +1,8 @@
 ---
-- name: Define Drush path.
+- name: Define path to drush for this build.
   set_fact:
     drush_bin: "{{ drush_bin | default('{{ deploy_path }}/vendor/bin/drush') }}"
+
+- name: Define path to drush for currently live build.
+  set_fact:
+    drush_live_bin: "{{ drush_live_bin | default('{{ live_symlink_dest }}/vendor/bin/drush') }}"
