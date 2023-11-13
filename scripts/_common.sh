@@ -39,6 +39,7 @@ fi
 ANSIBLE_LOCATION=$(command -v ansible)
 # Load the contents of profile.d in case we added items to $PATH there.
 for f in /etc/profile.d/*; do
+# shellcheck source=/dev/null
    . "$f"
 done
 # Parse options arguments.
