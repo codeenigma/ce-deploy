@@ -1,16 +1,8 @@
 ---
-# Drupal 8 ships drush with the website code so we need the previous build in the path.
-- name: Stash the drush_bin variable.
-  ansible.builtin.set_fact:
-    _drush_bin_deploy: "{{ drush_bin }}"
-
-- name: Update location of drush for the update/config import commands.
-  ansible.builtin.set_fact:
-    drush_bin: "{{ live_symlink_dest }}/vendor/bin/drush"
-
+# Drupal 8 ships drush with the website code so to use the drush_live_bin variable
 - name: Apply Drupal database updates.
   ansible.builtin.command:
-    cmd: "{{ drush_bin }} -l {{ site.folder }} -y updb"
+    cmd: "{{ drush_live_bin }} -l {{ site.folder }} -y updb"
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
@@ -27,7 +19,7 @@
 # This only runs if the sync_config_import variable is not defined or it is defined and is true. If it's defined and false, this won't run.
 - name: Import configuration.
   ansible.builtin.command:
-    cmd: "{{ drush_bin }} -l {{ site.folder }} -y {{ site.config_import_command }}"
+    cmd: "{{ drush_live_bin }} -l {{ site.folder }} -y {{ site.config_import_command }}"
     chdir: "{{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
@@ -47,7 +39,3 @@
 - name: Clear the cache.
   ansible.builtin.include_role:
     name: "sync/drupal_sync_tasks/cache_clear/cache_clear-{{ project_type }}"
-
-- name: Restore the drush_bin variable.
-  ansible.builtin.set_fact:
-    drush_bin: "{{ _drush_bin_deploy }}"
