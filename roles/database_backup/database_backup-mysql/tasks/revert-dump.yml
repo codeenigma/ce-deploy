@@ -1,9 +1,9 @@
 ---
+# unarchive module does not support archives not in tar.gz format
 - name: Unpack dump file.
-  ansible.builtin.unarchive:
-    src: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.gz"
-    dest: "/tmp"
-    remote_src: true
+  ansible.builtin.command:
+    cmd: "gunzip {{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.gz /tmp/{{ database.database }}-{{ previous_build_number }}.sql"
+    creates: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql"
   run_once: true
   when: previous_build_number > 0
 
