@@ -41,6 +41,7 @@ It is worth noting that even if you put your containers on private subnets and c
 ```yaml
 ---
 deploy_container:
+  action: create # can also be destroy
   container_name: example-container
   container_tag: latest # tag will take format container_name:container_tag
   container_force_build: true # force Docker to build and tag a new image
@@ -109,7 +110,7 @@ deploy_container:
     launch_type: FARGATE
     network_mode: awsvpc
     #volumes: [] # list of additional volumes to attach
-    target_group_name: example # 32 character limit
+    target_group_name: example # can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen
     target_group_protocol: http
     target_group_port: 8080 # ports lower than 1024 will require the app to be configured to run as a privileged user in the Dockerfile
     target_group_wait_timeout: 200 # how long to wait for target group events to complete
