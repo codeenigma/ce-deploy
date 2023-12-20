@@ -18,7 +18,7 @@ cache_clear_opcache:
   # Bins to clear.
   clear_opcache: true
   clear_apcu: false
-  clear_stat: false
+  clear_stat: true
   # cachetool_bin: "/path/to/cachetool.phar" # see _init for paths if undefined
 
 ```

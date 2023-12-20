@@ -21,19 +21,27 @@ BUILD_WORKSPACE_BASE="$OWN_DIR/build"
 DRY_RUN="no"
 VERBOSE="no"
 BOTO_PROFILE=""
+# Ensure build workspace exists.
 if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
     mkdir "$BUILD_WORKSPACE_BASE"
 fi
 BUILD_TMP_DIR=$(mktemp -d -p "$BUILD_WORKSPACE_BASE")
+# Ensure ce-deploy data directory exists.
 ANSIBLE_DATA_DIR="$OWN_DIR/data"
 if [ ! -d "$ANSIBLE_DATA_DIR" ]; then
     mkdir "$ANSIBLE_DATA_DIR"
 fi
+# Ensure directory for build track files exists.
 BUILD_TRACK_DIR="$OWN_DIR/track"
 if [ ! -d "$BUILD_TRACK_DIR" ]; then
   mkdir "$BUILD_TRACK_DIR"
 fi
 ANSIBLE_LOCATION=$(command -v ansible)
+# Load the contents of profile.d in case we added items to $PATH there.
+for f in /etc/profile.d/*; do
+# shellcheck source=/dev/null
+   . "$f"
+done
 # Parse options arguments.
 parse_options(){
   while [ "${1:-}" ]; do
