@@ -1,0 +1,254 @@
+---
+# Be sure to include your deploy_container variables in your playbook
+- name: Set Docker registry username and password.
+  ansible.builtin.set_fact:
+    _docker_registry_username: "{{ deploy_container.docker_registry_user }}"
+    _docker_registry_password: "{{ deploy_container.docker_registry_pass }}"
+  delegate_to: localhost
+
+- name: Fetch AWS ECR registry login token. # token valid for 12 hours
+  ansible.builtin.command:
+    cmd: "aws ecr get-login-password --region {{ deploy_container.aws_ecr.region }} --profile {{ deploy_container.aws_ecr.aws_profile }}"
+  when: deploy_container.aws_ecr.enabled
+  delegate_to: localhost
+  register: _docker_registry_ecr_token
+
+- name: Set AWS ECR registry password.
+  ansible.builtin.set_fact:
+    _docker_registry_password: "{{ _docker_registry_ecr_token.stdout }}"
+  when: deploy_container.aws_ecr.enabled
+  delegate_to: localhost
+
+- name: Set AWS ECR registry username.
+  ansible.builtin.set_fact:
+    _docker_registry_username: "AWS"
+  when: deploy_container.aws_ecr.enabled
+  delegate_to: localhost
+
+- name: Remove Docker credentials file.
+  ansible.builtin.file:
+    state: absent
+    path: "/home/{{ deploy_user }}/.docker/config.json"
+  delegate_to: localhost
+
+- name: Log into Docker registry.
+  community.docker.docker_login:
+    registry_url: "{{ deploy_container.docker_registry_url }}"
+    username: "{{ _docker_registry_username }}"
+    password: "{{ _docker_registry_password }}"
+    reauthorize: true
+  delegate_to: localhost
+
+- name: Destroy matching container images.
+  community.docker.docker_image:
+    name: "{{ deploy_container.docker_registry_name }}/{{ deploy_container.container_name }}"
+    tag: "{{ deploy_container.container_tag | default('latest') }}"
+    force_absent: true
+    state: absent
+  delegate_to: localhost
+
+# Destroy AWS services
+- name: Get minimal ALB information before we destroy it.
+  amazon.aws.elb_application_lb_info:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    names: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}" # 32 char limit
+    #include_attributes: false # @TODO - these attributes added in amazon.aws 7.0.0
+    #include_listeners: false
+    #include_listener_rules: false
+  register: _aws_ecs_cluster_alb
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Destroy ALB.
+  amazon.aws.elb_application_lb:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    name: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}" # 32 char limit
+    state: absent
+    wait: true
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Destroy target group.
+  community.aws.elb_target_group:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    name: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}" # 32 char limit
+    state: absent
+    wait: true
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Reduce task count to zero on ECS service.
+  community.aws.ecs_service:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    state: present
+    name: "{{ deploy_container.aws_ecs.family_name }}"
+    cluster: "{{ deploy_container.aws_ecs.cluster_name }}"
+    desired_count: 0
+    force_new_deployment: true
+    wait: true
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Destroy ECS service.
+  community.aws.ecs_service:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    state: absent
+    name: "{{ deploy_container.aws_ecs.family_name }}"
+    cluster: "{{ deploy_container.aws_ecs.cluster_name }}"
+    wait: true
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+
+# @TODO: We cannot currently use the module for this
+# See feature request: https://github.com/ansible-collections/community.aws/issues/2023
+#- name: Get task definition details.
+#  community.aws.ecs_taskdefinition_info:
+#    region: "{{ deploy_container.aws_ecs.region }}"
+#    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+#    task_definition: "{{ deploy_container.aws_ecs.family_name }}"
+#  register: _task_definition_info
+#  delegate_to: localhost
+
+- name: Ensure the task definitions ARN list variable is empty.
+  ansible.builtin.set_fact:
+    _task_definition_arns_list: []
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Get active task definition details.
+  ansible.builtin.command:
+    cmd: "aws ecs list-task-definitions --status ACTIVE --family-prefix {{ deploy_container.aws_ecs.family_name }} --region {{ deploy_container.aws_ecs.region }} --profile {{ deploy_container.aws_ecs.aws_profile }}"
+  register: _task_definition_arns_raw
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Convert CLI output of active ARNs to a YAML variable.
+  ansible.builtin.set_fact:
+    _task_definition_arns: "{{ _task_definition_arns_raw.stdout | from_json }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Create a clean list of task definition ARNs.
+  ansible.builtin.set_fact:
+    _task_definition_arns_list: "{{ _task_definition_arns.taskDefinitionArns }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Get inactive task definition details.
+  ansible.builtin.command:
+    cmd: "aws ecs list-task-definitions --status INACTIVE --family-prefix {{ deploy_container.aws_ecs.family_name }} --region {{ deploy_container.aws_ecs.region }} --profile {{ deploy_container.aws_ecs.aws_profile }}"
+  register: _task_definition_arns_raw
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Convert CLI output of inactive ARNs to a YAML variable.
+  ansible.builtin.set_fact:
+    _task_definition_arns: "{{ _task_definition_arns_raw.stdout | from_json }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Add inactive task definition ARNs to the YAML list.
+  ansible.builtin.set_fact:
+    _task_definition_arns_list: "{{ _task_definition_arns_list + _task_definition_arns.taskDefinitionArns }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Deregister task definitions.
+  community.aws.ecs_taskdefinition:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    arn: "{{ item }}"
+    containers: "{{ deploy_container.aws_ecs.containers }}"
+    state: absent
+  delegate_to: localhost
+  with_items: "{{ _task_definition_arns_list }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Delete task definitions.
+  ansible.builtin.command:
+    cmd: "aws ecs delete-task-definitions --task-definitions {{ item }} --region {{ deploy_container.aws_ecs.region }} --profile {{ deploy_container.aws_ecs.aws_profile }}"
+  delegate_to: localhost
+  with_items: "{{ _task_definition_arns_list }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Destroy scaling policy for ECS service.
+  community.aws.application_autoscaling_policy:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    state: absent
+    policy_name: "{{ deploy_container.aws_ecs.family_name }}"
+    service_namespace: ecs
+    policy_type: TargetTrackingScaling
+    resource_id: "service/{{ deploy_container.aws_ecs.cluster_name }}/{{ deploy_container.aws_ecs.family_name }}"
+    scalable_dimension: ecs:service:DesiredCount
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+
+# Clean up SSL certificates
+- name: Delete the main ACM certificate.
+  community.aws.acm_certificate:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    domain_name: "{{ deploy_container.aws_ecs.domain_name }}"
+    state: absent
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+    - deploy_container.aws_ecs.acm.create_cert
+
+- name: Delete any extra ACM certificates.
+  community.aws.acm_certificate:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    domain_name: "{{ item.domain }}"
+    state: absent
+  with_items: "{{ deploy_container.aws_ecs.acm.extra_domains }}"
+  when:
+    - deploy_container.aws_ecs.acm.extra_domains | length > 0
+    - deploy_container.aws_ecs.enabled
+  delegate_to: localhost
+
+# Clean up DNS
+- name: Initialise the domains loop var with main domain entry DNS settings.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_dns_all_domains:
+      - domain: "{{ deploy_container.aws_ecs.domain_name }}"
+        zone: "{{ deploy_container.aws_ecs.route_53.zone }}"
+        aws_profile: "{{ deploy_container.aws_ecs.route_53.aws_profile }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+
+- name: Add extra_domains so we can loop through DNS records.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_dns_all_domains: "{{ _aws_ecs_cluster_dns_all_domains + [{'domain': item.domain, 'zone': item.zone, 'aws_profile': item.aws_profile}] }}"
+  loop: "{{ deploy_container.aws_ecs.acm.extra_domains }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+    - deploy_container.aws_ecs.acm.extra_domains | length > 0
+
+- name: Remove DNS records in Route 53.
+  amazon.aws.route53:
+    state: absent
+    profile: "{{ item.aws_profile }}"
+    zone: "{{ item.zone }}"
+    record: "{{ item.domain }}"
+    type: CNAME
+    value: "{{ _aws_ecs_cluster_alb.load_balancers[0].dns_name }}"
+  loop: "{{ _aws_ecs_cluster_dns_all_domains }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+    - deploy_container.aws_ecs.route_53.zone | length > 0

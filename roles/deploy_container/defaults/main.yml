@@ -1,5 +1,6 @@
 ---
 deploy_container:
+  action: create # can also be destroy
   container_name: example-container
   container_tag: latest # tag will take format container_name:container_tag
   container_force_build: true # force Docker to build and tag a new image

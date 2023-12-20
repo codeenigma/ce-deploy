@@ -1,0 +1,363 @@
+---
+# Build and ship a container image
+- name: Create Dockerfile from template.
+  ansible.builtin.template:
+    src: "{{ deploy_container.dockerfile_template }}"
+    dest: "{{ deploy_container.docker_build_dir }}/Dockerfile"
+  delegate_to: localhost
+
+- name: Set Docker registry username and password.
+  ansible.builtin.set_fact:
+    _docker_registry_username: "{{ deploy_container.docker_registry_user }}"
+    _docker_registry_password: "{{ deploy_container.docker_registry_pass }}"
+  delegate_to: localhost
+
+- name: Fetch AWS ECR registry login token. # token valid for 12 hours
+  ansible.builtin.command:
+    cmd: "aws ecr get-login-password --region {{ deploy_container.aws_ecr.region }} --profile {{ deploy_container.aws_ecr.aws_profile }}"
+  when: deploy_container.aws_ecr.enabled
+  delegate_to: localhost
+  register: _docker_registry_ecr_token
+
+- name: Set AWS ECR registry password.
+  ansible.builtin.set_fact:
+    _docker_registry_password: "{{ _docker_registry_ecr_token.stdout }}"
+  when: deploy_container.aws_ecr.enabled
+  delegate_to: localhost
+
+- name: Set AWS ECR registry username.
+  ansible.builtin.set_fact:
+    _docker_registry_username: "AWS"
+  when: deploy_container.aws_ecr.enabled
+  delegate_to: localhost
+
+- name: Remove Docker credentials file.
+  ansible.builtin.file:
+    state: absent
+    path: "/home/{{ deploy_user }}/.docker/config.json"
+  delegate_to: localhost
+
+- name: Log into Docker registry.
+  community.docker.docker_login:
+    registry_url: "{{ deploy_container.docker_registry_url }}"
+    username: "{{ _docker_registry_username }}"
+    password: "{{ _docker_registry_password }}"
+    reauthorize: true
+  delegate_to: localhost
+
+- name: Build and push container image.
+  community.docker.docker_image:
+    build:
+      path: "{{ deploy_container.docker_build_dir }}"
+    name: "{{ deploy_container.docker_registry_name }}/{{ deploy_container.container_name }}"
+    tag: "{{ deploy_container.container_tag | default('latest') }}"
+    push: true
+    source: build
+    force_source: "{{ deploy_container.container_force_build }}"
+    force_tag: "{{ deploy_container.container_force_build }}"
+  delegate_to: localhost
+
+# Fetch the ACM role from ce-provision
+- name: Ensure the aws_acm directory exists.
+  ansible.builtin.file:
+    path: "{{ _ce_deploy_base_dir }}/roles/aws_acm/{{ item }}"
+    state: directory
+    mode: '0755'
+  delegate_to: localhost
+  with_items:
+    - tasks
+    - defaults
+
+- name: Fetch the aws_acm files.
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/codeenigma/ce-provision/1.x/roles/aws/aws_acm/{{ item }}/main.yml"
+    dest: "{{ _ce_deploy_base_dir }}/roles/aws_acm/{{ item }}/main.yml"
+  delegate_to: localhost
+  with_items:
+    - tasks
+    - defaults
+
+- name: Fetch the aws_acm tasks.
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/codeenigma/ce-provision/1.x/roles/aws/aws_acm/tasks/main.yml
+    dest: "{{ _ce_deploy_base_dir }}/roles/aws_acm/tasks/main.yml"
+  delegate_to: localhost
+
+# Gather all network information
+- name: Gather VPC information.
+  amazon.aws.ec2_vpc_net_info:
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    region: "{{ deploy_container.aws_ecs.region }}"
+    filters:
+      "tag:Name": "{{ deploy_container.aws_ecs.vpc_name }}"
+  register: _aws_ecs_cluster_vpc
+  delegate_to: localhost
+  when:
+    - deploy_container.aws_ecs.enabled
+    - deploy_container.aws_ecs.vpc_name is defined
+    - deploy_container.aws_ecs.vpc_name | length > 0
+
+- name: Set the VPC id from name.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_vpc_id: "{{ _aws_ecs_cluster_vpc.vpcs[0].vpc_id }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+    - deploy_container.aws_ecs.vpc_name is defined
+    - deploy_container.aws_ecs.vpc_name | length > 0
+
+- name: Use provided VPC id.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_vpc_id: "{{ deploy_container.aws_ecs.vpc_id }}"
+  when:
+    - deploy_container.aws_ecs.enabled
+    - (deploy_container.aws_ecs.vpc_name is not defined or deploy_container.aws_ecs.vpc_name | length < 0)
+
+- name: Reset subnets lists.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_public_subnets_ids: []
+    _aws_ecs_cluster_private_subnets_ids: []
+  when: deploy_container.aws_ecs.enabled
+
+- name: Construct list of public subnet IDs.
+  ansible.builtin.include_tasks: subnet-public.yml
+  with_items: "{{ deploy_container.aws_ecs.elb_subnets }}"
+  loop_control:
+    loop_var: subnet
+  when: deploy_container.aws_ecs.enabled
+
+- name: Construct list of private subnet IDs.
+  ansible.builtin.include_tasks: subnet-private.yml
+  with_items: "{{ deploy_container.aws_ecs.service_subnets }}"
+  loop_control:
+    loop_var: subnet
+  when: deploy_container.aws_ecs.enabled
+
+# Construct AWS supporting assets
+- name: Create task definition.
+  community.aws.ecs_taskdefinition:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    family: "{{ deploy_container.aws_ecs.family_name }}"
+    execution_role_arn: "{{ deploy_container.aws_ecs.task_execution_role_arn }}"
+    task_role_arn: "{{ deploy_container.aws_ecs.task_role_arn | default(omit) }}"
+    containers: "{{ deploy_container.aws_ecs.containers }}"
+    launch_type: "{{ deploy_container.aws_ecs.launch_type }}"
+    cpu: "{{ deploy_container.aws_ecs.cpu | default(omit) }}"
+    memory: "{{ deploy_container.aws_ecs.memory | default(omit) }}"
+    state: present
+    network_mode: "{{ deploy_container.aws_ecs.network_mode }}"
+    volumes: "{{ deploy_container.aws_ecs.volumes | default(omit) }}"
+    force_create: "{{ deploy_container.aws_ecs.task_definition_force_create }}"
+  delegate_to: localhost
+  when: deploy_container.aws_ecs.enabled
+
+- name: Create a target group with IP address targets.
+  community.aws.elb_target_group:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    name: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}" # 32 char limit
+    protocol: "{{ deploy_container.aws_ecs.target_group_protocol }}"
+    port: "{{ deploy_container.aws_ecs.target_group_port }}"
+    vpc_id: "{{ _aws_ecs_cluster_vpc_id }}"
+    health_check_protocol: "{{ deploy_container.aws_ecs.health_check.protocol }}"
+    health_check_path: "{{ deploy_container.aws_ecs.health_check.path }}"
+    successful_response_codes: "{{ deploy_container.aws_ecs.health_check.response_codes }}"
+    target_type: ip
+    targets: "{{ deploy_container.aws_ecs.targets }}"
+    state: present
+    wait_timeout: "{{ deploy_container.aws_ecs.target_group_wait_timeout }}"
+    wait: true
+  register: _aws_ecs_target_group
+  delegate_to: localhost
+  when: deploy_container.aws_ecs.enabled
+
+- name: Create SSL certificate for load balancer.
+  ansible.builtin.include_role:
+    name: aws_acm
+  vars:
+    aws_acm:
+      region: "{{ deploy_container.aws_ecs.region }}"
+      aws_profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+      tags: "{{ deploy_container.aws_ecs.tags }}"
+      export: false
+      domain_name: "{{ deploy_container.aws_ecs.domain_name }}"
+      extra_domains: "{{ deploy_container.aws_ecs.acm.extra_domains }}"
+      route_53:
+        aws_profile: "{{ deploy_container.aws_ecs.route_53.aws_profile }}"
+        zone: "{{ deploy_container.aws_ecs.route_53.zone }}"
+  when:
+    - deploy_container.aws_ecs.acm.create_cert
+    - deploy_container.aws_ecs.enabled
+
+- name: Default to provided SSL certificate ARN.
+  ansible.builtin.set_fact:
+    _ssl_certificate_ARN: "{{ deploy_container.aws_ecs.ssl_certificate_ARN }}"
+  when: deploy_container.aws_ecs.enabled
+
+- name: If provided, override SSL certificate ARN with the one received from ACM.
+  ansible.builtin.set_fact:
+    _ssl_certificate_ARN: "{{ aws_acm_certificate_arn }}"
+  when:
+    - deploy_container.aws_ecs.acm.create_cert
+    - deploy_container.aws_ecs.enabled
+
+- name: Define default ALB listeners.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_listeners_http:
+      Protocol: HTTP
+      Port: "{{ deploy_container.aws_ecs.elb_http_port }}"
+      DefaultActions:
+        - Type: forward
+          TargetGroupName: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}"
+      Rules: "{{ deploy_container.aws_ecs.elb_listener_http_rules }}"
+    _aws_ecs_cluster_listeners_redirect:
+      Protocol: HTTP
+      Port: "{{ deploy_container.aws_ecs.elb_http_port }}"
+      DefaultActions:
+        - Type: redirect
+          RedirectConfig:
+            Protocol: HTTPS
+            Host: "#{host}"
+            Query: "#{query}"
+            Path: "/#{path}"
+            Port: "{{ deploy_container.aws_ecs.elb_https_port }}"
+            StatusCode: HTTP_301
+    _aws_ecs_cluster_listeners_https:
+      Protocol: HTTPS
+      Port: "{{ deploy_container.aws_ecs.elb_https_port }}"
+      SslPolicy: "{{ deploy_container.aws_ecs.elb_ssl_policy }}"
+      Certificates:
+        - CertificateArn: "{{ _ssl_certificate_ARN }}"
+      DefaultActions:
+        - Type: forward
+          TargetGroupName: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}"
+      Rules: "{{ deploy_container.aws_ecs.elb_listener_https_rules }}"
+  when: deploy_container.aws_ecs.enabled
+
+- name: Add HTTP listeners.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_listeners: "{{ [ _aws_ecs_cluster_listeners_http ] }}"
+  when:
+    - _ssl_certificate_ARN | length < 1
+    - deploy_container.aws_ecs.enabled
+
+- name: Add HTTPS Listener.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_listeners: "{{ [ _aws_ecs_cluster_listeners_redirect, _aws_ecs_cluster_listeners_https ] }}"
+  when:
+    - _ssl_certificate_ARN | length > 1
+    - deploy_container.aws_ecs.enabled
+
+- name: Add custom Listeners.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_listeners: "{{ _aws_ecs_cluster_listeners + deploy_container.aws_ecs.elb_listeners }}"
+  when:
+    - deploy_container.aws_ecs.elb_listeners is defined
+    - deploy_container.aws_ecs.elb_listeners | length
+    - deploy_container.aws_ecs.enabled
+
+- name: Create an ALB.
+  amazon.aws.elb_application_lb:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    name: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}" # 32 char limit
+    state: present
+    tags: "{{ deploy_container.aws_ecs.tags }}"
+    subnets: "{{ _aws_ecs_cluster_public_subnets_ids }}"
+    security_groups: "{{ deploy_container.aws_ecs.elb_security_groups }}"
+    listeners: "{{ _aws_ecs_cluster_listeners }}"
+    idle_timeout: "{{ deploy_container.aws_ecs.elb_idle_timeout }}"
+    ip_address_type: "{{ deploy_container.aws_ecs.elb_ip_address_type }}"
+  register: _aws_ecs_cluster_alb
+  delegate_to: localhost
+  when: deploy_container.aws_ecs.enabled
+
+- name: Set task definition name.
+  ansible.builtin.set_fact:
+    _aws_ecs_service_task_definition: "{{ deploy_container.aws_ecs.family_name }}"
+  when: deploy_container.aws_ecs.enabled
+
+- name: Set task definition revision if applicable.
+  ansible.builtin.set_fact:
+    _aws_ecs_service_task_definition: "{{ deploy_container.aws_ecs.family_name }}:{{ deploy_container.aws_ecs.task_definition_revision }}"
+  when:
+    - deploy_container.aws_ecs.task_definition_revision | length > 0
+    - deploy_container.aws_ecs.enabled
+
+- name: Create ECS service.
+  community.aws.ecs_service:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    state: present
+    name: "{{ deploy_container.aws_ecs.family_name }}"
+    cluster: "{{ deploy_container.aws_ecs.cluster_name }}"
+    task_definition: "{{ _aws_ecs_service_task_definition }}"
+    desired_count: "{{ deploy_container.aws_ecs.task_count }}"
+    launch_type: "{{ deploy_container.aws_ecs.launch_type }}"
+    platform_version: LATEST
+    load_balancers: # see https://docs.aws.amazon.com/AmazonECS/latest/APIReference/API_LoadBalancer.html
+      - containerName: "{{ deploy_container.container_name }}"
+        containerPort: "{{ deploy_container.aws_ecs.target_group_port }}"
+        targetGroupArn: "{{ _aws_ecs_target_group.target_group_arn }}"
+    network_configuration:
+      subnets: "{{ _aws_ecs_cluster_private_subnets_ids }}" # internal private subnet
+      security_groups: "{{ deploy_container.aws_ecs.security_groups }}"
+      assign_public_ip: "{{ deploy_container.aws_ecs.service_public_container_ip }}"
+    tags: "{{ deploy_container.aws_ecs.tags }}"
+    enable_execute_command: "{{ deploy_container.aws_ecs.service_enable_ssm }}"
+    force_new_deployment: "{{ deploy_container.aws_ecs.service_force_refresh }}"
+    wait: true
+  delegate_to: localhost
+  when: deploy_container.aws_ecs.enabled
+
+- name: Create target tracking scaling policy for ECS service.
+  community.aws.application_autoscaling_policy:
+    region: "{{ deploy_container.aws_ecs.region }}"
+    profile: "{{ deploy_container.aws_ecs.aws_profile }}"
+    state: present
+    policy_name: "{{ deploy_container.aws_ecs.family_name }}"
+    service_namespace: ecs
+    resource_id: "service/{{ deploy_container.aws_ecs.cluster_name }}/{{ deploy_container.aws_ecs.family_name }}"
+    scalable_dimension: ecs:service:DesiredCount
+    minimum_tasks: "{{ deploy_container.aws_ecs.task_minimum_count }}"
+    maximum_tasks: "{{ deploy_container.aws_ecs.task_maximum_count }}"
+    policy_type: TargetTrackingScaling
+    target_tracking_scaling_policy_configuration:
+      PredefinedMetricSpecification:
+        PredefinedMetricType: "{{ deploy_container.aws_ecs.service_autoscale_metric_type }}"
+      ScaleInCooldown: "{{ deploy_container.aws_ecs.service_autoscale_up_cooldown }}"
+      ScaleOutCooldown: "{{ deploy_container.aws_ecs.service_autoscale_down_cooldown }}"
+      DisableScaleIn: false
+      TargetValue: "{{ deploy_container.aws_ecs.service_autoscale_target_value }}"
+  delegate_to: localhost
+  when: deploy_container.aws_ecs.enabled
+
+- name: Initialise the domains loop var with main domain entry DNS settings.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_dns_all_domains:
+      - domain: "{{ deploy_container.aws_ecs.domain_name }}"
+        zone: "{{ deploy_container.aws_ecs.route_53.zone }}"
+        aws_profile: "{{ deploy_container.aws_ecs.route_53.aws_profile }}"
+  when: deploy_container.aws_ecs.enabled
+
+- name: Add extra_domains so we can loop through DNS records.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_dns_all_domains: "{{ _aws_ecs_cluster_dns_all_domains + [{'domain': item.domain, 'zone': item.zone, 'aws_profile': item.aws_profile}] }}"
+  loop: "{{ deploy_container.aws_ecs.acm.extra_domains }}"
+  when:
+    - deploy_container.aws_ecs.acm.extra_domains | length > 0
+    - deploy_container.aws_ecs.enabled
+
+- name: Add DNS records in Route 53.
+  amazon.aws.route53:
+    state: present
+    profile: "{{ item.aws_profile }}"
+    zone: "{{ item.zone }}"
+    record: "{{ item.domain }}"
+    type: CNAME
+    value: "{{ _aws_ecs_cluster_alb.dns_name }}"
+    overwrite: true
+  loop: "{{ _aws_ecs_cluster_dns_all_domains }}"
+  when:
+    - deploy_container.aws_ecs.route_53.zone | length > 0
+    - deploy_container.aws_ecs.enabled
