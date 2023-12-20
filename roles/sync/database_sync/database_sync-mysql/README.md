@@ -7,7 +7,7 @@ Sync MySQL databases between environments.
 mysql_sync:
   mysqldump_params: "{{ _mysqldump_params }}" # set in _init but you can override here.
   cleanup: true # if false leaves tmp database dump on deploy server for debugging purposes.
-  archival_method: "bzip2" # oprions are "bzip2" or "gzip".
+  archival_method: "gzip" # oprions are "bzip2" or "gzip".
   databases:
     - source:
         # Name of the database to take a dump from.

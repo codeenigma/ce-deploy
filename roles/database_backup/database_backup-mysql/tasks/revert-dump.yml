@@ -1,9 +1,16 @@
 ---
-- name: Unpack dump file.
-  ansible.builtin.unarchive:
-    src: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.bz2"
-    dest: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql"
+- name: Move dump file to local disk.
+  ansible.builtin.copy:
     remote_src: true
+    src: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.gz"
+    dest: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql.gz"
+  run_once: true
+  when: previous_build_number > 0
+
+# unarchive module does not support archives not in tar.gz format
+- name: Unpack dump file.
+  ansible.builtin.command:
+    cmd: "gunzip /tmp/{{ database.database }}-{{ previous_build_number }}.sql.gz"
   run_once: true
   when: previous_build_number > 0
 
