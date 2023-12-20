@@ -8,6 +8,8 @@ sudo usermod -aG docker deploy
 
 This can be handled automatically by [`ce-provision`](https://github.com/codeenigma/ce-provision) using the `ce_deploy` and `docker_ce` roles.
 
+If you set the `deploy_container.action` to `destroy` then the role will also take care of tidying up containers. If it is an AWS ECS deployment then it will also tidy up the ECS service for you.
+
 ## AWS IAM requirements
 AWS integration requires the AWS CLI user provided for `ce-deploy` to have certain managed AWS policies attached.
 
