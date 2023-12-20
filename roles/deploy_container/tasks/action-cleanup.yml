@@ -1,0 +1,3 @@
+---
+# @TODO we need container image cleanup here and potentially ECS Task Definition cleanup too.
+# Possibly useful link: https://stackoverflow.com/a/40949364
