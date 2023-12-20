@@ -1,10 +1,26 @@
 ---
+- name: Build warning.
+  ansible.builtin.debug:
+    msg: "### WARNING - if you are using a server terminal exit NOW! You have 20 seconds to comply..."
+  run_once: true
+  when:
+    - deploy_code.mount_type == "squashfs"
+
+- name: Give people 20 seconds to exit terminal sessions.
+  ansible.builtin.pause:
+    seconds: 20
+  run_once: true
+  when:
+    - deploy_code.mount_type == "squashfs"
+
 - name: Ensure codebase is writable.
   ansible.builtin.shell:
     cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod -R 777 {{ deploy_path_prefix }}{{ item }}; fi"
   with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
   become: true
-  when: "www_user != deploy_user"
+  when:
+    - "www_user != deploy_user"
+    - deploy_code.fix_cleanup_perms
 
 - name: Ensure permissions are set on deploy directory.
   ansible.builtin.shell:
@@ -125,84 +141,70 @@
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
 
-- name: Check if we have a mount already.
-  ansible.builtin.shell:
-    cmd: "set -o pipefail && mount | grep {{ deploy_base_path }}"
-  args:
-    executable: /bin/bash
-  failed_when: false
-  register: _deploy_code_mount_check
+- name: Unmount and remount squashfs images.
   when:
     - deploy_code.mount_sync is defined
     - deploy_code.mount_sync | length > 1
     - deploy_code.mount_type == "squashfs"
+  block:
+    - name: Check if we have a mount already.
+      ansible.builtin.shell:
+        cmd: "set -o pipefail && mount | grep {{ deploy_base_path }}"
+      args:
+        executable: /bin/bash
+      failed_when: false
+      register: _deploy_code_mount_check
 
-- name: Reload any services that might be keeping the loop device busy.
-  ansible.builtin.service:
-    name: "{{ www_service }}"
-    state: reloaded
-  with_items: "{{ deploy_code.services }}"
-  loop_control:
-    loop_var: www_service
-  become: true
-  when:
-    - deploy_code.service_action == "reload"
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check.rc == 0
-    - deploy_code.services | length > 0
+    - name: Reload any services that might be keeping the loop device busy.
+      ansible.builtin.service:
+        name: "{{ www_service }}"
+        state: reloaded
+      with_items: "{{ deploy_code.services }}"
+      loop_control:
+        loop_var: www_service
+      become: true
+      when:
+        - _deploy_code_mount_check.rc == 0
+        - deploy_code.service_action == "reload"
+        - deploy_code.services | length > 0
 
-- name: Stop any services that might be keeping the loop device busy.
-  ansible.builtin.service:
-    name: "{{ www_service }}"
-    state: stopped
-  with_items: "{{ deploy_code.services }}"
-  loop_control:
-    loop_var: www_service
-  become: true
-  when:
-    - deploy_code.service_action == "stop"
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check.rc == 0
-    - deploy_code.services | length > 0
+    - name: Stop any services that might be keeping the loop device busy.
+      ansible.builtin.service:
+        name: "{{ www_service }}"
+        state: stopped
+      with_items: "{{ deploy_code.services }}"
+      loop_control:
+        loop_var: www_service
+      become: true
+      when:
+        - _deploy_code_mount_check.rc == 0
+        - deploy_code.service_action == "stop"
+        - deploy_code.services | length > 0
 
-- name: Unmount existing SquashFS image.
-  ansible.builtin.command:
-    cmd: "umount {{ deploy_base_path }}"
-  become: true
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check.rc == 0
+    - name: Unmount existing SquashFS image.
+      ansible.builtin.command:
+        cmd: "umount {{ deploy_base_path }}"
+      become: true
+      when:
+        - _deploy_code_mount_check.rc == 0
 
-- name: Mount new SquashFS image.
-  ansible.builtin.command:
-    cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
-  become: true
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
+    - name: Mount new SquashFS image.
+      ansible.builtin.command:
+        cmd: "mount {{ build_base_path }}/deploy.sqsh {{ deploy_base_path }} -t squashfs -o loop"
+      become: true
 
-- name: Start any services we stopped.
-  ansible.builtin.service:
-    name: "{{ www_service }}"
-    state: started
-  with_items: "{{ deploy_code.services }}"
-  loop_control:
-    loop_var: www_service
-  become: true
-  when:
-    - deploy_code.service_action == "stop"
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
-    - _deploy_code_mount_check is succeeded
-    - deploy_code.services | length > 0
+    - name: Start any services we stopped.
+      ansible.builtin.service:
+        name: "{{ www_service }}"
+        state: started
+      with_items: "{{ deploy_code.services }}"
+      loop_control:
+        loop_var: www_service
+      become: true
+      when:
+        - _deploy_code_mount_check.rc == 0
+        - deploy_code.service_action == "stop"
+        - deploy_code.services | length > 0
 
 - name: Trigger an infrastructure rebuild.
   ansible.builtin.include_role:

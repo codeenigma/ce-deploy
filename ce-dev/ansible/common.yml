@@ -1,5 +1,5 @@
 # Common vars for local development.
-is_local: yes
+is_local: true
 ce_deploy:
   username: "ce-dev"
   own_repository: "https://github.com/codeenigma/ce-deploy.git"

@@ -1,0 +1,28 @@
+name: Linting
+
+# Run this workflow every time a new commit pushed to your repository
+on: pull_request
+
+jobs:
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+  run-linting:
+    # Name the Job
+    name: Linting
+    # Set the type of machine to run on
+    runs-on: ubuntu-20.04
+
+    steps:
+      # Checks out a copy of your repository on the ubuntu-latest machine
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Linter checks.
+      - name: Run linters.
+        if: ${{ always() }}
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible-lint yamllint shellcheck
+          find ./roles -name "*.yml"  | xargs ansible-lint
+          yamllint ./roles
+          cd scripts && shellcheck *.sh
