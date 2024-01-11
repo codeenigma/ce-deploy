@@ -121,6 +121,8 @@ deploy_code:
   service_action: reload
   # Trigger an API call to rebuild infra after a deploy, e.g. if you need to repack an AMI.
   rebuild_infra: false
+  # Used to skip tasks to fix ownership and permissions, drupal needs this set to true by default
+  fix_cleanup_perms: true
   # Details of API call to trigger. See api_call role.
   api_call:
     type: gitlab

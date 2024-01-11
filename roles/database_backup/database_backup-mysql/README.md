@@ -29,7 +29,6 @@ mysql_backup:
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
       #handling: static # optional override to the main handling method on a per database basis
 
-
 ```
 
 <!--ENDROLEVARS-->
