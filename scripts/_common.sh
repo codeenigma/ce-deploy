@@ -37,7 +37,7 @@ if [ ! -d "$BUILD_TRACK_DIR" ]; then
   mkdir "$BUILD_TRACK_DIR"
 fi
 # Load the contents of profile.d in case we added items to $PATH there.
-if [ ! -z "$(ls -A /etc/profile.d)" ]; then
+if [ -n "$(ls -A /etc/profile.d)" ]; then
   for f in /etc/profile.d/*; do
   # shellcheck source=/dev/null
     . "$f"
