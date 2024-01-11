@@ -36,6 +36,13 @@ BUILD_TRACK_DIR="$OWN_DIR/track"
 if [ ! -d "$BUILD_TRACK_DIR" ]; then
   mkdir "$BUILD_TRACK_DIR"
 fi
+# Load the contents of profile.d in case we added items to $PATH there.
+if [ -n "$(ls -A /etc/profile.d)" ]; then
+  for f in /etc/profile.d/*; do
+  # shellcheck source=/dev/null
+    . "$f"
+  done
+fi
 ANSIBLE_LOCATION=$(command -v ansible)
 # Load the contents of profile.d in case we added items to $PATH there.
 for f in /etc/profile.d/*; do
