@@ -14,6 +14,8 @@ PREVIOUS_BUILD_NUMBER=""
 CURRENT_BUILD_NUMBER=""
 ANSIBLE_EXTRA_VARS=""
 ANSIBLE_DEFAULT_EXTRA_VARS=""
+ANSIBLE_PATH=""
+PYTHON_INTERPRETER=""
 BUILD_WORKSPACE=""
 BUILD_TRACK_FILE=""
 BUILD_ID=""
@@ -103,6 +105,14 @@ parse_options(){
           shift
           BOTO_PROFILE="$1"
         ;;
+      "--ansible-path")
+          shift
+          ANSIBLE_PATH="$1"
+        ;;
+      "--python-interpreter")
+          shift
+          PYTHON_INTERPRETER="$1"
+        ;;
       "--build-id")
           shift
           BUILD_ID="$1"
@@ -128,7 +138,11 @@ get_build_workspace(){
 
 # Common extra-vars to pass to Ansible.
 get_ansible_defaults_vars(){
-  ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, _ce_deploy_ansible_location: $ANSIBLE_LOCATION, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  if [ -n "$PYTHON_INTERPRETER" ]; then
+    ANSIBLE_DEFAULT_EXTRA_VARS="{ansible_python_interpreter: $PYTHON_INTERPRETER, _ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, _ce_deploy_ansible_location: $ANSIBLE_LOCATION, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  else
+    ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, _ce_deploy_ansible_location: $ANSIBLE_LOCATION, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  fi
 }
 
 # Fetch previous build number from track file.
@@ -169,6 +183,11 @@ cleanup_build_tmp_dir(){
 # Call Ansible playbook to ensure host exists.
 ansible_host_check(){
   if [ -n "$TARGET_DEPLOY_HOST" ]; then
+    if [ -z "$ANSIBLE_PATH" ]; then
+      ANSIBLE_BIN=$(command -v ansible-playbook)
+    else
+      ANSIBLE_BIN="$ANSIBLE_PATH/ansible-playbook"
+    fi
     ANSIBLE_BIN=$(command -v ansible-playbook)
     ANSIBLE_CMD="$ANSIBLE_BIN $OWN_DIR/scripts/host-check.yml"
     if [ "$VERBOSE" = "yes" ]; then
