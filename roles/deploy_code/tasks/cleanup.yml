@@ -194,7 +194,7 @@
 
     - name: Terminate user sessions that might be keeping the loop device busy.
       ansible.builtin.shell:
-        cmd: "lsof -t +D {{ deploy_base_path }} | xargs -r ps -o tty= | grep {{ item }} | xargs -r pkill -t"
+        cmd: "lsof -t +D {{ deploy_base_path }} | xargs -r ps -o tty= | grep {{ item }} | xargs -r pkill -9"
       with_items: "{{ active_pts_sessions.stdout_lines }}"
       when: active_pts_sessions.stdout_lines is defined
       become: true
