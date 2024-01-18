@@ -181,6 +181,25 @@
         - deploy_code.service_action == "stop"
         - deploy_code.services | length > 0
 
+    - name: Get the current pts session.
+      ansible.builtin.shell:
+        cmd: "tty | sed 's/\/dev\///'"
+      register: deploy_pts
+
+    - name: List sessions other than the current one.
+      ansible.builtin.shell:
+        cmd: "w -h | awk '{print $2}' | grep -v '^{{ deploy_pts.stdout }}$'"
+      register: active_pts_sessions
+      become: true
+
+    - name: Terminate user sessions that might be keeping the loop device busy.
+      ansible.builtin.shell:
+        cmd: "lsof -t +D {{ deploy_base_path }} | xargs -r ps -o tty= | grep {{ item }} | xargs -r pkill -t"
+      with_items: "{{ active_pts_sessions.stdout_lines }}"
+      when: not active_pts_sessions.stdout
+      become: true
+      failed_when: false
+
     - name: Unmount existing SquashFS image.
       ansible.builtin.command:
         cmd: "umount {{ deploy_base_path }}"
