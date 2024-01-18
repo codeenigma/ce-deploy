@@ -196,7 +196,7 @@
       ansible.builtin.shell:
         cmd: "lsof -t +D {{ deploy_base_path }} | xargs -r ps -o tty= | grep {{ item }} | xargs -r pkill -t"
       with_items: "{{ active_pts_sessions.stdout_lines }}"
-      when: not active_pts_sessions.stdout
+      when: active_pts_sessions.stdout_lines is defined
       become: true
       failed_when: false
 
