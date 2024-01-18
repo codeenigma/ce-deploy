@@ -183,11 +183,14 @@ cleanup_build_tmp_dir(){
 # Call Ansible playbook to ensure host exists.
 ansible_host_check(){
   if [ -n "$TARGET_DEPLOY_HOST" ]; then
+<<<<<<< HEAD
     if [ -z "$ANSIBLE_PATH" ]; then
       ANSIBLE_BIN=$(command -v ansible-playbook)
     else
       ANSIBLE_BIN="$ANSIBLE_PATH/ansible-playbook"
     fi
+=======
+>>>>>>> devel
     ANSIBLE_BIN=$(command -v ansible-playbook)
     ANSIBLE_CMD="$ANSIBLE_BIN $OWN_DIR/scripts/host-check.yml"
     if [ "$VERBOSE" = "yes" ]; then
