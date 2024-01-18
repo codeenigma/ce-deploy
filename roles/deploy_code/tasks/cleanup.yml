@@ -155,6 +155,31 @@
       failed_when: false
       register: _deploy_code_mount_check
 
+    - name: Get the current pts session.
+      ansible.builtin.shell:
+        cmd: "tty | sed 's#/dev/##'"
+      register: deploy_pts
+
+    - name: List sessions other than the current one.
+      ansible.builtin.shell:
+        cmd: "w -h | awk '{print $2}' | grep -v '^{{ deploy_pts.stdout }}$'"
+      register: active_pts_sessions
+      become: true
+
+    - name: Terminate user sessions that might be keeping the loop device busy.
+      ansible.builtin.shell:
+        cmd: "lsof -t +D {{ deploy_base_path }} | xargs -r ps -o tty= | grep {{ item }} | xargs -r pkill -9 -t"
+      with_items: "{{ active_pts_sessions.stdout_lines }}"
+      when: active_pts_sessions.stdout_lines is defined
+      become: true
+      failed_when: false
+
+    - name: Display current and terminated PTS sessions
+      ansible.builtin.debug:
+        msg: >
+          Current PTS session: {{ deploy_pts.stdout }}
+          Sessions terminated: {{ active_pts_sessions.stdout_lines | default('None') }}
+
     - name: Reload any services that might be keeping the loop device busy.
       ansible.builtin.service:
         name: "{{ www_service }}"
@@ -180,25 +205,6 @@
         - _deploy_code_mount_check.rc == 0
         - deploy_code.service_action == "stop"
         - deploy_code.services | length > 0
-
-    - name: Get the current pts session.
-      ansible.builtin.shell:
-        cmd: "tty | sed 's#/dev/##'"
-      register: deploy_pts
-
-    - name: List sessions other than the current one.
-      ansible.builtin.shell:
-        cmd: "w -h | awk '{print $2}' | grep -v '^{{ deploy_pts.stdout }}$'"
-      register: active_pts_sessions
-      become: true
-
-    - name: Terminate user sessions that might be keeping the loop device busy.
-      ansible.builtin.shell:
-        cmd: "lsof -t +D {{ deploy_base_path }} | xargs -r ps -o tty= | grep {{ item }} | xargs -r pkill -9 -t"
-      with_items: "{{ active_pts_sessions.stdout_lines }}"
-      when: active_pts_sessions.stdout_lines is defined
-      become: true
-      failed_when: false
 
     - name: Unmount existing SquashFS image.
       ansible.builtin.command:
