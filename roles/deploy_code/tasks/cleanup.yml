@@ -180,7 +180,6 @@
         msg: >
           Deploy session: {{ deploy_pts.stdout }}.
           Sessions terminated: {{ kill_sessions_result.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
-          Not ended sessions: {{ kill_sessions_result.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
 
     - name: Reload any services that might be keeping the loop device busy.
       ansible.builtin.service:
