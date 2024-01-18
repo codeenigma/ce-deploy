@@ -183,7 +183,7 @@
 
     - name: Get the current pts session.
       ansible.builtin.shell:
-        cmd: "tty | sed 's/\/dev\///'"
+        cmd: "tty | sed 's#/dev/##'"
       register: deploy_pts
 
     - name: List sessions other than the current one.
