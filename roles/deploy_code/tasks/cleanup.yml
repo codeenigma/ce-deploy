@@ -160,25 +160,27 @@
         cmd: "tty | sed 's#/dev/##'"
       register: deploy_pts
 
-    - name: List sessions other than the current one.
+    - name: List active sessions in {{ deploy_base_path }}.
       ansible.builtin.shell:
-        cmd: "w -h | awk '{print $2}' | grep -v '^{{ deploy_pts.stdout }}$'"
-      register: active_pts_sessions
+        cmd: "ps -eo pid,tty | awk '{print $1}' | xargs -n 1 pwdx 2>&1 | grep -v 'No such process' | grep {{ deploy_base_path }} | cut -d: -f1 | xargs -n 1 ps -o tty= -p | sort | uniq"
+      register: sessions_in_deploy_path
       become: true
 
-    - name: Terminate user sessions that might be keeping the loop device busy.
-      ansible.builtin.shell:
-        cmd: "lsof -t +D {{ deploy_base_path }} | xargs -r ps -o tty= | grep {{ item }} | xargs -r pkill -9 -t"
-      with_items: "{{ active_pts_sessions.stdout_lines }}"
-      when: active_pts_sessions.stdout_lines is defined
-      become: true
+    - name: Kill sessions except the current one.
+      ansible.builtin.command:
+        cmd: "pkill -9 -t {{ item }}"
+      loop: "{{ sessions_in_deploy_path.stdout_lines }}"
+      when: "item != deploy_pts.stdout"
       failed_when: false
+      register: kill_sessions_result
+      become: true
 
-    - name: Display current and terminated PTS sessions
+    - name: Display session info.
       ansible.builtin.debug:
         msg: >
-          Current PTS session: {{ deploy_pts.stdout }}
-          Sessions terminated: {{ active_pts_sessions.stdout_lines | default('None') }}
+          Deploy session: {{ deploy_pts.stdout }}.
+          Sessions terminated: {{ kill_sessions_result.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
+          Not ended sessions: {{ kill_sessions_result.results | rejectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
 
     - name: Reload any services that might be keeping the loop device busy.
       ansible.builtin.service:
