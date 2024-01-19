@@ -1,18 +1,4 @@
 ---
-- name: Build warning.
-  ansible.builtin.debug:
-    msg: "### WARNING - if you are using a server terminal exit NOW! You have 20 seconds to comply..."
-  run_once: true
-  when:
-    - deploy_code.mount_type == "squashfs"
-
-- name: Give people 20 seconds to exit terminal sessions.
-  ansible.builtin.pause:
-    seconds: 20
-  run_once: true
-  when:
-    - deploy_code.mount_type == "squashfs"
-
 - name: Ensure codebase is writable.
   ansible.builtin.shell:
     cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod -R 777 {{ deploy_path_prefix }}{{ item }}; fi"
@@ -160,7 +146,7 @@
         cmd: "tty | sed 's#/dev/##'"
       register: deploy_pts
 
-    - name: List active sessions in {{ deploy_base_path }}.
+    - name: "Check for active sessions in {{ deploy_base_path }}."
       ansible.builtin.shell:
         cmd: "ps -eo pid,tty | awk '{print $1}' | xargs -n 1 pwdx 2>&1 | grep -v 'No such process' | grep {{ deploy_base_path }} | cut -d: -f1 | xargs -n 1 ps -o tty= -p | sort | uniq"
       register: sessions_in_deploy_path
