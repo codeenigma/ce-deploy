@@ -1,18 +1,4 @@
 ---
-- name: Build warning.
-  ansible.builtin.debug:
-    msg: "### WARNING - if you are using a server terminal exit NOW! You have 20 seconds to comply..."
-  run_once: true
-  when:
-    - deploy_code.mount_type == "squashfs"
-
-- name: Give people 20 seconds to exit terminal sessions.
-  ansible.builtin.pause:
-    seconds: 20
-  run_once: true
-  when:
-    - deploy_code.mount_type == "squashfs"
-
 - name: Ensure codebase is writable.
   ansible.builtin.file:
     path: "{{ item.path }}"
