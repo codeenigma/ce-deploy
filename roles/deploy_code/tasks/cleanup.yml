@@ -162,7 +162,7 @@
       ansible.builtin.command:
         cmd: "pkill -9 -t {{ item }}"
       loop: "{{ sessions_in_deploy_path.stdout_lines }}"
-      when: 
+      when:
         - "item != deploy_pts.stdout"
         - "item is match('^pts/\\d+$')"
       failed_when: false
