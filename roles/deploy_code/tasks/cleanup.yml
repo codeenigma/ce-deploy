@@ -155,8 +155,8 @@
     - name: Display active sessions.
       ansible.builtin.debug:
         msg: >
-          Deploy session: {{ deploy_pts.stdout }}.
-          Active sessions in {{ deploy_base_path }}: {{ sessions_in_deploy_path.stdout | default('None') }}.
+          Deploy session: {{ deploy_pts.stdout | default('Unknown') }}.
+          Active sessions in {{ deploy_base_path }}: {{ sessions_in_deploy_path.stdout_lines | default([]) | join(', ') | default('None') }}.
 
     - name: Kill sessions except the current one.
       ansible.builtin.command:
@@ -172,7 +172,7 @@
     - name: Display killed sessions.
       ansible.builtin.debug:
         msg: >
-          Sessions terminated: {{ kill_sessions_result.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
+          Sessions terminated: {{ kill_sessions_result.results | selectattr('rc', 'defined') | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
 
     - name: Reload any services that might be keeping the loop device busy.
       ansible.builtin.service:
