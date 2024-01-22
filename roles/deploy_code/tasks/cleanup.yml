@@ -156,7 +156,7 @@
       ansible.builtin.debug:
         msg: >
           Deploy session: {{ deploy_pts.stdout }}.
-          Active sessions in {{ deploy_base_path }}: {{ sessions_in_deploy_path.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
+          Active sessions in {{ deploy_base_path }}: {{ sessions_in_deploy_path.stdout | default('None') }}.
 
     - name: Kill sessions except the current one.
       ansible.builtin.command:
