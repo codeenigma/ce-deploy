@@ -152,20 +152,27 @@
       register: sessions_in_deploy_path
       become: true
 
+    - name: Display active sessions.
+      ansible.builtin.debug:
+        msg: >
+          Deploy session: {{ deploy_pts.stdout | default('Unknown') }}.
+          Active sessions in {{ deploy_base_path }}: {{ sessions_in_deploy_path.stdout_lines | default([]) | join(', ') | default('None') }}.
+
     - name: Kill sessions except the current one.
       ansible.builtin.command:
         cmd: "pkill -9 -t {{ item }}"
       loop: "{{ sessions_in_deploy_path.stdout_lines }}"
-      when: "item != deploy_pts.stdout"
+      when:
+        - "item != deploy_pts.stdout"
+        - "item is match('^pts/\\d+$')"
       failed_when: false
       register: kill_sessions_result
       become: true
 
-    - name: Display session info.
+    - name: Display killed sessions.
       ansible.builtin.debug:
         msg: >
-          Deploy session: {{ deploy_pts.stdout }}.
-          Sessions terminated: {{ kill_sessions_result.results | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
+          Sessions terminated: {{ kill_sessions_result.results | selectattr('rc', 'defined') | selectattr('rc', 'equalto', 0) | map(attribute='item') | list | join(', ') | default('None') }}.
 
     - name: Reload any services that might be keeping the loop device busy.
       ansible.builtin.service:
