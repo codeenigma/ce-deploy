@@ -54,6 +54,11 @@
         cachetool_bin: "{{ build_base_path }}/cachetool.phar"
       when:
         - cache_clear_opcache.cachetool_bin is not defined
+
+    - name: Ensure build target directory exists.
+      ansible.builtin.file:
+        path: "{{ build_base_path }}"
+        state: directory
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
@@ -93,15 +98,6 @@
   ansible.builtin.file:
     path: "{{ deploy_base_path }}"
     state: directory
-
-# Make sure the build target exists.
-- name: Ensure build target directory exists.
-  ansible.builtin.file:
-    path: "{{ build_base_path }}"
-    state: directory
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
 
 # Check for project specific init tasks.
 - name: Check that {{ project_type }}.yml exists.
