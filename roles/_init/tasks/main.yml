@@ -3,33 +3,53 @@
 - name: Define deploy user.
   ansible.builtin.set_fact:
     deploy_user: "{{ deploy_user | default('deploy') }}"
+
 - name: Define deploy base path.
   ansible.builtin.set_fact:
     deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy/{{ project_name }}_{{ build_type }}') }}"
+
 - name: Define mounted directory for assets.
   ansible.builtin.set_fact:
     deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/assets') }}"
+
 - name: Define webroot.
   ansible.builtin.set_fact:
     webroot: "{{ webroot | default('web') }}"
+
 - name: Define build deploy path prefix.
   ansible.builtin.set_fact:
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+
 - name: Define build deploy path.
   ansible.builtin.set_fact:
     deploy_path: "{{ deploy_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
+
 - name: Define live_symlink dest.
   ansible.builtin.set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ deploy_base_path }}/cachetool.phar"
+
 - name: Set opcache cachetool path from variable if provided.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ cache_clear_opcache.cachetool_bin }}"
   when:
     - cache_clear_opcache.cachetool_bin is defined
     - cache_clear_opcache.cachetool_bin | length > 0
+
+- name: Define path to clear cache.
+  ansible.builtin.set_fact:
+    cache_clear_base_path: "{{ deploy_path }}"
+  when:
+    - deploy_operation != 'cleanup'
+
+- name: Define path to clear cache.
+  ansible.builtin.set_fact:
+    cache_clear_base_path: "{{ cache_clear_base_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
+  when:
+    - deploy_operation == 'cleanup'
 
 - name: Manipulate variables for SquashFS builds.
   block:
@@ -62,7 +82,6 @@
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
-    - deploy_operation == 'deploy'
 
 # Gather last known good build directly from symlink.
 # This can happen:

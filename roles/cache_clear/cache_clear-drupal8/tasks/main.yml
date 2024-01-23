@@ -2,7 +2,7 @@
 - name: Clear Drupal cache.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site_drupal.folder }} -y cr"
-    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site_drupal.folder }}"
+    chdir: "{{ cache_clear_base_path }}/{{ webroot }}/sites/{{ site_drupal.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   with_items: "{{ drupal.sites }}"
