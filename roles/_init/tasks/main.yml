@@ -99,6 +99,18 @@
     - cache_clear_opcache.cachetool_bin is defined
     - cache_clear_opcache.cachetool_bin | length > 0
 
+- name: Define path to clear cache.
+  ansible.builtin.set_fact:
+    cache_clear_base_path: "{{ deploy_path }}"
+  when:
+    - deploy_operation != 'cleanup'
+
+- name: Define path to clear cache.
+  ansible.builtin.set_fact:
+    cache_clear_base_path: "{{ cache_clear_base_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
+  when:
+    - deploy_operation == 'cleanup'
+
 - name: Manipulate variables for SquashFS builds.
   when:
     - deploy_code.mount_type is defined
