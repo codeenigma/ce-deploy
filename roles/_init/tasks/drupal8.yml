@@ -6,9 +6,3 @@
 - name: Define path to drush for currently live build.
   set_fact:
     drush_live_bin: "{{ drush_live_bin | default('{{ live_symlink_dest }}/vendor/bin/drush') }}"
-
-- name: Override path to drush_bin on the cleanup step.
-  set_fact:
-    drush_bin: "{{ drush_live_bin }}"
-  when:
-    - deploy_operation == 'cleanup'
