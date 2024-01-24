@@ -71,18 +71,6 @@
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
 
-- name: Define path to clear cache for the deploy step.
-  ansible.builtin.set_fact:
-    cache_clear_base_path: "{{ deploy_path }}"
-  when:
-    - deploy_operation != 'cleanup'
-
-- name: Define path to clear cache for the cleanup step.
-  ansible.builtin.set_fact:
-    cache_clear_base_path: "{{ cache_clear_base_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
-  when:
-    - deploy_operation == 'cleanup'
-
 # Gather last known good build directly from symlink.
 # This can happen:
 # - when the first builds failed,
