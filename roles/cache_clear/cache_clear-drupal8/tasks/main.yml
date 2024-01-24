@@ -1,4 +1,10 @@
 ---
+- name: Override path to drush_bin on the cleanup step.
+  set_fact:
+    drush_bin: "{{ drush_live_bin }}"
+  when:
+    - deploy_operation == 'cleanup'
+
 - name: Clear Drupal cache.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site_drupal.folder }} -y cr"

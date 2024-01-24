@@ -67,12 +67,6 @@
       ansible.builtin.file:
         path: "{{ build_base_path }}"
         state: directory
-
-    - name: Override path to drush_bin on the cleanup step.
-      set_fact:
-        drush_bin: "{{ drush_live_bin }}"
-      when:
-        - deploy_operation == 'cleanup'
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
