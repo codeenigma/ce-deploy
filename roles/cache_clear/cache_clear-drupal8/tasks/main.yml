@@ -1,14 +1,21 @@
 ---
-- name: Override path to drush_bin on the cleanup step.
-  set_fact:
-    drush_bin: "{{ drush_live_bin }}"
+- name: Override paths for squashfs build cleanup step.
+  block:
+    - name: Override path to drush binary.
+      set_fact:
+        drush_bin: "{{ drush_live_bin }}"
+    - name: Override deploy_path.
+      set_fact:
+        deploy_path: "{{ live_symlink_dest }}"
   when:
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
     - deploy_operation == 'cleanup'
 
 - name: Clear Drupal cache.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site_drupal.folder }} -y cr"
-    chdir: "{{ cache_clear_base_path }}/{{ webroot }}/sites/{{ site_drupal.folder }}"
+    chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site_drupal.folder }}"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   with_items: "{{ drupal.sites }}"
