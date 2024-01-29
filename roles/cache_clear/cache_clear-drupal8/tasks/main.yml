@@ -20,9 +20,7 @@
         loop_var: site_drupal
       run_once: true
       register: _drush_output
-      when:
-        - drupal.truncate_cache_container_table is defined
-        - drupal.truncate_cache_container_table
+      when: drupal.truncate_cache_table
 
     - name: Show drush output.
       ansible.builtin.debug:
