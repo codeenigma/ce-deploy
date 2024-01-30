@@ -25,7 +25,9 @@
     - name: Show drush output.
       ansible.builtin.debug:
         msg: "{{ _drush_output }}"
-      when: drupal.drush_verbose_output
+      when:
+        - drupal.drush_verbose_output
+        - drupal.truncate_cache_table
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
