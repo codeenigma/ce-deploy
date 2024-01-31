@@ -3,27 +3,35 @@
 - name: Define deploy user.
   ansible.builtin.set_fact:
     deploy_user: "{{ deploy_user | default('deploy') }}"
+
 - name: Define deploy base path.
   ansible.builtin.set_fact:
     deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy/{{ project_name }}_{{ build_type }}') }}"
+
 - name: Define mounted directory for assets.
   ansible.builtin.set_fact:
     deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/assets') }}"
+
 - name: Define webroot.
   ansible.builtin.set_fact:
     webroot: "{{ webroot | default('web') }}"
+
 - name: Define build deploy path prefix.
   ansible.builtin.set_fact:
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+
 - name: Define build deploy path.
   ansible.builtin.set_fact:
     deploy_path: "{{ deploy_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
+
 - name: Define live_symlink dest.
   ansible.builtin.set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ deploy_base_path }}/cachetool.phar"
+
 - name: Set opcache cachetool path from variable if provided.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ cache_clear_opcache.cachetool_bin }}"
@@ -31,38 +39,37 @@
     - cache_clear_opcache.cachetool_bin is defined
     - cache_clear_opcache.cachetool_bin | length > 0
 
-# Manipulate variables for SquashFS builds.
-- name: Define image builds base path.
-  ansible.builtin.set_fact:
-    build_base_path: "/home/{{ deploy_user }}/builds/{{ project_name }}_{{ build_type }}"
+- name: Manipulate variables for SquashFS builds.
+  block:
+    - name: Define image builds base path.
+      ansible.builtin.set_fact:
+        build_base_path: "/home/{{ deploy_user }}/builds/{{ project_name }}_{{ build_type }}"
+
+    - name: Define image builds build path prefix.
+      ansible.builtin.set_fact:
+        build_path_prefix: "{{ build_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+
+    - name: Define live_symlink dest for image builds.
+      ansible.builtin.set_fact:
+        live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+
+    - name: Overwrite deploy and live_symlink paths if SquashFS deploy.
+      ansible.builtin.set_fact:
+        deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
+
+    - name: Overwrite cachetool path if SquashFS deploy and path not provided.
+      ansible.builtin.set_fact:
+        cachetool_bin: "{{ build_base_path }}/cachetool.phar"
+      when:
+        - cache_clear_opcache.cachetool_bin is not defined
+
+    - name: Ensure build target directory exists.
+      ansible.builtin.file:
+        path: "{{ build_base_path }}"
+        state: directory
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
-- name: Define image builds build path prefix.
-  ansible.builtin.set_fact:
-    build_path_prefix: "{{ build_base_path }}/{{ project_name }}_{{ build_type }}_build_"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-- name: Define live_symlink dest for image builds.
-  ansible.builtin.set_fact:
-    live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-- name: Overwrite deploy and live_symlink paths if SquashFS deploy.
-  ansible.builtin.set_fact:
-    deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-- name: Overwrite cachetool path if SquashFS deploy and path not provided.
-  ansible.builtin.set_fact:
-    cachetool_bin: "{{ build_base_path }}/cachetool.phar"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-    - cache_clear_opcache.cachetool_bin is not defined
 
 # Gather last known good build directly from symlink.
 # This can happen:
@@ -98,15 +105,6 @@
   ansible.builtin.file:
     path: "{{ deploy_base_path }}"
     state: directory
-
-# Make sure the build target exists.
-- name: Ensure build target directory exists.
-  ansible.builtin.file:
-    path: "{{ build_base_path }}"
-    state: directory
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
 
 # Check for project specific init tasks.
 - name: Check that {{ project_type }}.yml exists.
