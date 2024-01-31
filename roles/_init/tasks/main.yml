@@ -118,8 +118,3 @@
   ansible.builtin.include_tasks: "{{ project_type }}.yml"
   when:
     - _project_type_task_result.stat.exists
-
-- name: Ensure we have a cachetool binary.
-  ansible.builtin.import_role:
-    name: cli/cachetool
-  when: install_php_cachetool
