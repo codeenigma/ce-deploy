@@ -8,26 +8,6 @@
     - name: Override deploy_path.
       set_fact:
         deploy_path: "{{ live_symlink_dest }}"
-
-    - name: Truncate table cache_container.
-      ansible.builtin.command:
-        cmd: "{{ drush_bin }} sql-query 'TRUNCATE TABLE cache_container'"
-        chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site_drupal.folder }}"
-      become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
-      become_user: "{{ www_user }}"
-      with_items: "{{ drupal.sites }}"
-      loop_control:
-        loop_var: site_drupal
-      run_once: true
-      register: _drush_output
-      when: drupal.truncate_cache_table
-
-    - name: Show drush output.
-      ansible.builtin.debug:
-        msg: "{{ _drush_output }}"
-      when:
-        - drupal.drush_verbose_output
-        - drupal.truncate_cache_table
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
@@ -49,3 +29,28 @@
   ansible.builtin.debug:
     msg: "{{ _drush_output }}"
   when: drupal.drush_verbose_output
+
+- name: Truncate SQL table 'cache_container'.
+  block:
+    - name: Truncate table 'cache_container'.
+      ansible.builtin.command:
+        cmd: "{{ drush_bin }} sql-query 'TRUNCATE TABLE cache_container'"
+        chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ site_drupal.folder }}"
+      become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+      become_user: "{{ www_user }}"
+      with_items: "{{ drupal.sites }}"
+      loop_control:
+        loop_var: site_drupal
+      run_once: true
+      register: _drush_output
+
+    - name: Show drush output.
+      ansible.builtin.debug:
+        msg: "{{ _drush_output }}"
+      when:
+        - drupal.drush_verbose_output
+  when:
+    - drupal.truncate_cache_table
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
+    - deploy_operation == 'cleanup'
