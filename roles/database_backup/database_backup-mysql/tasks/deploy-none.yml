@@ -4,6 +4,13 @@
 - ansible.builtin.set_fact:
     _mysql_previous_build_database_name: "{{ database.database }}"
 
+- name: Pause to allow replication to catch up.
+  ansible.builtin.pause:
+    seconds: "{{ database.pause_seconds }}"
+  when:
+    - database.is_replica is defined
+    - database.is_replica
+
 - name: Check if the database exists already.
   ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep -w {{ _mysql_build_database_name }}"
   register: _build_db_status

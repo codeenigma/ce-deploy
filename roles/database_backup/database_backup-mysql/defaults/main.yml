@@ -22,4 +22,6 @@ mysql_backup:
     - database: "{{ (project_name + '_' + build_type) | regex_replace('-', '_') }}" # avoid hyphens in MySQL database names
       user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}" # 32 char limit
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
-      #handling: static # optional override to the main handling method on a per database basis
+      #handling: none # optional override to the main handling method on a per database basis - must be 'none' for replicas
+      #is_replica: true # tell ce-deploy this database is a replica
+      #pause_seconds: 30 # how long to allow for replication to catch up, required if 'is_replica' is set to 'true'
