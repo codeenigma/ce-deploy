@@ -1,5 +1,20 @@
 # MySQL backups
 Generate MySQL backups for each build.
+
+## Replicas
+If you are using a read only replica in your application and you need to add it to `databases` in order to have access to the credentials for your app settings, be sure to set the database up in a similar way to this:
+
+```yaml
+mysql_backup:
+  databases:
+    - database: "{{ (project_name + '_' + build_type) | regex_replace('-', '_') }}"
+      user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}"
+      credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
+      handling: none # prevents the replica from being backed up
+      is_replica: true # tells ce-deploy we are working with a replica, so it will implement a pause
+      pause_seconds: 30 # duration of the pause in seconds
+```
+
 <!--ROLEVARS-->
 ## Default variables
 ```yaml
@@ -27,7 +42,9 @@ mysql_backup:
     - database: "{{ (project_name + '_' + build_type) | regex_replace('-', '_') }}" # avoid hyphens in MySQL database names
       user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}" # 32 char limit
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
-      #handling: static # optional override to the main handling method on a per database basis
+      #handling: none # optional override to the main handling method on a per database basis - must be 'none' for replicas
+      #is_replica: true # tell ce-deploy this database is a replica
+      #pause_seconds: 30 # how long to allow for replication to catch up, required if 'is_replica' is set to 'true'
 
 ```
 
