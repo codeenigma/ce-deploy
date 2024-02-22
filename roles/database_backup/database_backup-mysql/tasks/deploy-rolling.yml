@@ -20,6 +20,8 @@
     config_file: "{{ database.credentials_file }}"
     config_overrides_defaults: true
   run_once: true
+  when:
+    - database.is_replica is not defined
 
 - name: Check if the previous database exists.
   ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep -w {{ _mysql_previous_build_database_name }}"
