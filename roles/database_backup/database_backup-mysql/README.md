@@ -42,7 +42,7 @@ mysql_backup:
       user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}" # 32 char limit
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
       #handling: none # optional override to the main handling method on a per database basis - must be 'none' for replicas
-      #is_replica: true # tell ce-deploy this database is a replica
+      #is_replica: true # tell ce-deploy this database is a replica - can only be true, remove/comment out if not required
 
 ```
 
