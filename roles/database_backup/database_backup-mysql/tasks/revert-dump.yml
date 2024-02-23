@@ -19,9 +19,7 @@
   args:
     executable: /bin/bash
   run_once: true
-  when:
-    - previous_build_number > 0
-    - database.is_replica is not defined
+  when: previous_build_number > 0
 
 - name: Delete unpacked dump file.
   ansible.builtin.file:
