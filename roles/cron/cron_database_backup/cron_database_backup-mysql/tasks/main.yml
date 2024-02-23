@@ -4,7 +4,7 @@
 # add a keep mechanism for backup scripts, like for the dumps themselves.
 # Nice to have more than anything.
 - name: Setup PATH in crontab.
-  cron:
+  ansible.builtin.cron:
     name: PATH
     env: true
     job: "/usr/bin:/usr/local/bin:/bin:/home/{{ deploy_user }}/.bin"
@@ -13,7 +13,7 @@
     - drupal.defer is defined
     - drupal.defer
 
-- include_tasks: setup.yml
+- ansible.builtin.include_tasks: setup.yml
   vars:
     database: database
   with_items: "{{ build_databases }}"
