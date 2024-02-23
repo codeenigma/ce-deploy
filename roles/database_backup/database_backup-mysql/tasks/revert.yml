@@ -17,3 +17,4 @@
   when:
     - previous_build_number > 0
     - database_backup.revert
+    - database.is_replica is not defined
