@@ -12,7 +12,6 @@ mysql_backup:
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
       handling: none # prevents the replica from being backed up
       is_replica: true # tells ce-deploy we are working with a replica, so it will implement a pause
-      pause_seconds: 30 # duration of the pause in seconds
 ```
 
 <!--ROLEVARS-->
@@ -43,8 +42,7 @@ mysql_backup:
       user: "{{ (project_name + '_' + build_type) | truncate(32, true, '', 0) }}" # 32 char limit
       credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
       #handling: none # optional override to the main handling method on a per database basis - must be 'none' for replicas
-      #is_replica: true # tell ce-deploy this database is a replica
-      #pause_seconds: 30 # how long to allow for replication to catch up, required if 'is_replica' is set to 'true'
+      #is_replica: true # tell ce-deploy this database is a replica - can only be true, remove/comment out if not required
 
 ```
 

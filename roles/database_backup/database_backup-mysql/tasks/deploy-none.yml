@@ -20,7 +20,5 @@
     login_host: "{{ _mysql_host }}"
     login_user: "{{ _mysql_user }}"
     login_password: "{{ _mysql_password }}"
-  when:
-    - previous_build_number == 0 or _build_db_status.rc == 1
-    - database.is_replica is not defined
+  when: previous_build_number == 0 or _build_db_status.rc == 1
   run_once: true
