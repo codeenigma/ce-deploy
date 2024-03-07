@@ -39,7 +39,7 @@
   with_first_found:
     - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/default.settings.php"
     - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.default.settings.php"
-    - "{{ deploy_path }}/{{ webroot }}/sites/default/default.settings.php""    
+    - "{{ deploy_path }}/{{ webroot }}/sites/default/default.settings.php"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.default.{{ config_generate_drupal.drupal_settings_file_name }}"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/default.{{ config_generate_drupal.drupal_settings_file_name }}"
     - "default.settings.php"
