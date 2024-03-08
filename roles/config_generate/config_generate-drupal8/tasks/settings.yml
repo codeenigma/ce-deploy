@@ -42,6 +42,6 @@
     - "{{ deploy_path }}/{{ webroot }}/sites/default/default.settings.php"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.default.{{ config_generate_drupal.drupal_settings_file_name }}"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/default.{{ config_generate_drupal.drupal_settings_file_name }}"
-    - "default.settings.php"
+    - "default.settings.php.j2"
   when:
     - site.folder != "default"
