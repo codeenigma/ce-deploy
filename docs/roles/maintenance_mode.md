@@ -10,12 +10,12 @@ This role and its sub-roles handle various methods for putting applications into
 ---
 # Puts site(s) offline.
 maintenance_mode:
-  # What level do we operate.
-  # - nginx: serves a static maintenance page.
-  # - drupal_core: application level
-  # - mautic: application level
+  # Where do we apply maintenance - can be invoked more than one time for different purposes.
+  # - nginx: serves a static maintenance page
+  # - drupal-core: application level
+  # - statuscake: disables a StatusCake check
   # @todo - haproxy: serves a static maintenance page.
-  # @todo - drupal_read_only: application level via readonly module.
+  # @todo - drupal-read-only: application level via readonly module.
   mode: "nginx"
   # - offline: puts the site offline
   # @todo - restricted: put the site offline except for whitelist (nginx/haproxy only)
