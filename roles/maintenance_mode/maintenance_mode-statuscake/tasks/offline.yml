@@ -1,5 +1,5 @@
 ---
-- name: Disable StatusCake check.
+- name: Pause StatusCake check.
   ansible.builtin.uri:
     url: "https://api.statuscake.com/v1/uptime/{{ domain.statuscake_check_id }}"
     method: PUT
