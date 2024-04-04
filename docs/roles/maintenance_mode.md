@@ -1,3 +1,12 @@
+# Maintenance Mode
+This role and its sub-roles handle various methods for putting applications into an offline maintenance state. See each sub-role's own defaults for additional variables.
+
+<!--TOC-->
+<!--ENDTOC-->
+
+<!--ROLEVARS-->
+## Default variables
+```yaml
 ---
 # Puts site(s) offline.
 maintenance_mode:
@@ -12,3 +21,6 @@ maintenance_mode:
   # @todo - restricted: put the site offline except for whitelist (nginx/haproxy only)
   # - online: brings the site back online.
   operation: "offline"
+```
+
+<!--ENDROLEVARS-->
