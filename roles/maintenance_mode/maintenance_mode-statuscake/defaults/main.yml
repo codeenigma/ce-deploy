@@ -1,5 +1,5 @@
 ---
 maintenance_mode_statuscake:
   domains:
-    - statuscake_check_id: "" # Your StatusCake Test ID
+    - statuscake_check_id: "" # Your StatusCake Test ID - must always be surrounded by double-quotes
       statuscake_api_key: "abcdef123456" # Your StatusCake API key - create one on your user page - https://app.statuscake.com/User.php

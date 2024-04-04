@@ -3,6 +3,7 @@
   ansible.builtin.uri:
     url: "https://api.statuscake.com/v1/uptime/{{ domain.statuscake_check_id }}"
     method: PUT
+    body_format: form-urlencoded
     body:
       paused: false
     headers:
