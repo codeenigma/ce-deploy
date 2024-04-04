@@ -34,6 +34,7 @@
      - [Deploy container](/roles/deploy_container)
      - [Init](/roles/_init)
      - [LHCI run](/roles/lhci_run)
+     - [Maintenance Mode](/roles/maintenance_mode)
      - ["Meta"](/roles/_meta)
        - [Drupal 7](/roles/_meta/deploy-drupal7)
        - [Drupal 8](/roles/_meta/deploy-drupal8)
