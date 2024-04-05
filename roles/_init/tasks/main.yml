@@ -60,7 +60,7 @@
 
     - name: Set the previous deploy's path for later use where we need to manipulate the live site.
       ansible.builtin.set_fact:
-        previous_deploy_path: "{{ initial_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
+        previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
 
     - name: Overwrite deploy and live_symlink paths if SquashFS deploy.
       ansible.builtin.set_fact:
