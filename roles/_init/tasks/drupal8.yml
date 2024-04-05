@@ -3,6 +3,10 @@
   set_fact:
     drush_bin: "{{ drush_bin | default('{{ deploy_path }}/vendor/bin/drush') }}"
 
+- name: Define path to drush for previous build.
+  set_fact:
+    previous_drush_bin: "{{ previous_drush_bin | default('{{ previous_deploy_path }}/vendor/bin/drush') }}"
+
 - name: Define path to drush for currently live build.
   set_fact:
     drush_live_bin: "{{ drush_live_bin | default('{{ live_symlink_dest }}/vendor/bin/drush') }}"

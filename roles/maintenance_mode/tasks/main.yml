@@ -1,5 +1,5 @@
 ---
-- include_role:
+- ansible.builtin.include_role:
     name: "maintenance_mode/maintenance_mode-{{ maintenance_mode.mode }}"
   when:
     - deploy_operation != 'cleanup'
