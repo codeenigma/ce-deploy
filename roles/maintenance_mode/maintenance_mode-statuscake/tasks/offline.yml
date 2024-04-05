@@ -1,7 +1,7 @@
 ---
 - name: Pause StatusCake check.
   ansible.builtin.uri:
-    url: "https://api.statuscake.com/v1/uptime/{{ domain.statuscake_check_id }}"
+    url: "https://api.statuscake.com/v1/uptime/{{ domain.statuscake_check_id | string }}"
     method: PUT
     body_format: form-urlencoded
     body:
