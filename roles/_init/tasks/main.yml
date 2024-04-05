@@ -16,6 +16,11 @@
   ansible.builtin.set_fact:
     webroot: "{{ webroot | default('web') }}"
 
+# This is passed from caller.
+- name: Gather last known good build number.
+  ansible.builtin.set_fact:
+    previous_build_number: "{{ previous_known_build_number }}"
+
 - name: Define build deploy path prefix.
   ansible.builtin.set_fact:
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
@@ -92,11 +97,6 @@
 #   shell: "readlink {{ live_symlink_dest }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
 #   register: last_build
 #   when: last_build_symlink.stat.exists
-
-# This is passed from caller.
-- name: Gather last known good build number.
-  ansible.builtin.set_fact:
-    previous_build_number: "{{ previous_known_build_number }}"
 
 # - set_fact:
 #     previous_build_number: "{{ last_build.stdout }}"
