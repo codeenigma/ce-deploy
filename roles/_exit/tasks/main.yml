@@ -1,3 +1,9 @@
 ---
-
-# We do nothing there, just a placeholder for now.
+# If we are operating on an AWS ASG then resume autoscaling.
+- name: Enable all autoscale processes on ASG.
+  ansible.builtin.command: >
+    aws autoscaling resume-processes --auto-scaling-group-name {{ aws_asg.name }} --region {{ aws_asg.region }}
+  delegate_to: localhost
+  when:
+    - aws_asg.name is defined
+    - aws_asg.name | length > 0
