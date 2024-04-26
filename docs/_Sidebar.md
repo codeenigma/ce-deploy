@@ -32,6 +32,7 @@
        - [MySQL backups](/roles/database_backup/database_backup-mysql)
      - [Deploy](/roles/deploy_code)
      - [Deploy container](/roles/deploy_container)
+     - [Exit](/roles/_exit)
      - [Init](/roles/_init)
      - [LHCI run](/roles/lhci_run)
      - [Maintenance Mode](/roles/maintenance_mode)
