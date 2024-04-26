@@ -1,5 +1,12 @@
 # Database sync - MySQL
 Sync MySQL databases between environments.
+
+In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must have an AWS CLI profile for a user with the following IAM permissions:
+* `autoscaling:ResumeProcesses`
+* `autoscaling:SuspendProcesses`
+* `autoscaling:DescribeScalingProcessTypes`
+* `autoscaling:DescribeAutoScalingGroups`
+
 <!--ROLEVARS-->
 ## Default variables
 ```yaml
