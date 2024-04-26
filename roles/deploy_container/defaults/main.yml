@@ -81,6 +81,10 @@ deploy_container:
       protocol: http
       path: /
       response_codes: "200"
+      # optional additional healthcheck settings
+      #interval: 60
+      #healthy_threshold_count: 3
+      #unhealthy_threshold_count: 5
     # Requires the deploy IAM user to have the managed AWSCertificateManagerFullAccess and AmazonRoute53FullAccess policies attached
     acm: # see https://github.com/codeenigma/ce-provision/tree/1.x/roles/aws/aws_acm
       create_cert: false
