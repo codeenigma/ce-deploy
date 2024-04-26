@@ -1,5 +1,6 @@
 # Database sync
 Roles that sync databases between environments.
+
 <!--ROLEVARS-->
 ## Default variables
 ```yaml
