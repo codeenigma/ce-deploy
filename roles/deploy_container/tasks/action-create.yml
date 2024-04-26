@@ -328,8 +328,8 @@
     target_tracking_scaling_policy_configuration:
       PredefinedMetricSpecification:
         PredefinedMetricType: "{{ deploy_container.aws_ecs.service_autoscale_metric_type }}"
-      ScaleInCooldown: "{{ deploy_container.aws_ecs.service_autoscale_up_cooldown }}"
-      ScaleOutCooldown: "{{ deploy_container.aws_ecs.service_autoscale_down_cooldown }}"
+      ScaleInCooldown: "{{ deploy_container.aws_ecs.service_autoscale_in_cooldown }}"
+      ScaleOutCooldown: "{{ deploy_container.aws_ecs.service_autoscale_out_cooldown }}"
       DisableScaleIn: false
       TargetValue: "{{ deploy_container.aws_ecs.service_autoscale_target_value }}"
   delegate_to: localhost
