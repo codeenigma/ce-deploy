@@ -1,5 +1,15 @@
 # Init
-These variables **must** be set in the `deploy/common.yml` file, at least.
+Mandatory role that must run before any other `ce-edploy` roles when executing a playbook.
+
+These variables **must** be set in a common variables file if you do not wish to use defaults.
+
+In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must have an AWS CLI profile for a user with the following IAM permissions:
+* `autoscaling:ResumeProcesses`
+* `autoscaling:SuspendProcesses`
+* `autoscaling:DescribeScalingProcessTypes`
+* `autoscaling:DescribeAutoScalingGroups`
+
+Set the `aws_asg.name` to the machine name of your ASG in order to automatically suspend and resume autoscaling on build.
 
 <!--TOC-->
 <!--ENDTOC-->
@@ -8,14 +18,24 @@ These variables **must** be set in the `deploy/common.yml` file, at least.
 ## Default variables
 ```yaml
 ---
-# Common defaults. Given the "_init" role is mandatory,
-# this will ensure defaults to other roles too.
-# If you are using ce-provision to deploy infrastructure this must match the `user_deploy.username` variable
-deploy_user: "deploy"
-# for MySQL CE you might want to add '--set-gtid-purged=OFF --skip-definer' here
+# Common defaults - the "_init" role is mandatory so this will ensure defaults to other roles too.
+deploy_user: deploy # if you are using ce-provision to deploy infrastructure this must match the `user_deploy.username` variable
+# For MySQL CE you might want to add '--set-gtid-purged=OFF --skip-definer' here:
 _mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
+# @TODO only used by Drupal 7, can be removed with Drupal 7 deployments
+bin_directory: "/home/{{ deploy_user }}/.bin"
+# Number of dumps/db to look up for cleanup.
+cleanup_history_depth: 50
+install_php_cachetool: true # set to false if you don't need cachetool, e.g. for a nodejs app
+# AWS ASG variables to allow for the suspension of autoscaling during a code deployment.
+aws_asg:
+  name: "" # if the deploy is on an ASG put the name here
+  region: "eu-west-1"
+  suspend_processes: "Launch Terminate" # space separated string, see https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-suspend-resume-processes.html
+# Application specific variables.
 drupal:
   drush_verbose_output: false
+  truncate_cache_table: false # when set to true - truncate database table cache_container, a workaround to resolve the 'Cannot redeclare ...' error
   sites:
     - folder: "default"
       public_files: "sites/default/files"
@@ -35,7 +55,7 @@ drupal:
         - minute: "*/{{ 10 | random(start=1) }}"
           job: cron
       feature_branch: false # whether or not this build is a feature branch that should sync assets from another environment
-      # For syncing database and files on a feature branch initial build - include all variables if used
+      # For syncing database and files on a feature branch initial build - include all variables if used:
       mysql_sync: {} # see sync/database_sync for docs
       #  mysqldump_params: "{{ _mysqldump_params }}"
       #  cleanup: true
@@ -48,11 +68,6 @@ drupal:
 mautic:
   image_path: "media/images"
   force_install: false
-# Used for custom build time tools like cachetool
-bin_directory: "/home/{{ deploy_user }}/.bin"
-# Number of dumps/db to look up for cleanup.
-cleanup_history_depth: 50
-install_php_cachetool: true # set to false if you don't need cachetool, e.g. for a nodejs app
 
 ```
 

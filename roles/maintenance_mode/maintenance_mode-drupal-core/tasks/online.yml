@@ -7,7 +7,20 @@
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   when:
-    - project_type == 'drupal8'
+    - project_type == "drupal8"
+
+# We want to also bring up the 'current' site with squashfs builds
+- name: Disable live site maintenance mode if this is a squashfs build.
+  ansible.builtin.command:
+    cmd: "{{ previous_drush_bin }} -l {{ site.folder }} state:set system.maintenance_mode 0 --input-format=integer --root {{ previous_deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  args:
+    chdir: "{{ previous_deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  when:
+    - project_type == "drupal8"
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
 
 # For some reason D7 drush doesn't respect 'chdir' with command, using shell instead.
 - name: Disable maintenance mode D7.
@@ -17,4 +30,16 @@
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   when:
-    - project_type == 'drupal7'
+    - project_type == "drupal7"
+
+# We want to also bring up the 'current' site with squashfs builds
+- name: Disable maintenance mode D7 if this is a squashfs build.
+  ansible.builtin.shell:
+    cmd: "{{ drush_bin }} -l {{ site.folder }} vset maintenance_mode 0"
+    chdir: "{{ previous_deploy_path }}/{{ webroot }}/sites/{{ site.folder }}"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
+  when:
+    - project_type == "drupal7"
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"

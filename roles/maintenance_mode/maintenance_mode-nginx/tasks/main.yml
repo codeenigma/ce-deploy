@@ -1,8 +1,8 @@
 ---
-- include_tasks: "{{ maintenance_mode.operation }}.yml"
+- ansible.builtin.include_tasks: "{{ maintenance_mode.operation }}.yml"
 
 - name: Reload Nginx.
-  service:
+  ansible.builtin.service:
     name: nginx
     state: reloaded
   become: true
