@@ -19,7 +19,7 @@
     state: present
     config_file: "{{ database.credentials_file }}"
     config_overrides_defaults: true
-    login_unix_socket: "{{ mysql_client.mysql_unix_socket | default(omit) }}"
+    login_unix_socket: "{{ mysql_backup.mysql_unix_socket | default(omit) }}"
   run_once: true
 
 - name: Check if the previous database exists.
