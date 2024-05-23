@@ -70,7 +70,7 @@
 
 - name: Fetch the aws_acm files.
   ansible.builtin.get_url:
-    url: "https://raw.githubusercontent.com/codeenigma/ce-provision/1.x/roles/aws/aws_acm/{{ item }}/main.yml"
+    url: "https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/aws/aws_acm/{{ item }}/main.yml"
     dest: "{{ _ce_deploy_base_dir }}/roles/aws_acm/{{ item }}/main.yml"
   delegate_to: localhost
   with_items:
@@ -79,7 +79,7 @@
 
 - name: Fetch the aws_acm tasks.
   ansible.builtin.get_url:
-    url: https://raw.githubusercontent.com/codeenigma/ce-provision/1.x/roles/aws/aws_acm/tasks/main.yml
+    url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/aws/aws_acm/tasks/main.yml
     dest: "{{ _ce_deploy_base_dir }}/roles/aws_acm/tasks/main.yml"
   delegate_to: localhost
 
@@ -161,6 +161,9 @@
     vpc_id: "{{ _aws_ecs_cluster_vpc_id }}"
     health_check_protocol: "{{ deploy_container.aws_ecs.health_check.protocol }}"
     health_check_path: "{{ deploy_container.aws_ecs.health_check.path }}"
+    health_check_interval: "{{ deploy_container.aws_ecs.health_check.interval | default(omit) }}"
+    healthy_threshold_count: "{{ deploy_container.aws_ecs.health_check.healthy_threshold_count | default(omit) }}"
+    unhealthy_threshold_count: "{{ deploy_container.aws_ecs.health_check.unhealthy_threshold_count | default(omit) }}"
     successful_response_codes: "{{ deploy_container.aws_ecs.health_check.response_codes }}"
     target_type: ip
     targets: "{{ deploy_container.aws_ecs.targets }}"
@@ -325,8 +328,8 @@
     target_tracking_scaling_policy_configuration:
       PredefinedMetricSpecification:
         PredefinedMetricType: "{{ deploy_container.aws_ecs.service_autoscale_metric_type }}"
-      ScaleInCooldown: "{{ deploy_container.aws_ecs.service_autoscale_up_cooldown }}"
-      ScaleOutCooldown: "{{ deploy_container.aws_ecs.service_autoscale_down_cooldown }}"
+      ScaleInCooldown: "{{ deploy_container.aws_ecs.service_autoscale_in_cooldown }}"
+      ScaleOutCooldown: "{{ deploy_container.aws_ecs.service_autoscale_out_cooldown }}"
       DisableScaleIn: false
       TargetValue: "{{ deploy_container.aws_ecs.service_autoscale_target_value }}"
   delegate_to: localhost

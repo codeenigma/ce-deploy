@@ -88,8 +88,8 @@ deploy_container:
       - example-cluster-dev-b
     # See docs for values: https://docs.aws.amazon.com/autoscaling/application/APIReference/API_TargetTrackingScalingPolicyConfiguration.html
     service_autoscale_metric_type: ECSServiceAverageCPUUtilization
-    service_autoscale_up_cooldown: 120
-    service_autoscale_down_cooldown: 120
+    service_autoscale_in_cooldown: 120 # scale down
+    service_autoscale_out_cooldown: 120 # scale up
     service_autoscale_target_value: 70 # the value to trigger a scaling event at
     service_public_container_ip: false # set to true to make containers appear on an EIP - more details: https://stackoverflow.com/a/66802973
     service_enable_ssm: false # set to true to allow arbitrary command execution on containers via the AWS API
@@ -124,6 +124,10 @@ deploy_container:
       protocol: http
       path: /
       response_codes: "200"
+      # optional additional healthcheck settings
+      #interval: 60
+      #healthy_threshold_count: 3
+      #unhealthy_threshold_count: 5
     # Requires the deploy IAM user to have the managed AWSCertificateManagerFullAccess and AmazonRoute53FullAccess policies attached
     acm: # see https://github.com/codeenigma/ce-provision/tree/1.x/roles/aws/aws_acm
       create_cert: false

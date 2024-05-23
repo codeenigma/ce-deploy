@@ -1,0 +1,8 @@
+---
+- ansible.builtin.include_tasks: "{{ maintenance_mode.operation }}.yml"
+  with_items: "{{ maintenance_mode_statuscake.domains }}"
+  loop_control:
+    loop_var: domain
+  run_once: true
+  when:
+    - maintenance_mode_statuscake.domains | length > 0
