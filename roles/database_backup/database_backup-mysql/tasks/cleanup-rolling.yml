@@ -6,5 +6,6 @@
     login_host: "{{ _mysql_host }}"
     login_user: "{{ _mysql_user }}"
     login_password: "{{ _mysql_password }}"
+    login_unix_socket: "{{ mysql_backup.mysql_unix_socket | default(omit) }}"
   with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - mysql_backup.keep, 0] | max }}
   run_once: true
