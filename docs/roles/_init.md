@@ -1,5 +1,5 @@
 # Init
-Mandatory role that must run before any other `ce-edploy` roles when executing a playbook.
+Mandatory role that must run before any other `ce-deploy` roles when executing a playbook.
 
 These variables **must** be set in a common variables file if you do not wish to use defaults.
 
@@ -28,6 +28,7 @@ bin_directory: "/home/{{ deploy_user }}/.bin"
 cleanup_history_depth: 50
 install_php_cachetool: true # set to false if you don't need cachetool, e.g. for a nodejs app
 # AWS ASG variables to allow for the suspension of autoscaling during a code deployment.
+ce_deploy_version: 1.x
 aws_asg:
   name: "" # if the deploy is on an ASG put the name here
   region: "eu-west-1"

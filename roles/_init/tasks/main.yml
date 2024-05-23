@@ -1,4 +1,35 @@
 ---
+- name: Version check.
+  ansible.builtin.debug:
+    msg: "Using ce-deploy {{ ce_deploy_version }}"
+
+- name: Check for a ce-provision lock file.
+  ansible.builtin.stat:
+    path: /tmp/ce-provision-lock
+  register: _ce_provision_lock
+
+- name: Abort if ce-provision lock file exists.
+  when: _ce_provision_lock.stat.exists is defined and _ce_provision_lock.stat.exists
+  block:
+    - name: Abort if ce-provision lock file is found.
+      ansible.builtin.debug:
+        msg: "ce-provision lock file discovered, an infrastructure build is in progress! If this is not the case, login to the affected server and delete the file at /tmp/ce-provision-lock."
+    - ansible.builtin.meta: end_play
+
+- name: Check OS family.
+  when: ansible_os_family == "Windows"
+  block:
+    - name: Abort if target is a Windows server.
+      ansible.builtin.debug:
+        msg: "ce-deploy currently only supports Linux like operating systems, and works best with Debian Linux."
+    - ansible.builtin.meta: end_play
+
+- name: Set a lock file.
+  ansible.builtin.file:
+    path: /tmp/ce-deploy-lock
+    state: touch
+    mode: 0644
+
 # Ensure default values for common variables.
 - name: Define deploy user.
   ansible.builtin.set_fact:

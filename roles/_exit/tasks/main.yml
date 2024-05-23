@@ -7,3 +7,8 @@
   when:
     - aws_asg.name is defined
     - aws_asg.name | length > 0
+
+- name: Delete the lock file.
+  ansible.builtin.file:
+    path: /tmp/ce-deploy-lock
+    state: absent
