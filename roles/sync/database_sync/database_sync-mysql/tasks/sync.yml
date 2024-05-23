@@ -17,6 +17,7 @@
     - database.target.asg is defined
     - database.target.asg | length > 0
 
+# @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
 - name: Disable ReplaceUnhealthy autoscale process on source ASG.
   ansible.builtin.command: >
     aws autoscaling suspend-processes --auto-scaling-group-name {{ database.source.asg }} --scaling-processes ReplaceUnhealthy --region {{ mysql_sync_source_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}

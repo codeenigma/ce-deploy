@@ -20,5 +20,6 @@
     login_host: "{{ _mysql_host }}"
     login_user: "{{ _mysql_user }}"
     login_password: "{{ _mysql_password }}"
+    login_unix_socket: "{{ mysql_backup.mysql_unix_socket | default(omit) }}"
   when: previous_build_number == 0 or _build_db_status.rc == 1
   run_once: true
