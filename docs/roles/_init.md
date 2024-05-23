@@ -1,5 +1,5 @@
 # Init
-Mandatory role that must run before any other `ce-edploy` roles when executing a playbook.
+Mandatory role that must run before any other `ce-deploy` roles when executing a playbook.
 
 These variables **must** be set in a common variables file if you do not wish to use defaults.
 
