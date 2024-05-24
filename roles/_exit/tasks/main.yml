@@ -10,5 +10,5 @@
 
 - name: Delete the lock file.
   ansible.builtin.file:
-    path: /tmp/ce-deploy-lock
+    path: "{{ lock_file }}"
     state: absent

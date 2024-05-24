@@ -5,7 +5,7 @@
 
 - name: Check for a ce-provision lock file.
   ansible.builtin.stat:
-    path: /tmp/ce-provision-lock
+    path: "{{ provision_lock_file }}"
   register: _ce_provision_lock
 
 - name: Abort if ce-provision lock file exists.
@@ -13,7 +13,7 @@
   block:
     - name: Abort if ce-provision lock file is found.
       ansible.builtin.debug:
-        msg: "ce-provision lock file discovered, an infrastructure build is in progress! If this is not the case, login to the affected server and delete the file at /tmp/ce-provision-lock."
+        msg: "ce-provision lock file discovered, an infrastructure build is in progress! If this is not the case, login to the affected server and delete the file at {{ provision_lock_file }}."
     - ansible.builtin.meta: end_play
 
 - name: Check OS family.
@@ -26,7 +26,7 @@
 
 - name: Set a lock file.
   ansible.builtin.file:
-    path: /tmp/ce-deploy-lock
+    path: "{{ lock_file }}"
     state: touch
     mode: 0644
 
