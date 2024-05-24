@@ -27,6 +27,9 @@ bin_directory: "/home/{{ deploy_user }}/.bin"
 # Number of dumps/db to look up for cleanup.
 cleanup_history_depth: 50
 install_php_cachetool: true # set to false if you don't need cachetool, e.g. for a nodejs app
+ce_deploy_version: 1.x
+lock_file: /tmp/ce-deploy-lock
+provision_lock_file: /tmp/ce-provision-lock # must match _init.lock_file in ce-provision
 # AWS ASG variables to allow for the suspension of autoscaling during a code deployment.
 aws_asg:
   name: "" # if the deploy is on an ASG put the name here
