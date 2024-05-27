@@ -6,4 +6,4 @@
   with_items: "{{ database_backup.engines }}"
   loop_control:
     loop_var: engine
-  when: deploy_operation == 'deploy'
+  when: deploy_operation == "deploy"

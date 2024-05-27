@@ -9,6 +9,7 @@
   when:
     - previous_build_number > 0
     - project_type == 'drupal8'
+    - deploy_operation == "deploy" # skip on cleanup and revert, no need
 
 # For some reason D7 drush doesn't respect 'chdir' with command, using shell instead.
 - name: Enable maintenance mode D7.
@@ -20,3 +21,4 @@
   when:
     - previous_build_number > 0
     - project_type == 'drupal7'
+    - deploy_operation == "deploy"
