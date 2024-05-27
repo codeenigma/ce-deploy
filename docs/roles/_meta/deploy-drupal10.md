@@ -11,7 +11,7 @@ You should always top and tail this role with the `_init` and `_exit` roles and 
     - vars/prod.yml
   roles:
     - _init
-    - _meta/deploy-drupal8
+    - _meta/deploy-drupal10
     - _exit
 ```
 
