@@ -2,6 +2,12 @@
 - name: Define cron job command.
   ansible.builtin.set_fact:
     _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }}"
+  when: deploy_operation == "deploy"
+
+- name: Revert cron job command.
+  ansible.builtin.set_fact:
+    _cron_job_command: "cd {{ previous_deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }}"
+  when: deploy_operation == "revert"
 
 - name: Define cron job command if deferred (ASG).
   ansible.builtin.set_fact:
