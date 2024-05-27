@@ -11,7 +11,7 @@
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
-    - deploy_operation == 'cleanup'
+    - deploy_operation == "cleanup"
 
 - name: Clear Drupal cache.
   ansible.builtin.command:
@@ -53,4 +53,4 @@
     - drupal.truncate_cache_table
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
-    - deploy_operation == 'cleanup'
+    - deploy_operation == "cleanup"
