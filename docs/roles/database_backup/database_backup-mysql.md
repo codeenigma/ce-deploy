@@ -24,6 +24,8 @@ mysql_backup:
   mysqldump_params: "{{ _mysqldump_params }}" # set in _init but you can override here
   # Location on deploy server where the generated MySQL password will be stashed - should be temporary storage
   mysql_password_path: "/tmp/.ce-deploy/{{ project_name }}_{{ build_type }}_{{ build_number }}"
+  # Uncomment to login with MySQL socket instead of TCP/IP (e.g. for MariaDB after secure set-up)
+  #mysql_unix_socket: /run/mysqld/mysqld.sock
   # Number of dumps/db to keep. Note this is independant from the build codebases.
   keep: 10
   # This can be one of the following:
