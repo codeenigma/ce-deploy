@@ -117,7 +117,7 @@
       dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.{{ archive_file_type }}"
       flat: true
   delegate_to: "{{ database.source.host }}"
-  when: 
+  when:
     - database.source.path_on_deploy_server is not defined
 
 - name: Register tmp target dump name.
@@ -156,14 +156,14 @@
   ansible.builtin.copy:
     src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.{{ archive_file_type }}"
     dest: "{{ mysql_sync_target_dump_path }}"
-  when: 
+  when:
     - database.source.path_on_deploy_server is not defined
 
 - name: Copy dump file from deploy server to destination.
   ansible.builtin.copy:
     src: "{{ database.source.path_on_deploy_server }}"
     dest: "{{ mysql_sync_target_dump_path }}"
-  when: 
+  when:
     - database.source.path_on_deploy_server is defined
 
 - name: Unpack dump file.
@@ -222,7 +222,7 @@
       - database.source.asg | length > 0
       - database.source.fresh_db is defined
       - database.source.fresh_db
-  when: 
+  when:
     - database.source.path_on_deploy_server is not defined
 
 - name: Enable all autoscale processes on target ASG.
