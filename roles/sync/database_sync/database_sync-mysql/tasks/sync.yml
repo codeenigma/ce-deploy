@@ -53,23 +53,24 @@
   when:
     - database.source.path_on_deploy_server is not defined
 
-- name: Get source last known good build number.
-  ansible.builtin.command:
-    argv:
-      - "/bin/sh"
-      - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
-      - "--build-id"
-      - "{{ database.source.build_id }}"
-  register: mysql_sync_source_build_number
-  delegate_to: localhost
-  when:
-    - database.source.type == 'rolling'
+- name: Detect rolling DB name on source.
+  block:
+  - name: Get source last known good build number.
+    ansible.builtin.command:
+      argv:
+        - "/bin/sh"
+        - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
+        - "--build-id"
+        - "{{ database.source.build_id }}"
+    register: mysql_sync_source_build_number
+    delegate_to: localhost
 
-- name: Register source database name.
-  ansible.builtin.set_fact:
-    mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_sync_source_build_number.stdout }}"
+  - name: Register source database name.
+    ansible.builtin.set_fact:
+      mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_sync_source_build_number.stdout }}"
   when:
     - database.source.type == 'rolling'
+    - database.source.path_on_deploy_server is not defined
 
 - name: Register source database name.
   ansible.builtin.set_fact:
