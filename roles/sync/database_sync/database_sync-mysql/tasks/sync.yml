@@ -69,6 +69,7 @@
     ansible.builtin.set_fact:
       mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_sync_source_build_number.stdout }}"
   when:
+    - database.source.type is defined
     - database.source.type == 'rolling'
     - database.source.path_on_deploy_server is not defined
 
@@ -76,6 +77,7 @@
   ansible.builtin.set_fact:
     mysql_sync_source_database: "{{ database.source.database }}"
   when:
+    - database.source.type is defined
     - not database.source.type == 'rolling'
     - database.source.path_on_deploy_server is not defined
 
