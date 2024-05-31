@@ -13,9 +13,11 @@ mysql_sync:
         credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
         # This can be of types:
         # - rolling: (database backups). In that case we'll need build parameters.@todo
-        # - fixed: "fixed" database name
+        # - fixed: "fixed" database name # currently this var means the same as "dump"
         # - dump: Use an existing dump. In that case, the "database" variable is the absolute file path.
+        # This parameter is ignored if var 'path_on_deploy_server' is defined.
         type: fixed
+        #path_on_deploy_server: "" # full path to the compressed dump file on the deploy server, overrides "type" variable for source DB when defined.
         # For "rolling builds", so we can compute the database name.
         build_id: mybuildprod
         # Whether or not use to create a fresh database backup or use a nightly one.
