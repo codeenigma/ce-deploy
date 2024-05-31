@@ -17,7 +17,6 @@ mysql_sync:
         # - dump: Use an existing dump. In that case, the "database" variable is the absolute file path.
         # This parameter is ignored if var 'path_on_deploy_server' is defined.
         type: fixed
-        #path_on_deploy_server: "" # full path to the compressed dump file on the deploy server, overrides "type" variable for source DB when defined.
         # For "rolling builds", so we can compute the database name.
         build_id: mybuildprod
         # Whether or not use to create a fresh database backup or use a nightly one.
@@ -27,6 +26,9 @@ mysql_sync:
         dumps_directory: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/db_backups/mysql/regular"
         # If the source is on an ASG, provide the ASG name here. Otherwise, leave empty.
         asg: ""
+        # Uncomment and specify full path if you want to use your own dump file on the deploy server (gzip compressed).
+        # In this case it's the only variable you need in 'database.source'.
+        #path_on_deploy_server: "/home/{{ deploy_user }}/compressed_database_dump.gz"
       target:
         database: "{{ project_name }}_dev"
         credentials_file: "/home/{{ deploy_user }}/.mysql.creds"
