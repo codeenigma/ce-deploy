@@ -89,10 +89,6 @@
       ansible.builtin.set_fact:
         live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
 
-    - name: Set the previous deploy's path for later use where we need to manipulate the live site.
-      ansible.builtin.set_fact:
-        previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
-
     - name: Overwrite deploy and live_symlink paths if SquashFS deploy.
       ansible.builtin.set_fact:
         deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
@@ -110,6 +106,10 @@
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
+
+- name: Set the previous deploy's path for later use where we need to manipulate the live site.
+  ansible.builtin.set_fact:
+    previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
 
 # Gather last known good build directly from symlink.
 # This can happen:
