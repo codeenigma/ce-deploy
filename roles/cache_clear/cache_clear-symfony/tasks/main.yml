@@ -1,7 +1,7 @@
 ---
 - name: Set console path.
   ansible.builtin.set_fact:
-    symfony_console_bin: "{{ symfony_bin_console | default('env php ' + deploy_path + '/bin/console') }}"
+    symfony_console_bin: "{{ symfony_console_bin | default('env php ' + deploy_path + '/bin/console') }}"
 
 - name: Clear cache.
   ansible.builtin.command:
