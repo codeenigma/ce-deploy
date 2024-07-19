@@ -21,6 +21,8 @@ usage(){
   echo 'Available options:'
   echo '--host: Valid Ansible hostname, if you want to run a host check. Can also be a group name.'
   echo '--ansible-extra-vars: Variable to pass as --extra-vars arguments to ansible-playbook. Make sure to escape them properly.'
+  echo '--ansible-path: Pass the path to the directory containing the Ansible binaries if you are not using the version of Ansible in PATH.'
+  echo '--python-interpreter: When using Python virtual environments Ansible may not correctly determine the Python interpreter, use this to set it manually.'
   echo '--previous-stable-build-number: an incremental build number that '
   echo '--dry-run: Do not perform any action but run the playbooks in --check mode.'
   echo '--verbose: Detailled informations. This can potentially leak sensitive information in the output'

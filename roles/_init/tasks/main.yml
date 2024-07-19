@@ -1,29 +1,73 @@
 ---
+- name: Version check.
+  ansible.builtin.debug:
+    msg: "Using ce-deploy {{ ce_deploy_version }}"
+
+- name: Check for a ce-provision lock file.
+  ansible.builtin.stat:
+    path: "{{ provision_lock_file }}"
+  register: _ce_provision_lock
+
+- name: Abort if ce-provision lock file exists.
+  when: _ce_provision_lock.stat.exists is defined and _ce_provision_lock.stat.exists
+  block:
+    - name: Abort if ce-provision lock file is found.
+      ansible.builtin.debug:
+        msg: "ce-provision lock file discovered, an infrastructure build is in progress! If this is not the case, login to the affected server and delete the file at {{ provision_lock_file }}."
+    - ansible.builtin.meta: end_play
+
+- name: Check OS family.
+  when: ansible_os_family == "Windows"
+  block:
+    - name: Abort if target is a Windows server.
+      ansible.builtin.debug:
+        msg: "ce-deploy currently only supports Linux like operating systems, and works best with Debian Linux."
+    - ansible.builtin.meta: end_play
+
+- name: Set a lock file.
+  ansible.builtin.file:
+    path: "{{ lock_file }}"
+    state: touch
+    mode: 0644
+
 # Ensure default values for common variables.
 - name: Define deploy user.
   ansible.builtin.set_fact:
     deploy_user: "{{ deploy_user | default('deploy') }}"
+
 - name: Define deploy base path.
   ansible.builtin.set_fact:
     deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy/{{ project_name }}_{{ build_type }}') }}"
+
 - name: Define mounted directory for assets.
   ansible.builtin.set_fact:
     deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/assets') }}"
+
 - name: Define webroot.
   ansible.builtin.set_fact:
     webroot: "{{ webroot | default('web') }}"
+
+# This is passed from caller.
+- name: Gather last known good build number.
+  ansible.builtin.set_fact:
+    previous_build_number: "{{ previous_known_build_number }}"
+
 - name: Define build deploy path prefix.
   ansible.builtin.set_fact:
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+
 - name: Define build deploy path.
   ansible.builtin.set_fact:
     deploy_path: "{{ deploy_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
+
 - name: Define live_symlink dest.
   ansible.builtin.set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ deploy_base_path }}/cachetool.phar"
+
 - name: Set opcache cachetool path from variable if provided.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ cache_clear_opcache.cachetool_bin }}"
@@ -31,38 +75,41 @@
     - cache_clear_opcache.cachetool_bin is defined
     - cache_clear_opcache.cachetool_bin | length > 0
 
-# Manipulate variables for SquashFS builds.
-- name: Define image builds base path.
-  ansible.builtin.set_fact:
-    build_base_path: "/home/{{ deploy_user }}/builds/{{ project_name }}_{{ build_type }}"
+- name: Manipulate variables for SquashFS builds.
+  block:
+    - name: Define image builds base path.
+      ansible.builtin.set_fact:
+        build_base_path: "/home/{{ deploy_user }}/builds/{{ project_name }}_{{ build_type }}"
+
+    - name: Define image builds build path prefix.
+      ansible.builtin.set_fact:
+        build_path_prefix: "{{ build_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+
+    - name: Define live_symlink dest for image builds.
+      ansible.builtin.set_fact:
+        live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+
+    - name: Overwrite deploy and live_symlink paths if SquashFS deploy.
+      ansible.builtin.set_fact:
+        deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
+
+    - name: Overwrite cachetool path if SquashFS deploy and path not provided.
+      ansible.builtin.set_fact:
+        cachetool_bin: "{{ build_base_path }}/cachetool.phar"
+      when:
+        - cache_clear_opcache.cachetool_bin is not defined
+
+    - name: Ensure build target directory exists.
+      ansible.builtin.file:
+        path: "{{ build_base_path }}"
+        state: directory
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
-- name: Define image builds build path prefix.
+
+- name: Set the previous deploy's path for later use where we need to manipulate the live site.
   ansible.builtin.set_fact:
-    build_path_prefix: "{{ build_base_path }}/{{ project_name }}_{{ build_type }}_build_"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-- name: Define live_symlink dest for image builds.
-  ansible.builtin.set_fact:
-    live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-- name: Overwrite deploy and live_symlink paths if SquashFS deploy.
-  ansible.builtin.set_fact:
-    deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-- name: Overwrite cachetool path if SquashFS deploy and path not provided.
-  ansible.builtin.set_fact:
-    cachetool_bin: "{{ build_base_path }}/cachetool.phar"
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
-    - cache_clear_opcache.cachetool_bin is not defined
+    previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
 
 # Gather last known good build directly from symlink.
 # This can happen:
@@ -82,11 +129,6 @@
 #   register: last_build
 #   when: last_build_symlink.stat.exists
 
-# This is passed from caller.
-- name: Gather last known good build number.
-  ansible.builtin.set_fact:
-    previous_build_number: "{{ previous_known_build_number }}"
-
 # - set_fact:
 #     previous_build_number: "{{ last_build.stdout }}"
 #   when:
@@ -98,15 +140,6 @@
   ansible.builtin.file:
     path: "{{ deploy_base_path }}"
     state: directory
-
-# Make sure the build target exists.
-- name: Ensure build target directory exists.
-  ansible.builtin.file:
-    path: "{{ build_base_path }}"
-    state: directory
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
 
 # Check for project specific init tasks.
 - name: Check that {{ project_type }}.yml exists.
@@ -121,7 +154,12 @@
   when:
     - _project_type_task_result.stat.exists
 
-- name: Ensure we have a cachetool binary.
-  ansible.builtin.import_role:
-    name: cli/cachetool
-  when: install_php_cachetool
+# If we are operating on an AWS ASG then pause autoscaling.
+# @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
+- name: Disable autoscale processes on ASG.
+  ansible.builtin.command: >
+    aws autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
+  delegate_to: localhost
+  when:
+    - aws_asg.name is defined
+    - aws_asg.name | length > 0

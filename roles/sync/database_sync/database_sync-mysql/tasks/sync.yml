@@ -1,40 +1,37 @@
 ---
-- name: Get database source host region.
-  amazon.aws.ec2_metadata_facts:
-  register: mysql_sync_source_database_host_info
-  delegate_to: "{{ database.source.host }}"
+- name: Prepare source ASG.
+  block:
+  - name: Get database source host region.
+    amazon.aws.ec2_metadata_facts:
+    register: mysql_sync_source_database_host_info
+    delegate_to: "{{ database.source.host }}"
+
+  # @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
+  - name: Disable ReplaceUnhealthy autoscale process on source ASG.
+    ansible.builtin.command: >
+      aws autoscaling suspend-processes --auto-scaling-group-name {{ database.source.asg }} --scaling-processes ReplaceUnhealthy --region {{ mysql_sync_source_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
+    delegate_to: localhost
   when:
     - database.source.asg is defined
     - database.source.asg | length > 0
     - database.source.fresh_db is defined
     - database.source.fresh_db
+    - database.source.path_on_deploy_server is not defined
 
-# This task does not need a delegate_to because the hosts set in the sync playbook in the repo should be the target host.
-- name: Get database target host region.
-  amazon.aws.ec2_metadata_facts:
-  register: mysql_sync_target_database_host_info
+- name: Prepare target ASG.
+  block:
+  # This task does not need a delegate_to because the hosts set in the sync playbook in the repo should be the target host.
+  - name: Get database target host region.
+    amazon.aws.ec2_metadata_facts:
+    register: mysql_sync_target_database_host_info
+
+  - name: Disable ReplaceUnhealthy autoscale process on target ASG.
+    ansible.builtin.command: >
+      aws autoscaling suspend-processes --auto-scaling-group-name {{ database.target.asg }} --scaling-processes ReplaceUnhealthy --region {{ mysql_sync_target_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
+    delegate_to: localhost
   when:
     - database.target.asg is defined
     - database.target.asg | length > 0
-
-- name: Disable ReplaceUnhealthy autoscale process on source ASG.
-  ansible.builtin.command: >
-    aws autoscaling suspend-processes --auto-scaling-group-name {{ database.source.asg }} --scaling-processes ReplaceUnhealthy --region {{ mysql_sync_source_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
-  delegate_to: localhost
-  when:
-    - database.source.asg is defined
-    - database.source.asg | length > 0
-    - database.source.fresh_db is defined
-    - database.source.fresh_db
-
-- name: Disable ReplaceUnhealthy autoscale process on target ASG.
-  ansible.builtin.command: >
-    aws autoscaling suspend-processes --auto-scaling-group-name {{ database.target.asg }} --scaling-processes ReplaceUnhealthy --region {{ mysql_sync_target_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
-  delegate_to: localhost
-  when:
-    - database.target.asg is defined
-    - database.target.asg | length > 0
-
 
 - name: Register bzip2 archive type vars.
   ansible.builtin.set_fact:
@@ -53,56 +50,75 @@
 - name: Register remote dump name (from database).
   ansible.builtin.set_fact:
     mysql_sync_source_dump_path: "/tmp/{{ database.source.database }}_{{ build_number }}_source.sql.{{ archive_file_type }}"
+  when:
+    - database.source.path_on_deploy_server is not defined
 
-- name: Get source last known good build number.
-  ansible.builtin.command:
-    argv:
-      - "/bin/sh"
-      - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
-      - "--build-id"
-      - "{{ database.source.build_id }}"
-  register: mysql_sync_source_build_number
-  delegate_to: localhost
-  when: database.source.type == 'rolling'
+- name: Detect rolling DB name on source.
+  block:
+  - name: Get source last known good build number.
+    ansible.builtin.command:
+      argv:
+        - "/bin/sh"
+        - "{{ _ce_deploy_base_dir }}/scripts/track-get.sh"
+        - "--build-id"
+        - "{{ database.source.build_id }}"
+    register: mysql_sync_source_build_number
+    delegate_to: localhost
 
-- name: Register source database name.
-  ansible.builtin.set_fact:
-    mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_sync_source_build_number.stdout }}"
-  when: database.source.type == 'rolling'
+  - name: Register source database name.
+    ansible.builtin.set_fact:
+      mysql_sync_source_database: "{{ database.source.database }}_{{ mysql_sync_source_build_number.stdout }}"
+  when:
+    - database.source.type is defined
+    - database.source.type == 'rolling'
+    - database.source.path_on_deploy_server is not defined
 
 - name: Register source database name.
   ansible.builtin.set_fact:
     mysql_sync_source_database: "{{ database.source.database }}"
-  when: not database.source.type == 'rolling'
+  when:
+    - database.source.type is defined
+    - not database.source.type == 'rolling'
+    - database.source.path_on_deploy_server is not defined
 
-- name: Take a dump from source database.
-  ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | {{ archival_command }} > {{ mysql_sync_source_dump_path }}"
-  args:
-    executable: /bin/bash
+- name: Fetch the source database.
+  block:
+  - name: Take a dump from source database.
+    ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.source.credentials_file }} {{ mysql_sync.mysqldump_params }} {{ mysql_sync_source_database }} | {{ archival_command }} > {{ mysql_sync_source_dump_path }}"
+    args:
+      executable: /bin/bash
+    when:
+      - database.source.fresh_db
+
+  - name: Find source database host.
+    ansible.builtin.command:
+      cmd: "grep 'host' {{ database.source.credentials_file }}"
+    register: mysql_host_info_grep
+    when:
+      - not database.source.fresh_db
+
+  - name: Register source database host.
+    set_fact:
+      mysql_sync_source_database_host: "{{ mysql_host_info_grep.stdout.split('=')[1] }}"
+    when:
+      - not database.source.fresh_db
+
+  - name: Copy a nightly backup for the source database.
+    ansible.builtin.copy:
+      src: "{{ database.source.dumps_directory }}/{{ mysql_sync_source_database_host }}/{{ database.source.database }}"
+      dest: "{{ mysql_sync_source_dump_path }}"
+      remote_src: true
+    when:
+      - not database.source.fresh_db
+
+  - name: Fetch dump file.
+    ansible.builtin.fetch:
+      src: "{{ mysql_sync_source_dump_path }}"
+      dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.{{ archive_file_type }}"
+      flat: true
   delegate_to: "{{ database.source.host }}"
   when:
-    - database.source.fresh_db
-
-- name: Find source database host.
-  ansible.builtin.command:
-    cmd: "grep 'host' {{ database.source.credentials_file }}"
-  register: mysql_host_info_grep
-  delegate_to: "{{ database.source.host }}"
-  when: not database.source.fresh_db
-
-- name: Register source database host.
-  set_fact:
-    mysql_sync_source_database_host: "{{ mysql_host_info_grep.stdout.split('=')[1] }}"
-  delegate_to: "{{ database.source.host }}"
-  when: not database.source.fresh_db
-
-- name: Copy a nightly backup for the source database.
-  ansible.builtin.copy:
-    src: "{{ database.source.dumps_directory }}/{{ mysql_sync_source_database_host }}/{{ database.source.database }}"
-    dest: "{{ mysql_sync_source_dump_path }}"
-    remote_src: true
-  delegate_to: "{{ database.source.host }}"
-  when: not database.source.fresh_db
+    - database.source.path_on_deploy_server is not defined
 
 - name: Register tmp target dump name.
   ansible.builtin.set_fact:
@@ -121,29 +137,34 @@
       - "{{ database.target.build_id }}"
   register: mysql_sync_target_build_number
   delegate_to: localhost
-  when: database.target.type == 'rolling'
+  when:
+    - database.target.type == 'rolling'
 
 - name: Register target rolling database name.
   ansible.builtin.set_fact:
     mysql_sync_target_database: "{{ database.target.database }}_{{ mysql_sync_target_build_number.stdout }}"
-  when: database.target.type == 'rolling'
+  when:
+    - database.target.type == 'rolling'
 
 - name: Register target static database name.
   ansible.builtin.set_fact:
     mysql_sync_target_database: "{{ database.target.database }}"
-  when: not database.target.type == 'rolling'
-
-- name: Fetch dump file.
-  ansible.builtin.fetch:
-    src: "{{ mysql_sync_source_dump_path }}"
-    dest: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.{{ archive_file_type }}"
-    flat: true
-  delegate_to: "{{ database.source.host }}"
+  when:
+    - not database.target.type == 'rolling'
 
 - name: Copy dump file to destination.
   ansible.builtin.copy:
     src: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql.{{ archive_file_type }}"
     dest: "{{ mysql_sync_target_dump_path }}"
+  when:
+    - database.source.path_on_deploy_server is not defined
+
+- name: Copy dump file from deploy server to destination.
+  ansible.builtin.copy:
+    src: "{{ database.source.path_on_deploy_server }}"
+    dest: "{{ mysql_sync_target_dump_path }}"
+  when:
+    - database.source.path_on_deploy_server is defined
 
 - name: Unpack dump file.
   ansible.builtin.shell: "{{ archival_command }} -d -c {{ mysql_sync_target_dump_path }} > {{ mysql_sync_target_dump_unpacked_path }}"
@@ -173,32 +194,36 @@
     path: "{{ mysql_sync_target_dump_unpacked_path }}"
     state: absent
 
-- name: Delete temporary dump file on source.
-  ansible.builtin.file:
-    path: "{{ mysql_sync_source_dump_path }}"
-    state: absent
-  delegate_to: "{{ database.source.host }}"
+- name: Clean up source.
+  block:
+  - name: Delete temporary dump file on source.
+    ansible.builtin.file:
+      path: "{{ mysql_sync_source_dump_path }}"
+      state: absent
+    delegate_to: "{{ database.source.host }}"
 
-- name: Delete temporary dump file on deploy server.
-  ansible.builtin.file:
-    path: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql{{ item }}"
-    state: absent
-  delegate_to: localhost
-  when:
-    - mysql_sync.cleanup
-  with_items:
-    - ".bz2"
-    - ".gz"
+  - name: Delete temporary dump file on deploy server.
+    ansible.builtin.file:
+      path: "{{ _ce_deploy_build_tmp_dir }}/{{ database.target.database }}.sql{{ item }}"
+      state: absent
+    delegate_to: localhost
+    when:
+      - mysql_sync.cleanup
+    with_items:
+      - ".bz2"
+      - ".gz"
 
-- name: Enable all autoscale processes on source ASG.
-  ansible.builtin.command: >
-    aws autoscaling resume-processes --auto-scaling-group-name {{ database.source.asg }} --region {{ mysql_sync_source_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
-  delegate_to: localhost
+  - name: Enable all autoscale processes on source ASG.
+    ansible.builtin.command: >
+      aws autoscaling resume-processes --auto-scaling-group-name {{ database.source.asg }} --region {{ mysql_sync_source_database_host_info.ansible_facts.ansible_ec2_instance_identity_document_region }}
+    delegate_to: localhost
+    when:
+      - database.source.asg is defined
+      - database.source.asg | length > 0
+      - database.source.fresh_db is defined
+      - database.source.fresh_db
   when:
-    - database.source.asg is defined
-    - database.source.asg | length > 0
-    - database.source.fresh_db is defined
-    - database.source.fresh_db
+    - database.source.path_on_deploy_server is not defined
 
 - name: Enable all autoscale processes on target ASG.
   ansible.builtin.command: >

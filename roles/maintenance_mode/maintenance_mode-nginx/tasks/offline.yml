@@ -1,6 +1,6 @@
 ---
 - name: Disable active vhost.
-  file:
+  ansible.builtin.file:
     path: "/etc/nginx/sites-enabled/{{ domain.server_name }}.conf"
     state: absent
   with_items: "{{ maintenance_mode_nginx.domains }}"
@@ -9,7 +9,7 @@
   become: true
 
 - name: Enable maintenance vhost.
-  file:
+  ansible.builtin.file:
     src: "/etc/nginx/sites-available/{{ domain.server_name }}-maintenance.conf"
     dest: "/etc/nginx/sites-enabled/{{ domain.server_name }}-maintenance.conf"
     state: link
