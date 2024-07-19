@@ -1,0 +1,39 @@
+---
+# Default role for Drupal 10 and upwards. This is suitable for:
+# - single site
+# - multisites with a single database
+
+- ansible.builtin.import_role:
+    name: deploy_code
+- ansible.builtin.import_role:
+    name: composer
+- ansible.builtin.import_role:
+    name: npm
+- ansible.builtin.import_role:
+    name: maintenance_mode
+  vars:
+    maintenance_mode:
+      operation: offline
+- ansible.builtin.import_role:
+    name: database_backup
+- ansible.builtin.import_role:
+    name: config_generate
+- ansible.builtin.import_role:
+    name: cache_clear/cache_clear-opcache
+- ansible.builtin.import_role:
+    name: database_apply
+- ansible.builtin.import_role:
+    name: sanitize/admin_creds
+- ansible.builtin.import_role:
+    name: live_symlink
+- ansible.builtin.import_role:
+    name: cache_clear/cache_clear-drupal8
+- ansible.builtin.import_role:
+    name: maintenance_mode
+  vars:
+    maintenance_mode:
+      operation: online
+- ansible.builtin.import_role:
+    name: cron/cron_database_backup
+- ansible.builtin.import_role:
+    name: cron/cron_drupal8

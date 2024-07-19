@@ -14,6 +14,8 @@ PREVIOUS_BUILD_NUMBER=""
 CURRENT_BUILD_NUMBER=""
 ANSIBLE_EXTRA_VARS=""
 ANSIBLE_DEFAULT_EXTRA_VARS=""
+ANSIBLE_PATH=""
+PYTHON_INTERPRETER=""
 BUILD_WORKSPACE=""
 BUILD_TRACK_FILE=""
 BUILD_ID=""
@@ -21,19 +23,34 @@ BUILD_WORKSPACE_BASE="$OWN_DIR/build"
 DRY_RUN="no"
 VERBOSE="no"
 BOTO_PROFILE=""
+# Ensure build workspace exists.
 if [ ! -d "$BUILD_WORKSPACE_BASE" ]; then
     mkdir "$BUILD_WORKSPACE_BASE"
 fi
 BUILD_TMP_DIR=$(mktemp -d -p "$BUILD_WORKSPACE_BASE")
+# Ensure ce-deploy data directory exists.
 ANSIBLE_DATA_DIR="$OWN_DIR/data"
 if [ ! -d "$ANSIBLE_DATA_DIR" ]; then
     mkdir "$ANSIBLE_DATA_DIR"
 fi
+# Ensure directory for build track files exists.
 BUILD_TRACK_DIR="$OWN_DIR/track"
 if [ ! -d "$BUILD_TRACK_DIR" ]; then
   mkdir "$BUILD_TRACK_DIR"
 fi
+# Load the contents of profile.d in case we added items to $PATH there.
+if [ -n "$(ls -A /etc/profile.d)" ]; then
+  for f in /etc/profile.d/*; do
+  # shellcheck source=/dev/null
+    . "$f"
+  done
+fi
 ANSIBLE_LOCATION=$(command -v ansible)
+# Load the contents of profile.d in case we added items to $PATH there.
+for f in /etc/profile.d/*; do
+# shellcheck source=/dev/null
+   . "$f"
+done
 # Parse options arguments.
 parse_options(){
   while [ "${1:-}" ]; do
@@ -88,6 +105,14 @@ parse_options(){
           shift
           BOTO_PROFILE="$1"
         ;;
+      "--ansible-path")
+          shift
+          ANSIBLE_PATH="$1"
+        ;;
+      "--python-interpreter")
+          shift
+          PYTHON_INTERPRETER="$1"
+        ;;
       "--build-id")
           shift
           BUILD_ID="$1"
@@ -113,7 +138,11 @@ get_build_workspace(){
 
 # Common extra-vars to pass to Ansible.
 get_ansible_defaults_vars(){
-  ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, _ce_deploy_ansible_location: $ANSIBLE_LOCATION, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  if [ -n "$PYTHON_INTERPRETER" ]; then
+    ANSIBLE_DEFAULT_EXTRA_VARS="{ansible_python_interpreter: $PYTHON_INTERPRETER, _ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, _ce_deploy_ansible_location: $ANSIBLE_LOCATION, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  else
+    ANSIBLE_DEFAULT_EXTRA_VARS="{_ce_deploy_base_dir: $OWN_DIR, _ce_deploy_build_dir: $BUILD_WORKSPACE, _ce_deploy_build_tmp_dir: $BUILD_TMP_DIR, _ce_deploy_data_dir: $ANSIBLE_DATA_DIR, _ce_deploy_ansible_location: $ANSIBLE_LOCATION, build_number: $CURRENT_BUILD_NUMBER, previous_known_build_number: $PREVIOUS_BUILD_NUMBER}"
+  fi
 }
 
 # Fetch previous build number from track file.
@@ -154,6 +183,11 @@ cleanup_build_tmp_dir(){
 # Call Ansible playbook to ensure host exists.
 ansible_host_check(){
   if [ -n "$TARGET_DEPLOY_HOST" ]; then
+    if [ -z "$ANSIBLE_PATH" ]; then
+      ANSIBLE_BIN=$(command -v ansible-playbook)
+    else
+      ANSIBLE_BIN="$ANSIBLE_PATH/ansible-playbook"
+    fi
     ANSIBLE_BIN=$(command -v ansible-playbook)
     ANSIBLE_CMD="$ANSIBLE_BIN $OWN_DIR/scripts/host-check.yml"
     if [ "$VERBOSE" = "yes" ]; then

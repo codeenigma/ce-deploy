@@ -18,6 +18,10 @@
     mode: 0775
   become: "{{ false if www_user == deploy_user else true }}"
 
+- name: Generate or retrieve hash salt value.
+  ansible.builtin.set_fact:
+    _drupal_hash_salt: "{{ lookup('ansible.builtin.password', _ce_deploy_data_dir + '/' + project_name  + '_' + build_type + '/drupal/hash_salt length=74 chars=ascii_letters,digits') }}"
+
 - name: Generates settings.php file.
   ansible.builtin.template:
     src: "{{ item }}"
@@ -27,3 +31,17 @@
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.{{ config_generate_drupal.drupal_settings_file_name }}"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ config_generate_drupal.drupal_settings_file_name }}"
     - "settings.php.j2"
+
+- name: Generates default.settings.php file in any additional multi-site directories.
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }}/default.settings.php"
+  with_first_found:
+    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/default.settings.php"
+    - "{{ playbook_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.default.settings.php"
+    - "{{ deploy_path }}/{{ webroot }}/sites/default/default.settings.php"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/{{ build_type }}.default.{{ config_generate_drupal.drupal_settings_file_name }}"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/sites/{{ site.folder }}/default.{{ config_generate_drupal.drupal_settings_file_name }}"
+    - "default.settings.php.j2"
+  when:
+    - site.folder != "default"
