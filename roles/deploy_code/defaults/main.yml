@@ -1,5 +1,13 @@
 ---
+# Required for NGINX config in feature branching.
+_ce_provision_data_dir: /home/deploy/ce-deploy/data
+
 deploy_code:
+  # Feature branching config.
+  feature_branch:
+    enabled: false
+    # NGINX domains to build, see ce-provision for docs: https://github.com/codeenigma/ce-provision/blob/2.x/roles/debian/nginx/defaults/main.yml#L133
+    domains: []
   # Specify any additional symlink to create, with src (target) and dest (link).
   # src: can be either absolute or relative to the dest (eg. '/var/my_data', '/home/deploy/simplesaml', '../../../myconfig')
   # dest: can only be relative to the root of your repository (eg. 'www/themes/myassets', 'var/cache')
