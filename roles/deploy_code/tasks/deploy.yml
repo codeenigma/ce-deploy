@@ -42,33 +42,43 @@
 # Additional vhost handling for feature branch builds.
 
 # Fetch the NGINX domain handling tasks from ce-provision.
-- name: Ensure the nginx directory exists.
-  ansible.builtin.file:
-    path: "{{ _ce_deploy_base_dir }}/roles/nginx/{{ item }}"
-    state: directory
-    mode: '0755'
-  delegate_to: localhost
-  with_items:
-    - tasks
-    - defaults
-    - templates
-  when: deploy_code.feature_branch.enabled
-
 - name: Fetch the nginx role files from ce-provision.
   when: deploy_code.feature_branch.enabled
   delegate_to: localhost
   block:
-    - name: Fetch domain.yml.
+    - name: Ensure the nginx directory exists.
+      ansible.builtin.file:
+        path: "{{ _ce_deploy_base_dir }}/roles/nginx/{{ item }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      with_items:
+        - tasks
+        - defaults
+        - templates
+
+    - name: Ensure the ssl directory exists.
+      ansible.builtin.file:
+        path: "{{ _ce_deploy_base_dir }}/roles/ssl/{{ item }}"
+        state: directory
+        mode: '0755'
+      delegate_to: localhost
+      with_items:
+        - tasks
+        - defaults
+        - templates
+
+    - name: Fetch nginx domain.yml.
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/nginx/tasks/domain.yml
         dest: "{{ _ce_deploy_base_dir }}/roles/nginx/tasks/domain.yml"
 
-    - name: Fetch defaults.
+    - name: Fetch nginx defaults.
       ansible.builtin.get_url:
         url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/nginx/defaults/main.yml
         dest: "{{ _ce_deploy_base_dir }}/roles/nginx/defaults/main.yml"
 
-    - name: Fetch templates.
+    - name: Fetch nginx templates.
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/nginx/templates/{{ item }}"
         dest: "{{ _ce_deploy_base_dir }}/roles/nginx/templates/{{ item }}"
@@ -76,6 +86,32 @@
         - vhosts.j2
         - cloudwatch-vhost.json.j2
 
+    - name: Fetch ssl tasks.
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/ssl/tasks/{{ item }}.yml"
+        dest: "{{ _ce_deploy_base_dir }}/roles/ssl/tasks/{{ item }}.yml"
+      with_items:
+        - copy
+        - generate
+        - letsencrypt
+        - main
+        - manual
+        - selfsigned
+        - unmanaged
+
+    - name: Fetch ssl defaults.
+      ansible.builtin.get_url:
+        url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/ssl/defaults/main.yml
+        dest: "{{ _ce_deploy_base_dir }}/roles/ssl/defaults/main.yml"
+
+    - name: Fetch ssl templates.
+      ansible.builtin.get_url:
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/ssl/templates/{{ item }}"
+        dest: "{{ _ce_deploy_base_dir }}/roles/nginx/ssl/{{ item }}"
+      with_items:
+        - le_cron.sh.j2
+
+# Generate the NGINX vhost.
 - name: Create vhost.
   when:
     - deploy_code.feature_branch.domains is defined
