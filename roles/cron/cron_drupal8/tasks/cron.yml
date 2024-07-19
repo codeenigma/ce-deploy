@@ -6,4 +6,4 @@
   loop_control:
     loop_var: entry
   when:
-    - deploy_operation == 'deploy'
+    - (deploy_operation == "deploy") or (deploy_operation == "revert")
