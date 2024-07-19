@@ -69,7 +69,7 @@
         - defaults
         - templates
 
-    - name: Fetch nginx domain.yml.
+    - name: Fetch nginx tasks.
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/nginx/tasks/domain.yml"
         dest: "{{ _ce_deploy_base_dir }}/roles/debian/nginx/domain.yml"
