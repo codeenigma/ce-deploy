@@ -52,6 +52,7 @@
   when:
     - deploy_code.symlinks | length
     - deploy_code.mount_type == "squashfs"
+    - deploy_operation == 'deploy'
 
 # Additional vhost handling for feature branch builds.
 
