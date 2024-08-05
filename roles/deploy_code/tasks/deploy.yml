@@ -33,6 +33,7 @@
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
+    force: "{{ link.force | default(false) }}"
   with_items: "{{ deploy_code.symlinks }}"
   loop_control:
     loop_var: link
@@ -45,7 +46,8 @@
     src: "{{ link.src }}"
     dest: "{{ live_symlink_dest }}/{{ link.dest }}"
     state: link
-    force: "{{ link.force }}"
+    force: "{{ link.force | default(false) }}"
+    follow: false
   with_items: "{{ deploy_code.symlinks }}"
   loop_control:
     loop_var: link
