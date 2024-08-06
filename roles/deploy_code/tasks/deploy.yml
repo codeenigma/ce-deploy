@@ -39,22 +39,6 @@
     loop_var: link
   when:
     - deploy_code.symlinks | length
-    - deploy_code.mount_type != "squashfs"
-
-- name: Create additional symlinks in deploy dir.
-  ansible.builtin.file:
-    src: "{{ link.src }}"
-    dest: "{{ live_symlink_dest }}/{{ link.dest }}"
-    state: link
-    force: "{{ link.force | default(false) }}"
-    follow: false
-  with_items: "{{ deploy_code.symlinks }}"
-  loop_control:
-    loop_var: link
-  when:
-    - deploy_code.symlinks | length
-    - deploy_code.mount_type == "squashfs"
-    - deploy_operation == 'deploy'
 
 # Additional vhost handling for feature branch builds.
 
