@@ -38,7 +38,7 @@
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
     follow: false
-    force: true
+    force: "{{ link.force | default(true) }}"
   with_items: "{{ live_symlink.symlinks }}"
   loop_control:
     loop_var: link

@@ -28,11 +28,12 @@
     - deploy_code.templates | length
     - deploy_operation == 'deploy'
 
-- name: Create additional symlinks.
+- name: Create additional symlinks in build dir.
   ansible.builtin.file:
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
+    force: "{{ link.force | default(false) }}"
   with_items: "{{ deploy_code.symlinks }}"
   loop_control:
     loop_var: link
