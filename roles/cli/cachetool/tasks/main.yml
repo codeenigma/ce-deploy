@@ -27,7 +27,7 @@
 
     - name: Download latest cachetool installer if PHP is 8.1 or newer.
       ansible.builtin.get_url:
-        url: "http://gordalina.github.io/cachetool/downloads/cachetool.phar"
+        url: "https://gordalina.github.io/cachetool/downloads/cachetool.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
@@ -35,7 +35,7 @@
 
     - name: Download cachetool version 8.5.0 installer if PHP is 8.0.
       ansible.builtin.get_url:
-        url: "http://gordalina.github.io/cachetool/downloads/cachetool-8.5.0.phar"
+        url: "https://gordalina.github.io/cachetool/downloads/cachetool-8.5.0.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
@@ -43,7 +43,7 @@
 
     - name: Download cachetool version 7.1.0 installer if PHP is 7.3 or newer.
       ansible.builtin.get_url:
-        url: "http://gordalina.github.io/cachetool/downloads/cachetool-7.1.0.phar"
+        url: "https://gordalina.github.io/cachetool/downloads/cachetool-7.1.0.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
@@ -52,7 +52,7 @@
 
     - name: Download cachetool version 5.1.3 installer if PHP is 7.2.
       ansible.builtin.get_url:
-        url: "http://gordalina.github.io/cachetool/downloads/cachetool-5.1.3.phar"
+        url: "https://gordalina.github.io/cachetool/downloads/cachetool-5.1.3.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
@@ -60,7 +60,7 @@
 
     - name: Download cachetool version 4.1.1 installer if PHP is 7.1.
       ansible.builtin.get_url:
-        url: "http://gordalina.github.io/cachetool/downloads/cachetool-4.1.1.phar"
+        url: "https://gordalina.github.io/cachetool/downloads/cachetool-4.1.1.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
@@ -68,7 +68,7 @@
 
     - name: Download cachetool version 3.2.2 installer if PHP version is too old.
       ansible.builtin.get_url:
-        url: "http://gordalina.github.io/cachetool/downloads/cachetool-3.2.2.phar"
+        url: "https://gordalina.github.io/cachetool/downloads/cachetool-3.2.2.phar"
         dest: "{{ cachetool_bin }}"
         mode: 0755
       when:
@@ -76,7 +76,7 @@
 
 - name: "Download the specified {{ cachetool.version }} cachetool version installer."
   ansible.builtin.get_url:
-    url: "http://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
+    url: "https://gordalina.github.io/cachetool/downloads/cachetool-{{ cachetool.version }}.phar"
     dest: "{{ cachetool_bin }}"
     mode: 0755
   when:
