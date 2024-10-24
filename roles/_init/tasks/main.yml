@@ -158,7 +158,7 @@
 # @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
 - name: Disable autoscale processes on ASG.
   ansible.builtin.command: >
-    aws autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
+    aws --profile {{ boto_profile }} autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
   delegate_to: localhost
   when:
     - aws_asg.name is defined
