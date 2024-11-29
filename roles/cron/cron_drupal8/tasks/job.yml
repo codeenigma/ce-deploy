@@ -1,13 +1,8 @@
 ---
 - name: Define cron job command.
   ansible.builtin.set_fact:
-    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }}"
+    _cron_job_command: "cd {{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }} > /dev/null 2>&1"
   when: deploy_operation == "deploy"
-
-- name: Revert cron job command.
-  ansible.builtin.set_fact:
-    _cron_job_command: "cd {{ previous_deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }}"
-  when: deploy_operation == "revert"
 
 - name: Define cron job command if deferred (ASG).
   ansible.builtin.set_fact:
@@ -37,5 +32,5 @@
     job: "{{ _cron_job_command }}"
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
-    mailto: "{{ entry.mailto if entry.mailto is defined else omit }}"
+    mailto: "{{ entry.mailto | default(omit) }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
