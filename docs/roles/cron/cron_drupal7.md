@@ -19,11 +19,14 @@ drupal:
           # month:
           job: cron
           # disabled: true
+          # mailto: "{{ drupal.cron_mailto | default('') }}" # Each cron can have it's own mailto and can be configured to use different e-mail addresses.
+  cron_mailto: ""
   # If the sites are being deployed to an ASG, setting defer to true will create the crontab entry on the deploy server rather than all of the app servers.
   defer: false
   # If defer is set to true, the Ansible target must be declared with defer_target. If using a group, include the index. For example, _ce_www_dev[0]
   defer_target: ""
   drush_location: "{{ drush_bin }}" # you might specify another location, e.g. "{{ deploy_path }}/vendor/bin/drush"
+
 ```
 
 <!--ENDROLEVARS-->
