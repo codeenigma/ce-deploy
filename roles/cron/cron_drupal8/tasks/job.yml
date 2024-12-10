@@ -56,7 +56,7 @@
       {% elif drupal.cron_mailto is defined and drupal.cron_mailto | length > 0 %}
       MAILTO={{ drupal.cron_mailto }}
       {% endif %}
-      {{ _cronjob_command }}
+      {{ _cron_job_command }}
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
     cron_file: "{{ entry.file | default(omit) }}"
