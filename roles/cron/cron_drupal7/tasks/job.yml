@@ -57,7 +57,7 @@
       {% elif drupal.cron_mailto is defined and drupal.cron_mailto | length > 0 %}
       MAILTO={{ drupal.cron_mailto }}
       {% endif %}
-      {{ cronjob_command }}
+      {{ _cronjob_command }}
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
