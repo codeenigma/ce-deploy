@@ -20,6 +20,20 @@
     - drupal.defer is defined
     - drupal.defer
 
+- name: Set global MAILTO for cron jobs (if defined)
+  community.general.cronvar:
+    name: MAILTO
+    value: "{{ drupal.cron_mailto | default(omit) }}"
+    state: present
+  when: drupal.cron_mailto is defined and drupal.cron_mailto != ""
+
+- name: Setup specific cron job with custom MAILTO
+  community.general.cronvar:
+    name: MAILTO
+    value: "{{ entry.mailto | default(drupal.cron_mailto | default(omit)) }}"
+    state: present
+  when: entry.mailto is defined
+
 - name: Setup Drupal cron tasks on app server.
   ansible.builtin.cron:
     name: "{{ project_name }}_{{ site.folder }}_{{ build_type }}_{{ entry.job }}"
@@ -31,5 +45,4 @@
     job: "{{ _cron_job_command }}"
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
-    mailto: "{{ entry.mailto | default(omit) }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
