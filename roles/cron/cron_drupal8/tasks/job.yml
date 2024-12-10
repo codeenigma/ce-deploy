@@ -26,7 +26,7 @@
     name: MAILTO
     value: "{{ drupal.cron_mailto | default(omit) }}"
     state: present
-  when: drupal.cron_mailto is defined and drupal.cron_mailto != ""
+  when: drupal.cron_mailto is defined and drupal.cron_mailto | length > 0
 
 - name: Setup specific cron job with custom MAILTO
   community.general.cronvar:
