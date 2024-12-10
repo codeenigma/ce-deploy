@@ -31,11 +31,9 @@
 - name: Setup specific MAILTO for cron jobs.
   community.general.cronvar:
     name: MAILTO
-    value: "{{ entry.mailto | default(drupal.cron_mailto | default(omit)) }}"
+    value: "{{ entry.mailto | default(omit) }}"
     state: present
-  when:
-    - entry.mailto is defined
-    - entry.mailto | length > 0
+  when: entry.mailto is defined and entry.mailto | length > 0
 
 - name: Setup Drupal cron tasks on app server.
   ansible.builtin.cron:
