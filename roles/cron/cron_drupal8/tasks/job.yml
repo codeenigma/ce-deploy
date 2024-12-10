@@ -50,13 +50,7 @@
     day: "{{ entry.day | default(omit) }}"
     weekday: "{{ entry.weekday | default(omit) }}"
     month: "{{ entry.month | default(omit) }}"
-    job: |
-      {% if entry.mailto is defined and entry.mailto | length > 0 %}
-      MAILTO={{ entry.mailto }}
-      {% elif drupal.cron_mailto is defined and drupal.cron_mailto | length > 0 %}
-      MAILTO={{ drupal.cron_mailto }}
-      {% endif %}
-      {{ _cron_job_command }}
+    job: "{{ _cron_job_command }}"
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
     cron_file: "{{ entry.file | default(omit) }}"
