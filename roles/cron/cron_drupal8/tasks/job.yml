@@ -43,7 +43,10 @@
     day: "{{ entry.day | default(omit) }}"
     weekday: "{{ entry.weekday | default(omit) }}"
     month: "{{ entry.month | default(omit) }}"
-    job: "{{ _cron_job_command }}"
+    job: |
+      {% if entry.mailto is defined %}
+      MAILTO={{ entry.mailto }}
+      {% endif %}
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
