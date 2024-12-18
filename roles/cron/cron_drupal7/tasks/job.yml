@@ -35,7 +35,7 @@
     day: "{{ entry.day | default(omit) }}"
     weekday: "{{ entry.weekday | default(omit) }}"
     month: "{{ entry.month | default(omit) }}"
-    job: >
+    job: |
       {% if entry.mailto is defined and entry.mailto | length > 0 %}
       MAILTO={{ entry.mailto }}
       {% endif %}
