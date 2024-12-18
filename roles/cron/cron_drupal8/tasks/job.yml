@@ -44,8 +44,10 @@
     weekday: "{{ entry.weekday | default(omit) }}"
     month: "{{ entry.month | default(omit) }}"
     job: >
-      {% if entry.mailto is defined and entry.mailto | length > 0 %}MAILTO={{ entry.mailto }}
-      {% endif %}{{ _cron_job_command }}
+      {% if entry.mailto is defined and entry.mailto | length > 0 %}
+      MAILTO={{ entry.mailto }}
+      {% endif %}
+      { _cron_job_command }}
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
     cron_file: "{{ entry.file | default(omit) }}"
