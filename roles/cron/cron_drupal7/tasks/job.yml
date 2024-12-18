@@ -46,9 +46,9 @@
     month: "{{ entry.month | default(omit) }}"
     job: |
       {% if entry.mailto is defined and entry.mailto | length > 0 %}
-      MAILTO={{ entry.mailto }}
+      MAILTO={{ entry.mailto | trim }}
       {% endif %}
-      {{ _cron_job_command }}
+      {{ _cron_job_command | trim }}
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
