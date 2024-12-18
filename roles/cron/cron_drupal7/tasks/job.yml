@@ -39,7 +39,7 @@
       {% if entry.mailto is defined and entry.mailto | length > 0 %}
       MAILTO={{ entry.mailto }}
       {% endif %}
-      { _cron_job_command }}
+      {{ _cron_job_command }}
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
