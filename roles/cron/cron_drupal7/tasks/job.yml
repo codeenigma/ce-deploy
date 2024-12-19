@@ -1,7 +1,7 @@
 ---
 - name: Define cron job command.
   ansible.builtin.set_fact:
-    _cron_job_command: "cd {{ deploy_path }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }}"
+    _cron_job_command: "cd {{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }}"
 
 - name: Define cron job command if deferred (ASG).
   ansible.builtin.set_fact:
@@ -31,5 +31,4 @@
     job: "{{ _cron_job_command }}"
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
-    mailto: "{{ entry.mailto if entry.mailto is defined else omit }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
