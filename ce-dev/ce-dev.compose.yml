@@ -11,6 +11,8 @@ services:
     x-ce_dev: {}
     volumes:
       - ../:/home/ce-dev/ce-deploy
+    platform: linux/amd64
+    cgroup: host
   web:
     image: codeenigma/ce-dev-1.x
     x-ce_dev:
@@ -21,7 +23,11 @@ services:
       - 443
     volumes:
       - ../ce-dev/build/:/home/ce-dev/deploy/live.local:delegated
+    platform: linux/amd64
+    cgroup: host
   db:
     image: mariadb
     environment:
       MYSQL_ROOT_PASSWORD: ce-dev
+    platform: linux/amd64
+    cgroup: host
