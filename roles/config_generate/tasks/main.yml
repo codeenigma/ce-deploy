@@ -20,6 +20,7 @@
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
+    force: "{{ link.force | default(false) }}"
   with_items: "{{ config_generate.symlinks }}"
   loop_control:
     loop_var: link
