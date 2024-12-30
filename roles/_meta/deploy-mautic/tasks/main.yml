@@ -23,7 +23,7 @@
 - ansible.builtin.import_role:
     name: cache_clear/cache_clear-opcache
 - ansible.builtin.import_role:
-    name: cache_clear/cache_clear-mautic
+    name: cache_clear/cache_clear-symfony
 # - ansible.builtin.import_role:
 #     name: maintenance_mode
 #   vars:
