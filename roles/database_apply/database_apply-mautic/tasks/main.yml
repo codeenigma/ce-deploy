@@ -1,7 +1,7 @@
 ---
-- name: set console path
-  set_fact:
-    mautic_console_bin: "env php {{ deploy_path }}/{{ webroot }}/app/console"
+- name: Set console path.
+  ansible.builtin.set_fact:
+    symfony_console_bin: "{{ symfony_console_bin | default('env php ' + deploy_path + '/bin/console') }}"
 
 - name: Fix file permissions for local.php.
   file:
@@ -16,19 +16,19 @@
 
 - name: Install Mautic.
   command:
-    cmd: "{{ mautic_console_bin }} mautic:install:data --no-interaction --force"
+    cmd: "{{ symfony_console_bin }} mautic:install:data --no-interaction --force"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
   when: previous_build_number == 0 or (mautic.force_install is defined and mautic.force_install)
 
 - name: Clear cache.
   command:
-    cmd: "{{ mautic_console_bin }} cache:clear --no-interaction --env=prod --no-warmup"
+    cmd: "{{ symfony_console_bin }} cache:clear --no-interaction --env=prod --no-warmup"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
 
 - name: Apply Mautic database updates.
   command:
-    cmd: "{{ mautic_console_bin }} doctrine:migrations:migrate --no-interaction --env=prod"
+    cmd: "{{ symfony_console_bin }} doctrine:migrations:migrate --no-interaction --env=prod"
   become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
   become_user: "{{ www_user }}"
