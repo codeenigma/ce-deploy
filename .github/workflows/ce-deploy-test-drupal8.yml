@@ -29,7 +29,7 @@ jobs:
           sudo mv ./mkcert /usr/local/bin && cd ../
           sudo chmod +x /usr/local/bin/mkcert
           rm -Rf mkcert
-          curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/1.x/install.sh | /bin/sh -s -- linux
+          curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/2.x/install.sh | /bin/sh -s -- --platform linux
 
       # Uses the ce-dev stack to run a test Drupal deploy
       - name: Run a test ce-dev deploy with Drupal 8
