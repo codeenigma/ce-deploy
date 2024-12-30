@@ -84,6 +84,7 @@
       ansible.builtin.stat:
         path: "{{ build_base_path }}/deploy.sqsh"
       register: _deploy_code_mount_image
+      run_once: true
 
     - name: Copy previous SquashFS image to shared mount point in case of rollback.
       ansible.builtin.copy:
