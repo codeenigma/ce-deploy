@@ -160,6 +160,7 @@
   ansible.builtin.command: >
     aws autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
   delegate_to: localhost
+  run_once: true
   when:
     - aws_asg.name is defined
     - aws_asg.name | length > 0
