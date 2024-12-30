@@ -1,6 +1,6 @@
 ---
 - name: Perform NPM steps.
-  command:
+  ansible.builtin.command:
     cmd: "{{ npm.executor }} {{ npm_command }}"
     chdir: "{{ npm.working_dir }}"
   with_items: "{{ npm.commands }}"
@@ -9,7 +9,7 @@
   when: deploy_operation == 'deploy'
 
 - name: Generate additional templates.
-  template:
+  ansible.builtin.template:
     src: "{{ template.src }}"
     dest: "{{ deploy_path }}/{{ template.dest }}"
   with_items: "{{ npm.templates }}"
@@ -20,7 +20,7 @@
     - deploy_operation == 'deploy'
 
 - name: Create additional symlinks.
-  file:
+  ansible.builtin.file:
     src: "{{ link.src }}"
     dest: "{{ deploy_path }}/{{ link.dest }}"
     state: link
