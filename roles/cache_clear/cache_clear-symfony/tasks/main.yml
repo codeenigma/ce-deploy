@@ -1,0 +1,10 @@
+---
+- name: Set console path.
+  ansible.builtin.set_fact:
+    symfony_console_bin: "{{ symfony_console_bin | default('env php ' + deploy_path + '/bin/console') }}"
+
+- name: Clear cache.
+  ansible.builtin.command:
+    cmd: "{{ symfony_console_bin }} cache:clear --no-interaction --env={{ cache_clear_symfony_env }} --no-warmup"
+  become: "{{ 'no' if www_user == deploy_user else 'yes' }}"
+  become_user: "{{ www_user }}"
