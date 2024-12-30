@@ -1,6 +1,12 @@
-- name: Ensure public files directory exists.
+---
+- name: Ensure public files source directory exists.
   file:
     path: "{{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
+    state: directory
+
+- name: Ensure public files destination directory exists.
+  file:
+    path: "{{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}"
     state: directory
 
 - name: Ensure public files directory permissions.
@@ -12,21 +18,6 @@
     recurse: true
   become: true
   when: "www_user != deploy_user"
-
-- name: Check if we have a commited public folder.
-  stat:
-    path: "{{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}"
-  register: _mautic_public_dir_commited
-
-- name: Synchronize existing assets.
-  command:
-    cmd: "rsync -av {{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}/ {{ deploy_assets_base_path }}/{{ project_name }}_{{ build_type }}_public_files"
-  when: _mautic_public_dir_commited.stat.isdir is defined and _mautic_public_dir_commited.stat.isdir
-
-- name: Remove commited public dir.
-  file:
-    path: "{{ deploy_path }}/{{ webroot }}/{{ mautic.image_path }}"
-    state: absent
 
 - name: Create symlink to public files.
   file:

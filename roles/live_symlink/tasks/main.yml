@@ -32,16 +32,24 @@
     - live_symlink.templates | length
     - deploy_operation == 'deploy'
 
-- name: Create additional symlinks.
-  ansible.builtin.file:
-    src: "{{ link.src }}"
-    dest: "{{ deploy_path }}/{{ link.dest }}"
-    state: link
-    follow: false
-    force: "{{ link.force | default(true) }}"
-  with_items: "{{ live_symlink.symlinks }}"
-  loop_control:
-    loop_var: link
+- name: Handle additional symlinks.
   when:
     - live_symlink.symlinks | length
     - deploy_operation == 'deploy'
+  loop_control:
+    loop_var: link
+  with_items: "{{ live_symlink.symlinks }}"
+  block:
+    - name: Ensure additional symlink sources exist.
+      ansible.builtin.file:
+        path: "{{ link.src }}"
+        state: directory
+        mode: '0755'
+
+    - name: Create additional symlinks.
+      ansible.builtin.file:
+        src: "{{ link.src }}"
+        dest: "{{ deploy_path }}/{{ link.dest }}"
+        state: link
+        follow: false
+        force: "{{ link.force | default(true) }}"
