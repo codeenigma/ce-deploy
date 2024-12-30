@@ -10,6 +10,7 @@
        - [Matomo](/roles/cache_clear/cache_clear-matomo)
        - [Drupal 8](/roles/cache_clear/cache_clear-mautic)
        - [Opcache](/roles/cache_clear/cache_clear-opcache)
+       - [Symfony](/roles/cache_clear/cache_clear-symfony)
      - [ce-dev](/roles/ce_dev)
        - [ce-dev prebuild](/roles/ce_dev/ce_dev_prebuild)
      - [CLI Tools](/roles/cli)
