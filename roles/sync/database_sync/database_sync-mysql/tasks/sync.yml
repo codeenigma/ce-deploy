@@ -98,7 +98,7 @@
       - not database.source.fresh_db
 
   - name: Register source database host.
-    set_fact:
+    ansible.builtin.set_fact:
       mysql_sync_source_database_host: "{{ mysql_host_info_grep.stdout.split('=')[1] }}"
     when:
       - not database.source.fresh_db
