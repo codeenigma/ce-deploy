@@ -1,11 +1,12 @@
 name: Publish documentation
 
-# Run this workflow every time a new commit pushed to your repository
+# Run this workflow on demand or every time a PR is accepted to a main branch
 on:
   pull_request:
     types: [closed]
     branches:
       - 1.x
+  workflow_dispatch:
 
 jobs:
   # Set the job key. The key is displayed as the job name
@@ -14,51 +15,54 @@ jobs:
     # Name the Job
     name: Publish ce-deploy documentation
     # Set the type of machine to run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+
+    # Use our ce-dev Debian base container
+    container:
+      image: codeenigma/ce-dev-controller:2.x
+      volumes:
+        - ${{ github.workspace }}:/home/controller
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Install wiki2pages
+        run: /usr/bin/su - ce-dev -c "/usr/bin/git clone https://github.com/codeenigma/wikis2pages.git /home/ce-dev/build/wiki2pages"
 
-      # Configures global Git variables for committing
-      - name: Configure Git
+      - name: Update local applications
         run: |
-          git config --global user.email "sysadm@codeenigma.com"
-          git config --global user.name "Code Enigma CI"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-provision && /usr/bin/git pull origin 2.x"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && /usr/bin/git pull origin 1.x"
 
-      # Installs the ce-dev stack
-      - name: Install ce-dev
+      - name: Set up Ansible hosts file
         run: |
-          cd /tmp
-          wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          git clone https://github.com/FiloSottile/mkcert && cd mkcert
-          go build -ldflags "-X main.Version=$(git describe --tags)"
-          sudo mv ./mkcert /usr/local/bin && cd ../
-          sudo chmod +x /usr/local/bin/mkcert
-          rm -Rf mkcert
-          curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/1.x/install.sh | /bin/sh -s -- linux
+          mkdir -p /home/ce-dev/ansible/bin/hosts
+          echo "wikis2pages-hugo ansible_host=127.0.0.1" > /home/ce-dev/ansible/bin/hosts/hosts
 
-      # Builds the table of contents for the docs
-      - name: Documentation (build table of contents)
-        if: ${{ github.event.pull_request.base.ref == '1.x' }}
-        run: contribute/toc.sh
-        shell: bash
-
-      # Uses the ce-dev stack to run Hugo to build and deploy the docs
-      - name: Documentation (build and publish)
-        if: ${{ github.event.pull_request.base.ref == '1.x' }}
+      - name: Set up SSH config
         run: |
-          cd
-          git clone https://github.com/codeenigma/wikis2pages.git
-          cd wikis2pages
-          /bin/bash init.sh https://${{ secrets.GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy.git 1.x
-          /bin/sh set-current.sh ce-deploy-1.x-travis
-          docker exec --user ce-dev --workdir /home/ce-dev/deploy/live.local wikis2pages-hugo hugo
-          /bin/sh .github-actions-push.sh
-          cd /home/runner/wikis2pages/public/ce-deploy-1.x-travis
-          git remote add ci https://${{ secrets.DOCS_GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy-docs.git
-          git push ci master
-        shell: bash
+          echo "StrictHostKeyChecking=no" > /home/ce-dev/.ssh/config
+          cat /home/ce-dev/.ssh/id_rsa.pub > /home/ce-dev/.ssh/authorized_keys
+          chown ce-dev:ce-dev /home/ce-dev/.ssh/config
+          chmod 700 /home/ce-dev/.ssh/config
+          chown ce-dev:ce-dev /home/ce-dev/.ssh/authorized_keys
+          chmod 700 /home/ce-dev/.ssh/authorized_keys
+
+      - name: Start SSHD
+        run: /usr/sbin/sshd&
+
+      - name: Initialise wiki2pages for ce-deploy ${{ github.event.pull_request.base.ref }}
+        run: |
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /bin/sh init.sh --repo https://github.com/codeenigma/ce-deploy.git --branch ${{ github.event.pull_request.base.ref }} --no-ce-dev"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /home/ce-dev/ansible/bin/ansible-playbook -e 'wiki2pages_build_path=/home/ce-dev/build/wiki2pages' -i /home/ce-dev/ansible/bin/hosts /home/ce-dev/build/wiki2pages/ce-dev/ansible/provision.yml"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /bin/sh set-current.sh --project ce-deploy-${{ github.event.pull_request.base.ref }} --no-ce-dev"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /home/ce-dev/ansible/bin/ansible-playbook -e 'wiki2pages_build_path=/home/ce-dev/build/wiki2pages launch_hugo_server=false' -i /home/ce-dev/ansible/bin/hosts /home/ce-dev/build/wiki2pages/ce-dev/ansible/deploy.yml"
+
+      - name: Run Hugo
+        run: |
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && hugo"
+          ls -la /home/ce-dev/build/wiki2pages/public/ce-deploy-${{ github.event.pull_request.base.ref }}/
+
+      - name: Publish documentation
+        run: |
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /bin/sh /home/ce-dev/build/wiki2pages/.github-actions-push.sh"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages/public/ce-deploy-${{ github.event.pull_request.base.ref }} && /usr/bin/git remote add ci https://${{ secrets.DOCS_GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy-docs.git"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages/public/ce-deploy-${{ github.event.pull_request.base.ref }} && /usr/bin/git push ci master"
