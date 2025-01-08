@@ -12,6 +12,8 @@ jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
   publish-docs:
+    # Only run the job if it is not coming from a documentation branch
+    if: ${{ github.event.pull_request.head.ref != 'docs-${{ github.event.pull_request.base.ref }}' }}
     # Name the Job
     name: Publish ce-deploy documentation
     # Set the type of machine to run on
@@ -24,30 +26,49 @@ jobs:
         - ${{ github.workspace }}:/home/controller
 
     steps:
-      - name: Install wiki2pages
-        run: /usr/bin/su - ce-dev -c "/usr/bin/git clone https://github.com/codeenigma/wikis2pages.git /home/ce-dev/build/wiki2pages"
+      - uses: actions/checkout@v4
+        with:
+          ref: docs-${{ github.event.pull_request.base.ref }}
 
-      - name: Update local applications
+      # Configure environment
+      - name: Prepare Git, GitHub CLI and installed CE tools
         run: |
+          /usr/bin/git config --global user.email "sysadm@codeenigma.com"
+          /usr/bin/git config --global user.name "Code Enigma CI"
+          /usr/bin/git config --global pull.rebase false
+          /usr/bin/git config --global --add safe.directory /__w/ce-deploy/ce-deploy
+          (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) && sudo mkdir -p -m 755 /etc/apt/keyrings && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null && sudo apt update && sudo apt install gh -y
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-provision && /usr/bin/git pull origin 2.x"
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && /usr/bin/git pull origin 1.x"
 
-      - name: Set up Ansible hosts file
+      # First build and publish the markdown docs
+      - name: Build and commit table of contents and README files back to the repo
+        run: |
+          /bin/sh contribute/toc.sh
+          /usr/bin/find . -name "*.md" | xargs git add
+          /usr/bin/git diff --quiet && git diff --staged --quiet || git commit -am "GitHub Actions - updating markdown docs - ${{ steps.date.outputs.date }}"
+          /usr/bin/git push
+
+      # Create docs pull request
+      - name: Create a documentation pull request
+        run: gh pr create --base ${{ github.event.pull_request.base.ref }} --head docs-${{ github.event.pull_request.base.ref }} --title "Documentation update" --body "**Automated pull request** created by GitHub Actions because of a documentation update."
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install wiki2pages
+        run: /usr/bin/su - ce-dev -c "/usr/bin/git clone https://github.com/codeenigma/wikis2pages.git /home/ce-dev/build/wiki2pages"
+
+      - name: Set up Ansible and SSH
         run: |
           mkdir -p /home/ce-dev/ansible/bin/hosts
           echo "wikis2pages-hugo ansible_host=127.0.0.1" > /home/ce-dev/ansible/bin/hosts/hosts
-
-      - name: Set up SSH config
-        run: |
           echo "StrictHostKeyChecking=no" > /home/ce-dev/.ssh/config
           cat /home/ce-dev/.ssh/id_rsa.pub > /home/ce-dev/.ssh/authorized_keys
           chown ce-dev:ce-dev /home/ce-dev/.ssh/config
           chmod 700 /home/ce-dev/.ssh/config
           chown ce-dev:ce-dev /home/ce-dev/.ssh/authorized_keys
           chmod 700 /home/ce-dev/.ssh/authorized_keys
-
-      - name: Start SSHD
-        run: /usr/sbin/sshd&
+          /usr/sbin/sshd&
 
       - name: Initialise wiki2pages for ce-deploy ${{ github.event.pull_request.base.ref }}
         run: |
@@ -55,11 +76,11 @@ jobs:
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /home/ce-dev/ansible/bin/ansible-playbook -e 'wiki2pages_build_path=/home/ce-dev/build/wiki2pages' -i /home/ce-dev/ansible/bin/hosts /home/ce-dev/build/wiki2pages/ce-dev/ansible/provision.yml"
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /bin/sh set-current.sh --project ce-deploy-${{ github.event.pull_request.base.ref }} --no-ce-dev"
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /home/ce-dev/ansible/bin/ansible-playbook -e 'wiki2pages_build_path=/home/ce-dev/build/wiki2pages launch_hugo_server=false' -i /home/ce-dev/ansible/bin/hosts /home/ce-dev/build/wiki2pages/ce-dev/ansible/deploy.yml"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages/content/ce-deploy-${{ github.event.pull_request.base.ref }} && /bin/sh contribute/toc_hugo.sh"
 
       - name: Run Hugo
         run: |
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && hugo"
-          ls -la /home/ce-dev/build/wiki2pages/public/ce-deploy-${{ github.event.pull_request.base.ref }}/
 
       - name: Publish documentation
         run: |
