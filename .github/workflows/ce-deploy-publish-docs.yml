@@ -7,16 +7,29 @@ on:
     branches:
       - 1.x
   workflow_dispatch:
+# Set target docs branch name
+env:
+  docs_branch: docs-${{ github.event.pull_request.base.ref }}
 
 jobs:
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
+  # See https://stackoverflow.com/a/74378072
+  set-docs-branch:
+    name: Make docs branch name available to publish-docs job
+    runs-on: ubuntu-latest
+    outputs:
+      docs_branch: ${{ steps.init.outputs.docs_branch }}
+
+    steps:
+      - name: Make environment variables global
+        id: init
+        run: |
+          echo "docs_branch=${{ env.docs_branch }}" >> $GITHUB_OUTPUT
+
   publish-docs:
+    name: Publish the ce-deploy docs to GitHub
     # Only run the job if it is not coming from a documentation branch
-    if: ${{ github.event.pull_request.head.ref != 'docs-${{ github.event.pull_request.base.ref }}' }}
-    # Name the Job
-    name: Publish ce-deploy documentation
-    # Set the type of machine to run on
+    needs: set-docs-branch
+    if: ${{ github.event.pull_request.head.ref != needs.set-docs-branch.outputs.docs_branch }}
     runs-on: ubuntu-latest
 
     # Use our ce-dev Debian base container
