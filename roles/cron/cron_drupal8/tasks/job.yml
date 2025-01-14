@@ -43,4 +43,6 @@
       {{ _cron_job_command | trim }}
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
+    cron_file: "/etc/cron.d/{{ project_name }}_{{ site.folder }}_{{ build_type }}_{{ entry.job }}"
+    user: "{{ www_user }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
