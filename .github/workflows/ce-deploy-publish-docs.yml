@@ -59,7 +59,7 @@ jobs:
         run: |
           /bin/sh contribute/toc.sh
           /usr/bin/find . -name "*.md" | xargs git add
-          /usr/bin/git diff --quiet && /usr/bin/git diff --staged --quiet || /usr/bin/git diff --staged --name-only && /usr/bin/git commit -am "GitHub Actions - updating markdown docs - ${{ github.event.repository.updated_at }}"
+          /usr/bin/git diff --staged --quiet || /usr/bin/git commit -am "GitHub Actions - updating markdown docs - ${{ github.event.repository.updated_at }}"
           /usr/bin/git push origin docs-${{ github.event.pull_request.base.ref }}
 
       # Create docs pull request
