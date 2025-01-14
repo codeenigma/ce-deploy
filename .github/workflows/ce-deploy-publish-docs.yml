@@ -1,64 +1,104 @@
 name: Publish documentation
 
-# Run this workflow every time a new commit pushed to your repository
+# Run this workflow on demand or every time a PR is accepted to a main branch
 on:
   pull_request:
     types: [closed]
     branches:
       - 1.x
+  workflow_dispatch:
+# Set target docs branch name
+env:
+  docs_branch: docs-${{ github.event.pull_request.base.ref }}
 
 jobs:
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
-  publish-docs:
-    # Name the Job
-    name: Publish ce-deploy documentation
-    # Set the type of machine to run on
-    runs-on: ubuntu-20.04
+  # See https://stackoverflow.com/a/74378072
+  set-docs-branch:
+    name: Make docs branch name available to publish-docs job
+    runs-on: ubuntu-latest
+    outputs:
+      docs_branch: ${{ steps.init.outputs.docs_branch }}
 
     steps:
-      # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
-
-      # Configures global Git variables for committing
-      - name: Configure Git
+      - name: Make environment variables global
+        id: init
         run: |
-          git config --global user.email "sysadm@codeenigma.com"
-          git config --global user.name "Code Enigma CI"
+          echo "docs_branch=${{ env.docs_branch }}" >> $GITHUB_OUTPUT
 
-      # Installs the ce-dev stack
-      - name: Install ce-dev
+  publish-docs:
+    name: Publish the ce-deploy docs to GitHub
+    # Only run the job if it is not coming from a documentation branch
+    needs: set-docs-branch
+    if: ${{ github.event.pull_request.head.ref != needs.set-docs-branch.outputs.docs_branch }}
+    runs-on: ubuntu-latest
+
+    # Use our ce-dev Debian base container
+    container:
+      image: codeenigma/ce-dev-controller:2.x
+      volumes:
+        - ${{ github.workspace }}:/home/controller
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: docs-${{ github.event.pull_request.base.ref }}
+
+      # Configure environment
+      - name: Prepare Git, GitHub CLI and installed CE tools
         run: |
-          cd /tmp
-          wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          git clone https://github.com/FiloSottile/mkcert && cd mkcert
-          go build -ldflags "-X main.Version=$(git describe --tags)"
-          sudo mv ./mkcert /usr/local/bin && cd ../
-          sudo chmod +x /usr/local/bin/mkcert
-          rm -Rf mkcert
-          curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/1.x/install.sh | /bin/sh -s -- linux
+          /usr/bin/git config --global user.email "sysadm@codeenigma.com"
+          /usr/bin/git config --global user.name "Code Enigma CI"
+          /usr/bin/git config --global pull.rebase false
+          /usr/bin/git config --global --add safe.directory /__w/ce-deploy/ce-deploy
+          (type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) && sudo mkdir -p -m 755 /etc/apt/keyrings && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null && sudo apt update && sudo apt install gh -y
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-provision && /usr/bin/git pull origin 2.x"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && /usr/bin/git pull origin 1.x"
 
-      # Builds the table of contents for the docs
-      - name: Documentation (build table of contents)
-        if: ${{ github.event.pull_request.base.ref == '1.x' }}
-        run: contribute/toc.sh
-        shell: bash
-
-      # Uses the ce-dev stack to run Hugo to build and deploy the docs
-      - name: Documentation (build and publish)
-        if: ${{ github.event.pull_request.base.ref == '1.x' }}
+      # First build and publish the markdown docs
+      - name: Build and commit table of contents and README files back to the repo
         run: |
-          cd
-          git clone https://github.com/codeenigma/wikis2pages.git
-          cd wikis2pages
-          /bin/bash init.sh https://${{ secrets.GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy.git 1.x
-          /bin/sh set-current.sh ce-deploy-1.x-travis
-          docker exec --user ce-dev --workdir /home/ce-dev/deploy/live.local wikis2pages-hugo hugo
-          /bin/sh .github-actions-push.sh
-          cd /home/runner/wikis2pages/public/ce-deploy-1.x-travis
-          git remote add ci https://${{ secrets.DOCS_GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy-docs.git
-          git push ci master
-        shell: bash
+          /bin/sh contribute/toc.sh
+          /usr/bin/find . -name "*.md" | xargs git add
+          /usr/bin/git diff --quiet && /usr/bin/git diff --staged --quiet || /usr/bin/git diff --staged --name-only && /usr/bin/git commit -am "GitHub Actions - updating markdown docs - ${{ github.event.repository.updated_at }}"
+          /usr/bin/git push origin docs-${{ github.event.pull_request.base.ref }}
+
+      # Create docs pull request
+      - name: Create a documentation pull request
+        run: |
+          gh pr create --base ${{ github.event.pull_request.base.ref }} --head docs-${{ github.event.pull_request.base.ref }} --title "Documentation update - ${{ github.event.pull_request.base.ref }}" --body "**Automated pull request** created by GitHub Actions because of a documentation update." || echo "No commits between ${{ github.event.pull_request.base.ref }} and docs-${{ github.event.pull_request.base.ref }} - no PR created!"
+          gh pr create --base devel --head docs-${{ github.event.pull_request.base.ref }} --title "Documentation update - devel" --body "**Automated pull request** created by GitHub Actions because of a documentation update." || echo "No commits between devel and docs-${{ github.event.pull_request.base.ref }} - no PR created!"
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install wiki2pages
+        run: /usr/bin/su - ce-dev -c "/usr/bin/git clone https://github.com/codeenigma/wikis2pages.git /home/ce-dev/build/wiki2pages"
+
+      - name: Set up Ansible and SSH
+        run: |
+          mkdir -p /home/ce-dev/ansible/bin/hosts
+          echo "wikis2pages-hugo ansible_host=127.0.0.1" > /home/ce-dev/ansible/bin/hosts/hosts
+          echo "StrictHostKeyChecking=no" > /home/ce-dev/.ssh/config
+          cat /home/ce-dev/.ssh/id_rsa.pub > /home/ce-dev/.ssh/authorized_keys
+          chown ce-dev:ce-dev /home/ce-dev/.ssh/config
+          chmod 700 /home/ce-dev/.ssh/config
+          chown ce-dev:ce-dev /home/ce-dev/.ssh/authorized_keys
+          chmod 700 /home/ce-dev/.ssh/authorized_keys
+          /usr/sbin/sshd&
+
+      - name: Initialise wiki2pages for ce-deploy ${{ github.event.pull_request.base.ref }}
+        run: |
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /bin/sh init.sh --repo https://github.com/codeenigma/ce-deploy.git --branch ${{ github.event.pull_request.base.ref }} --no-ce-dev"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /home/ce-dev/ansible/bin/ansible-playbook -e 'wiki2pages_build_path=/home/ce-dev/build/wiki2pages' -i /home/ce-dev/ansible/bin/hosts /home/ce-dev/build/wiki2pages/ce-dev/ansible/provision.yml"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /bin/sh set-current.sh --project ce-deploy-${{ github.event.pull_request.base.ref }} --no-ce-dev"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /home/ce-dev/ansible/bin/ansible-playbook -e 'wiki2pages_build_path=/home/ce-dev/build/wiki2pages launch_hugo_server=false' -i /home/ce-dev/ansible/bin/hosts /home/ce-dev/build/wiki2pages/ce-dev/ansible/deploy.yml"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages/content/ce-deploy-${{ github.event.pull_request.base.ref }} && /bin/sh contribute/toc_hugo.sh"
+
+      - name: Run Hugo
+        run: |
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && hugo"
+
+      - name: Publish documentation
+        run: |
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages && /bin/sh /home/ce-dev/build/wiki2pages/.github-actions-push.sh"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages/public/ce-deploy-${{ github.event.pull_request.base.ref }} && /usr/bin/git remote add ci https://${{ secrets.DOCS_GITHUB_TOKEN }}@github.com/codeenigma/ce-deploy-docs.git"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/build/wiki2pages/public/ce-deploy-${{ github.event.pull_request.base.ref }} && /usr/bin/git push ci master"

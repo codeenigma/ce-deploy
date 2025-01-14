@@ -8,21 +8,15 @@
     path: "{{ provision_lock_file }}"
   register: _ce_provision_lock
 
-- name: Abort if ce-provision lock file exists.
+- name: Fail the pipeline if ce-provision lock file exists.
+  ansible.builtin.fail:
+    msg: "ce-provision lock file discovered, an infrastructure build is in progress! If this is not the case, login to the affected server and delete the file at {{ provision_lock_file }}."
   when: _ce_provision_lock.stat.exists is defined and _ce_provision_lock.stat.exists
-  block:
-    - name: Abort if ce-provision lock file is found.
-      ansible.builtin.debug:
-        msg: "ce-provision lock file discovered, an infrastructure build is in progress! If this is not the case, login to the affected server and delete the file at {{ provision_lock_file }}."
-    - ansible.builtin.meta: end_play
 
-- name: Check OS family.
+- name: Fail the pipeline if target is a Windows server.
+  ansible.builtin.fail:
+    msg: "ce-deploy currently only supports Linux like operating systems, and works best with Debian Linux."
   when: ansible_os_family == "Windows"
-  block:
-    - name: Abort if target is a Windows server.
-      ansible.builtin.debug:
-        msg: "ce-deploy currently only supports Linux like operating systems, and works best with Debian Linux."
-    - ansible.builtin.meta: end_play
 
 - name: Set a lock file.
   ansible.builtin.file:
@@ -160,6 +154,7 @@
   ansible.builtin.command: >
     aws autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
   delegate_to: localhost
+  run_once: true
   when:
     - aws_asg.name is defined
     - aws_asg.name | length > 0
