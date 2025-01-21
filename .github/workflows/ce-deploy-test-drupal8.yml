@@ -7,38 +7,49 @@ jobs:
   # Set the job key. The key is displayed as the job name
   # when a job name is not provided
   run-tests:
+    if: ${{ github.event.pull_request.head.ref != 'documentation' }}
     # Name the Job
     name: Run Drupal 8 test build
     # Set the type of machine to run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
+
+    # Use our ce-dev Debian base container
+    container:
+      image: codeenigma/ce-dev:2.x
+      volumes:
+        - ${{ github.workspace }}:/home/controller
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
-      # Installs the ce-dev stack
-      - name: Install ce-dev
+      # Configure environment
+      - name: Prepare Git and installed CE tools
         run: |
-          cd /tmp
-          wget https://golang.org/dl/go1.16.3.linux-amd64.tar.gz
-          sudo tar -C /usr/local -xzf go1.16.3.linux-amd64.tar.gz
-          export PATH=$PATH:/usr/local/go/bin
-          git clone https://github.com/FiloSottile/mkcert && cd mkcert
-          go build -ldflags "-X main.Version=$(git describe --tags)"
-          sudo mv ./mkcert /usr/local/bin && cd ../
-          sudo chmod +x /usr/local/bin/mkcert
-          rm -Rf mkcert
-          curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/2.x/install.sh | /bin/sh -s -- --platform linux
+          /usr/bin/git config --global user.email "sysadm@codeenigma.com"
+          /usr/bin/git config --global user.name "Code Enigma CI"
+          /usr/bin/git config --global pull.rebase false
+          /usr/bin/git config --global --add safe.directory /__w/ce-provision/ce-provision
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-provision && /usr/bin/git pull origin 2.x"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && /usr/bin/git checkout origin ${{ github.event.pull_request.base.ref }}"
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && /usr/bin/git pull origin ${{ github.event.pull_request.base.ref }}"
 
-      # Uses the ce-dev stack to run a test Drupal deploy
-      - name: Run a test ce-dev deploy with Drupal 8
+      - name: Set up Ansible and SSH
         run: |
-          ce-dev create -p test -t drupal8 -d ~/test
-          cd ~/test
-          ce-dev init
-          ce-dev start
-          ce-dev provision
-          ce-dev deploy
-          curl https://www.test.local
-        shell: bash
+          mkdir -p /home/ce-dev/ansible/bin/hosts
+          echo "deploy-web ansible_host=127.0.0.1" > /home/ce-dev/ansible/bin/hosts/hosts
+          echo "StrictHostKeyChecking=no" > /home/ce-dev/.ssh/config
+          cat /home/ce-dev/.ssh/id_rsa.pub > /home/ce-dev/.ssh/authorized_keys
+          chown ce-dev:ce-dev /home/ce-dev/.ssh/config
+          chmod 700 /home/ce-dev/.ssh/config
+          chown ce-dev:ce-dev /home/ce-dev/.ssh/authorized_keys
+          chmod 700 /home/ce-dev/.ssh/authorized_keys
+          /usr/sbin/sshd&
+
+      # @TODO install required packages for a basic web server - MySQL server and client, PHP, composer, etc.
+
+      # Run a test Drupal deploy
+      #- name: Run a test ce-dev deploy with Drupal 8
+      #  run: |
+          # @TODO
