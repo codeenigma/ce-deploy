@@ -114,7 +114,7 @@ parse_roles_toc(){
       "# "*)
         if [ "$WRITE" = "true" ]; then
           TITLE=$(echo "$LINE" | cut -c 3-)
-          echo "$INDENT"" - [$TITLE](/$RELATIVE)" >> "$TMP_SIDEBAR"
+          echo "$INDENT"" - [$TITLE]($RELATIVE)" >> "$TMP_SIDEBAR"
           WRITE="false"
         fi
       ;;
