@@ -5,5 +5,4 @@
   with_items: "{{ site.cron }}"
   loop_control:
     loop_var: entry
-  when:
-    - (deploy_operation == "deploy") or (deploy_operation == "revert")
+  when: deploy_operation == "deploy"
