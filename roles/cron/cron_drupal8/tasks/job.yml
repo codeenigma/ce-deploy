@@ -43,5 +43,6 @@
     state: present
     disabled: "{{ entry.disabled | default(omit) }}"
     cron_file: "{{ entry.file | default(omit) }}"
+    user: "{{ entry.file_user | default(omit) }}"
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
   become: "{{ true if entry.file is defined else false }}"
