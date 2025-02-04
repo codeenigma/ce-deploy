@@ -1,6 +1,7 @@
 ---
 composer:
-  command: install
+  validate_command: "validate --no-check-all --no-check-publish" # leave empty to skip validation
+  command: install # leave empty to do nothing
   no_dev: true
   working_dir: "{{ deploy_path }}"
   apcu_autoloader: true
