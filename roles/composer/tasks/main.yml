@@ -2,6 +2,7 @@
 - name: Validate composer.json and composer.lock files.
   community.general.composer:
     command: "{{ composer.validate_command }}"
+    arguments: "{{ composer.validate_args }}"
     no_dev: "{{ composer.no_dev }}"
     working_dir: "{{ composer.working_dir }}"
     apcu_autoloader: "{{ composer.apcu_autoloader }}"
