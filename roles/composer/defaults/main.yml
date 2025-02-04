@@ -1,6 +1,7 @@
 ---
 composer:
-  validate_command: "validate --no-check-all --no-check-publish" # leave empty to skip validation
+  validate_command: validate # leave empty to skip validation
+  validate_args: "--no-check-all --no-check-publish"
   command: install # leave empty to do nothing
   no_dev: true
   working_dir: "{{ deploy_path }}"
