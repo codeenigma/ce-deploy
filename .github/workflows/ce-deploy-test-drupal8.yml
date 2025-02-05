@@ -64,6 +64,7 @@ jobs:
       # Run a test Drupal deploy
       - name: Prepare yaml files for ce-deploy
         run: |
+          /usr/bin/su - ce-dev -c "/usr/bin/mkdir -p /home/ce-dev/ce-deploy/build"
           /bin/cat >"/home/ce-dev/ce-deploy/build/deploy.yml" << EOL
           ---
           - hosts: deploy-web
