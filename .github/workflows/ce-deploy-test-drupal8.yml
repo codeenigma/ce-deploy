@@ -46,6 +46,7 @@ jobs:
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-provision && /usr/bin/git pull origin 2.x"
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && /usr/bin/git checkout origin/${{ github.event.pull_request.head.ref }}"
           /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && /usr/bin/git pull origin ${{ github.event.pull_request.head.ref }}"
+          /usr/bin/mv /etc/profile.d/gawk.csh /root/
 
       - name: Set up Ansible and SSH
         run: |
