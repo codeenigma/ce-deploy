@@ -179,8 +179,8 @@
       when:
         - _deploy_code_mount_check.rc == 0
       register: task_result
-      retries: "{{ retries }}"
-      delay: "{{ delay }}"
+      retries: "{{ unmount_retries }}"
+      delay: "{{ unmount_delay }}"
       until: task_result.rc == 0
 
     - name: Mount new SquashFS image.
