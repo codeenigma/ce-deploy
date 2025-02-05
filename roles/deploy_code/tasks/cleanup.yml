@@ -178,6 +178,10 @@
       become: true
       when:
         - _deploy_code_mount_check.rc == 0
+      register: task_result
+      retries: "{{ deploy_code.unmount_retries }}"
+      delay: "{{ deploy_code.unmount_delay }}"
+      until: task_result.rc == 0
 
     - name: Mount new SquashFS image.
       ansible.builtin.command:
