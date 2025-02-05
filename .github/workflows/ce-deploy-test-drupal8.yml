@@ -1,4 +1,4 @@
-name: Run test for Drupal 8
+name: Run test for Drupal 10
 
 # Run this workflow every time a new commit pushed to your repository
 on: pull_request
@@ -9,7 +9,7 @@ jobs:
   run-tests:
     if: ${{ github.event.pull_request.head.ref != 'documentation' }}
     # Name the Job
-    name: Run Drupal 8 test build
+    name: Run Drupal 10 test build
     # Set the type of machine to run on
     runs-on: ubuntu-latest
 
@@ -27,6 +27,7 @@ jobs:
       # Configure environment
       - name: Prepare Debian packages necessary
         run: |
+          /usr/bin/apt-get update
           /usr/bin/apt-get dist-upgrade -y -o Dpkg::Options::="--force-confnew"
           /usr/bin/apt-get install -y -o Dpkg::Options::="--force-confnew" \
             git ca-certificates git-lfs \
@@ -62,9 +63,9 @@ jobs:
       # Run a test Drupal deploy
       - name: Prepare yaml files for ce-deploy
         run: |
-          /bin/cat >"/home/ce-dev/ce-deploy/deploy.yml" << EOL
+          /bin/cat >"/home/ce-dev/ce-deploy/build/deploy.yml" << EOL
           ---
-          - hosts: "localhost"
+          - hosts: deploy-web
             become: true
             vars_files:
               - vars.yml
@@ -76,7 +77,7 @@ jobs:
               - ansible.builtin.import_role:
                   name: _exit
           EOL
-          /bin/cat >"/home/ce-dev/ce-deploy/vars.yml" << EOL
+          /bin/cat >"/home/ce-dev/ce-deploy/build/vars.yml" << EOL
           ---
           project_name: test
           project_type: drupal8
@@ -99,4 +100,4 @@ jobs:
           EOL
 
       - name: Run a test ce-dev deploy with Drupal 8
-        run: /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && ./scripts/deploy.sh --build-number 0 --build-id test --workspace /home/ce-dev/ce-deploy --own-branch ${{ github.event.pull_request.base.ref }} --playbook deploy.yml"
+        run: /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && ./scripts/deploy.sh --build-number 0 --build-id test --workspace /home/ce-dev/ce-deploy/build --own-branch ${{ github.event.pull_request.base.ref }} --playbook deploy.yml"
