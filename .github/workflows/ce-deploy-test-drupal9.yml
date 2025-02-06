@@ -38,6 +38,7 @@ jobs:
           cd ~/test
           ce-dev init
           ce-dev start
+          docker exec -t ce_dev_controller "git config --global pull.rebase false"
           ce-dev provision
           ce-dev deploy
           curl https://www.test.local
