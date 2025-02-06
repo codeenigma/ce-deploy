@@ -16,3 +16,4 @@
     - domain.statuscake_check_id | length > 0
     - domain.statuscake_api_key is defined
     - domain.statuscake_api_key | length > 0
+  no_log: true
