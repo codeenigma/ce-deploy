@@ -7,7 +7,7 @@ jobs:
   run-linting:
     if: ${{ always() }}
     name: Linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
