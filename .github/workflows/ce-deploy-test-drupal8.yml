@@ -102,4 +102,6 @@ jobs:
           EOL
 
       - name: Run a test ce-dev deploy with Drupal 8
-        run: /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && ./scripts/deploy.sh --build-number 0 --build-id test --workspace /home/ce-dev/ce-deploy/build --own-branch ${{ github.event.pull_request.base.ref }} --playbook deploy.yml"
+        run: |
+          /usr/bin/chown -Rf ce-dev:ce-dev /home/ce-dev
+          /usr/bin/su - ce-dev -c "cd /home/ce-dev/ce-deploy && ./scripts/deploy.sh --build-number 0 --build-id test --workspace /home/ce-dev/ce-deploy/build --own-branch ${{ github.event.pull_request.base.ref }} --playbook deploy.yml"
