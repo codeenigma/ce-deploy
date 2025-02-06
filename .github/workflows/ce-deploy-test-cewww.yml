@@ -27,4 +27,4 @@ jobs:
             --form ref=dev \
             --form "variables[CE_DEPLOY_BRANCH]=${{ github.event.pull_request.head.ref }}" \
             "https://gitlab.ce-deploy1.codeenigma.net/api/v4/projects/4/trigger/pipeline"
-          echo "### Request sent - see https://gitlab.ce-deploy1.codeenigma.net/web/ce-www/-/pipelines for results"
+          echo "\n\n### Request sent - see https://gitlab.ce-deploy1.codeenigma.net/web/ce-www/-/pipelines for results"

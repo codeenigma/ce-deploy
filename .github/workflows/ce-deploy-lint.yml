@@ -7,7 +7,7 @@ jobs:
   run-linting:
     if: ${{ always() }}
     name: Linting
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
@@ -18,10 +18,12 @@ jobs:
       - name: Install linters.
         run: |
           sudo apt-get update
+          sudo apt-get dist-upgrade -y -o Dpkg::Options::="--force-confnew"
           sudo apt-get install -y ansible-lint yamllint shellcheck
+          find ./roles -name "*.yml"  | xargs ansible-lint
 
-      - name: Run ansible-lint.
-        run: find ./roles -name "*.yml"  | xargs ansible-lint
+      #- name: Run ansible-lint.
+      #  run: find ./roles -name "*.yml"  | xargs ansible-lint
 
       - name: Run yamllint.
         run: yamllint ./roles
