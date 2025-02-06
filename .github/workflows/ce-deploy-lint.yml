@@ -20,9 +20,10 @@ jobs:
           sudo apt-get update
           sudo apt-get dist-upgrade -y -o Dpkg::Options::="--force-confnew"
           sudo apt-get install -y ansible-lint yamllint shellcheck
+          find ./roles -name "*.yml"  | xargs ansible-lint
 
-      - name: Run ansible-lint.
-        run: find ./roles -name "*.yml"  | xargs ansible-lint
+      #- name: Run ansible-lint.
+      #  run: find ./roles -name "*.yml"  | xargs ansible-lint
 
       - name: Run yamllint.
         run: yamllint ./roles
