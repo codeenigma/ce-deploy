@@ -50,8 +50,7 @@ jobs:
 
       - name: Set up Ansible and SSH
         run: |
-          mkdir -p /home/ce-dev/ansible/bin/hosts
-          echo "deploy-web ansible_host=127.0.0.1" > /home/ce-dev/ansible/bin/hosts/hosts
+          echo "deploy-web ansible_host=127.0.0.1" > /home/ce-dev/ce-deploy/config/hosts/hosts
           echo "StrictHostKeyChecking=no" > /home/ce-dev/.ssh/config
           cat /home/ce-dev/.ssh/id_rsa.pub > /home/ce-dev/.ssh/authorized_keys
           chown ce-dev:ce-dev /home/ce-dev/.ssh/config
