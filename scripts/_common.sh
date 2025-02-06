@@ -100,7 +100,7 @@ parse_options(){
       "--config-branch")
           shift
           git_checkout_config_dir "$1"
-        ;;    
+        ;;
       "--boto-profile")
           shift
           BOTO_PROFILE="$1"
@@ -116,7 +116,7 @@ parse_options(){
       "--build-id")
           shift
           BUILD_ID="$1"
-        ;;    
+        ;;
         *)
         usage
         exit 1
@@ -229,6 +229,8 @@ ansible_play(){
 # @param $1 absolute path to local repo.
 # @param $2 branch to checkout.
 git_checkout(){
+  # We need to fetch first for new branches.
+  git -C "$1" fetch origin "$2"
   git -C "$1" checkout "$2"
   git -C "$1" pull origin "$2"
 }
