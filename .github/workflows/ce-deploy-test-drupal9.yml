@@ -1,4 +1,4 @@
-name: Run test for Drupal 9
+name: Run test with ce-dev
 
 # Run this workflow every time a new commit pushed to your repository
 on: pull_request
@@ -8,9 +8,9 @@ jobs:
   # when a job name is not provided
   run-tests:
     # Name the Job
-    name: Run Drupal 9 test build
+    name: Run Drupal 10 test build
     # Set the type of machine to run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
@@ -32,9 +32,9 @@ jobs:
           curl -sL https://raw.githubusercontent.com/codeenigma/ce-dev/2.x/install.sh | /bin/sh -s -- --platform linux
 
       # Uses the ce-dev stack to run a test Drupal deploy
-      - name: Run a test ce-dev deploy with Drupal 9
+      - name: Run a test ce-dev deploy with Drupal 10
         run: |
-          ce-dev create -p test -t drupal9 -d ~/test
+          ce-dev create -p test -t drupal10 -d ~/test
           cd ~/test
           ce-dev init
           ce-dev start
