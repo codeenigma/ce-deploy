@@ -1,7 +1,10 @@
 name: Run test on ce-deploy1
 
-# Run this workflow every time a new commit pushed to your repository
-on: pull_request
+# Run this workflow when a PR to 1.x is raised
+on:
+  pull_request:
+    branches:
+      - 1.x
 
 jobs:
   # Set the job key. The key is displayed as the job name
