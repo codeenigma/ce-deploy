@@ -7,7 +7,7 @@ jobs:
   run-linting:
     if: ${{ always() }}
     name: Linting
-    runs-on: ubuntu-20.04 # at time of writing ubuntu-latest has broken ansible
+    runs-on: ubuntu-22.04 # at time of writing ubuntu-latest has broken ansible
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
