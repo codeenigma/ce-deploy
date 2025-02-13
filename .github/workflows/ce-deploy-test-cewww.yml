@@ -1,0 +1,31 @@
+name: Run test on ce-deploy1
+
+# Run this workflow when a PR to 1.x is raised
+on:
+  pull_request:
+    branches:
+      - 1.x
+
+jobs:
+  # Set the job key. The key is displayed as the job name
+  # when a job name is not provided
+  run-tests:
+    if: ${{ github.event.pull_request.head.ref != 'documentation' }}
+    # Name the Job
+    name: Run Drupal test build
+    # Set the type of machine to run on
+    runs-on: ubuntu-latest
+
+    steps:
+      # Call the GitLab API to trigger a test build
+      - name: Call the GitLab API on ce-deploy1
+        env:
+          GITLAB_TOKEN: ${{ secrets.CEWWW_DEV_TOKEN }}
+        run: |
+          curl --request POST \
+            --form token=$GITLAB_TOKEN \
+            --form ref=dev \
+            --form "variables[CE_DEPLOY_BRANCH]=${{ github.event.pull_request.head.ref }}" \
+            "https://gitlab.ce-deploy1.codeenigma.net/api/v4/projects/4/trigger/pipeline"
+          echo -e "\n\n"
+          echo "### Request sent - see https://gitlab.ce-deploy1.codeenigma.net/web/ce-www/-/pipelines for results"
