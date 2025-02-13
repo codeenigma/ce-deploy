@@ -4,25 +4,28 @@ name: Linting
 on: pull_request
 
 jobs:
-  # Set the job key. The key is displayed as the job name
-  # when a job name is not provided
   run-linting:
-    # Name the Job
+    if: ${{ always() }}
     name: Linting
-    # Set the type of machine to run on
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04 # at time of writing ubuntu-latest has broken ansible
 
     steps:
       # Checks out a copy of your repository on the ubuntu-latest machine
-      - name: Checkout code
-        uses: actions/checkout@v2
+      - name: Checkout code.
+        uses: actions/checkout@v4
 
       # Linter checks.
-      - name: Run linters.
-        if: ${{ always() }}
+      - name: Install linters.
         run: |
           sudo apt-get update
+          sudo apt-get dist-upgrade -y -o Dpkg::Options::="--force-confnew"
           sudo apt-get install -y ansible-lint yamllint shellcheck
-          find ./roles -name "*.yml"  | xargs ansible-lint
-          yamllint ./roles
-          cd scripts && shellcheck *.sh
+
+      - name: Run ansible-lint.
+        run: find ./roles -name "*.yml"  | xargs ansible-lint
+
+      - name: Run yamllint.
+        run: yamllint ./roles
+
+      - name: Run shellcheck.
+        run: cd scripts && shellcheck *.sh
