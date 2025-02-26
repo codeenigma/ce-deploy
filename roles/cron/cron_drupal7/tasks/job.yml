@@ -1,16 +1,22 @@
 ---
 - name: Define cron job command.
   ansible.builtin.set_fact:
-    _cron_job_command: "cd {{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }} > /dev/null"
+    _cron_job_command: "cd {{ live_symlink_dest }}/{{ webroot }}/sites/{{ site.folder }} && {{ drupal.drush_location }} {{ entry.job }}"
 
 - name: Define cron job command if deferred (ASG).
   ansible.builtin.set_fact:
-    _cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _cron_job_command }}\""
+    _cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _cron_job_command }}\" >/dev/null"
   when:
     - drupal.defer is defined
     - drupal.defer
     - drupal.defer_target is defined
     - drupal.defer_target | length > 0
+
+- name: Add dev null redirection if not deferred.
+  ansible.builtin.set_fact:
+    _cron_job_command: "{{ _cron_job_command }} > /dev/null"
+  when:
+    - drupal.defer is not defined
 
 - name: Define cron job command for differing deploy users.
   ansible.builtin.set_fact:
