@@ -8,6 +8,7 @@
   when:
     - aws_asg.name is defined
     - aws_asg.name | length > 0
+    - deploy_operation != 'deploy'
 
 - name: Delete the lock file.
   ansible.builtin.file:
