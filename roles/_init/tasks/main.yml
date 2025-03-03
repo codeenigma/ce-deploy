@@ -162,8 +162,8 @@
 
     - name: Gather information about target group.
       community.aws.elb_target_group_info:
-        region: "{{ _aws_region }}"
-        profile: "{{ _aws_profile }}"
+        region: "{{ aws_asg.region }}"
+        profile: "{{ aws_asg.profile | default(omit) }}"
         names:
           - "{{ aws_asg.name }}"
       register: _target_group

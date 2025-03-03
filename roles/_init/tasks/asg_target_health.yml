@@ -5,7 +5,7 @@
 
 - name: Fetch raw target health data with the AWS CLI.
   ansible.builtin.command: >-
-      aws --region {{ _aws_region }} elbv2 describe-target-health
+      aws --region {{ aws_asg.region }} elbv2 describe-target-health
       --target-group-arn {{ _target_group.target_groups[0].target_group_arn }}
   register: _target_health
   when: _target_group.target_groups | length > 0
