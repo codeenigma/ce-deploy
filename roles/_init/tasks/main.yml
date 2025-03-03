@@ -161,7 +161,7 @@
       ansible.builtin.set_fact:
         aws_asg:
           suspend_processes: "{{ aws_asg.suspend_processes | split }}"
-      when: aws_asg.suspend_processes | type_debug == ('string' or 'AnsibleUnicode')
+      when: (aws_asg.suspend_processes | type_debug == 'string') or (aws_asg.suspend_processes | type_debug == 'AnsibleUnicode')
 
     - name: Disable autoscale processes on ASG.
       amazon.aws.autoscaling_group:
