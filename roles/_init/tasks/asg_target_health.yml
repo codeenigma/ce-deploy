@@ -1,0 +1,26 @@
+---
+- name: Empty the target list.
+  ansible.builtin.set_fact:
+    _target_health_list: []
+
+- name: Fetch raw target health data with the AWS CLI.
+  ansible.builtin.command: >-
+      aws --region {{ _aws_region }} elbv2 describe-target-health
+      --target-group-arn {{ _target_group.target_groups[0].target_group_arn }}
+  register: _target_health
+  when: _target_group.target_groups | length > 0
+
+- name: Convert raw JSON output from CLI to YAML for ease of use.
+  ansible.builtin.set_fact:
+    _target_health_yaml: "{{ _target_health.stdout | from_json }}"
+
+- name: Make a list of all the 'healthy' instances.
+  ansible.builtin.set_fact:
+    _target_health_list: "{{ _target_health_list + [ item.TargetHealth.State ] }}"
+  with_items: "{{ _target_health_yaml.TargetHealthDescriptions }}"
+  when: item.TargetHealth.State == 'healthy'
+
+- name: If the number of 'healthy' instances matches the total, set the flag so we can continue.
+  ansible.builtin.set_fact:
+    _target_health_flag: true
+  when: (_target_health_yaml.TargetHealthDescriptions | length) == (_target_health_list | length)
