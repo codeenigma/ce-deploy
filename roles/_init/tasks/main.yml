@@ -156,18 +156,9 @@
   delegate_to: localhost
   run_once: true
   block:
-    # This task can be removed in the future.
-    - name: Handle legacy suspend_processes variables.
-      ansible.builtin.set_fact:
-        aws_asg:
-          suspend_processes: "{{ aws_asg.suspend_processes | split }}"
-      when: (aws_asg.suspend_processes | type_debug == 'string') or (aws_asg.suspend_processes | type_debug == 'AnsibleUnicode')
-
     - name: Disable autoscale processes on ASG.
-      amazon.aws.autoscaling_group:
-        name: "{{ aws_asg.name }}"
-        region: "{{ aws_asg.region }}"
-        suspend_processes: "{{ aws_asg.suspend_processes }}"
+      ansible.builtin.command: >
+        aws autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
 
     - name: Gather information about target group.
       community.aws.elb_target_group_info:
