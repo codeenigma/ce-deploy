@@ -149,12 +149,38 @@
     - _project_type_task_result.stat.exists
 
 # If we are operating on an AWS ASG then pause autoscaling.
-# @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
 - name: Disable autoscale processes on ASG.
-  ansible.builtin.command: >
-    aws autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
-  delegate_to: localhost
-  run_once: true
   when:
     - aws_asg.name is defined
     - aws_asg.name | length > 0
+  block:
+    # This task can be removed in the future.
+    - name: Handle legacy suspend_processes variables.
+      ansible.builtin.set_fact:
+        aws_asg:
+          suspend_processes: "{{ aws_asg.suspend_processes | split }}"
+      when: aws_asg.suspend_processes | type_debug == 'string'
+
+    - name: Disable autoscale processes on ASG.
+      amazon.aws.autoscaling_group:
+        name: "{{ aws_asg.name }}"
+        region: "{{ aws_asg.region }}"
+        suspend_processes: "{{ aws_asg.suspend_processes }}"
+      delegate_to: localhost
+      run_once: true
+
+    - name: Gather information about target group.
+      community.aws.elb_target_group_info:
+        region: "{{ _aws_region }}"
+        profile: "{{ _aws_profile }}"
+        names:
+          - "{{ aws_asg.name }}"
+      register: _target_group
+
+    - name: Set a flag variable for instance states.
+      ansible.builtin.set_fact:
+        _target_health_flag: false
+
+    - name: Loop over target instances until they are all 'healthy'.
+      ansible.builtin.import_tasks: asg_target_health.yml
+      until: _target_health_flag
