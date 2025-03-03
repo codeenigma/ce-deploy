@@ -153,6 +153,8 @@
   when:
     - aws_asg.name is defined
     - aws_asg.name | length > 0
+  delegate_to: localhost
+  run_once: true
   block:
     # This task can be removed in the future.
     - name: Handle legacy suspend_processes variables.
@@ -166,8 +168,6 @@
         name: "{{ aws_asg.name }}"
         region: "{{ aws_asg.region }}"
         suspend_processes: "{{ aws_asg.suspend_processes }}"
-      delegate_to: localhost
-      run_once: true
 
     - name: Gather information about target group.
       community.aws.elb_target_group_info:
