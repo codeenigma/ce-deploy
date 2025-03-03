@@ -70,6 +70,9 @@
     - cache_clear_opcache.cachetool_bin | length > 0
 
 - name: Manipulate variables for SquashFS builds.
+  when:
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
   block:
     - name: Define image builds base path.
       ansible.builtin.set_fact:
@@ -97,9 +100,6 @@
       ansible.builtin.file:
         path: "{{ build_base_path }}"
         state: directory
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
 
 - name: Set the previous deploy's path for later use where we need to manipulate the live site.
   ansible.builtin.set_fact:
@@ -153,6 +153,7 @@
   when:
     - aws_asg.name is defined
     - aws_asg.name | length > 0
+    - deploy_operation == 'deploy'
   delegate_to: localhost
   run_once: true
   block:
