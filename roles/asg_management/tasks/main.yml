@@ -1,7 +1,7 @@
 ---
 - name: Suspend autoscale processes on ASG.
   when:
-    - aws_asg.name | length > 0
+    - asg_management.name | length > 0
     - deploy_operation == 'deploy'
   delegate_to: localhost
   run_once: true
