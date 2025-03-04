@@ -18,12 +18,16 @@ To use this role the recommended approach is three different playbooks.
 ---
 - name: Stop ASG processes.
   ansible.builtin.import_playbook: asg-dev.yml
+  vars:
+    install_php_cachetool: false
 
 - name: Build website.
   ansible.builtin.import_playbook: build-dev.yml
 
 - name: Start ASG processes.
   ansible.builtin.import_playbook: asg-dev.yml
+  vars:
+    install_php_cachetool: false
 ```
 
 ### `asg-dev.yml`
