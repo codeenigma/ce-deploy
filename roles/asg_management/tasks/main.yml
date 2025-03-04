@@ -34,6 +34,10 @@
           - "{{ asg_management.name }}"
       register: _target_group
 
+    - name: Check the target group ARN.
+      ansible.builtin.debug:
+        msg: "{{ _target_group }}"
+
     - name: Loop over target instances until they are all 'healthy'.
       ansible.builtin.include_tasks: asg_target_health.yml
 
