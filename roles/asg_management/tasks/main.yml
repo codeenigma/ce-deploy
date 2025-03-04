@@ -3,6 +3,7 @@
   when:
     - asg_management.name | length > 0
     - deploy_operation == 'deploy'
+    - build_completed is not defined
   delegate_to: localhost
   run_once: true
   block:
@@ -47,7 +48,8 @@
   when:
     - asg_management.name | length > 0
     - asg_management.profile is not defined
-    - deploy_operation != 'deploy'
+    - build_completed is defined
+    - build_completed
 
 - name: Resume all autoscale processes on ASG via a specified boto profile.
   ansible.builtin.command: >-
@@ -61,4 +63,5 @@
     - asg_management.name | length > 0
     - asg_management.profile is defined
     - asg_management.profile | length > 0
-    - deploy_operation != 'deploy'
+    - build_completed is defined
+    - build_completed

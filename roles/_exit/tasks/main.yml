@@ -3,3 +3,8 @@
   ansible.builtin.file:
     path: "{{ lock_file }}"
     state: absent
+
+- name: Signal to the ASG role the build is complete.
+  ansible.builtin.set_fact:
+    build_completed: true
+  when: deploy_operation != 'deploy'
