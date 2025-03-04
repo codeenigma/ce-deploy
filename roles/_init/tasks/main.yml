@@ -24,6 +24,11 @@
     state: touch
     mode: 0644
 
+- name: Signal to the ASG role the build is beginning.
+  ansible.builtin.set_fact:
+    build_completed: false
+  when: deploy_operation == 'deploy'
+
 # Ensure default values for common variables.
 - name: Define deploy user.
   ansible.builtin.set_fact:
