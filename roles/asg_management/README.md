@@ -17,27 +17,29 @@ To use this role the recommended approach is three different playbooks. Don't fo
 ```yaml
 ---
 - name: Stop ASG processes.
-  ansible.builtin.import_playbook: asg-dev.yml
+  ansible.builtin.import_playbook: asg.yml
   vars:
     install_php_cachetool: false
+    build_type: dev
 
 - name: Build website.
   ansible.builtin.import_playbook: build-dev.yml
 
 - name: Start ASG processes.
-  ansible.builtin.import_playbook: asg-dev.yml
+  ansible.builtin.import_playbook: asg.yml
   vars:
     install_php_cachetool: false
+    build_type: dev
 ```
 
-### `asg-dev.yml`
+### `asg.yml`
 
 ```yaml
 ---
 - hosts: localhost
   vars_files:
     - vars/common.yml
-    - vars/dev.yml
+    - "vars/{{ build_type }}.yml"
   roles:
     - _init
     - asg_management
