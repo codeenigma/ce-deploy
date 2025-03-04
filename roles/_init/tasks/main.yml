@@ -23,10 +23,6 @@
     path: "{{ lock_file }}"
     state: touch
     mode: 0644
-
-- name: Signal to the ASG role the build is beginning.
-  ansible.builtin.set_fact:
-    build_completed: false
   when: deploy_operation == 'deploy'
 
 # Ensure default values for common variables.
@@ -145,7 +141,7 @@
   ansible.builtin.stat:
     path: "{{ role_path }}/tasks/{{ project_type }}.yml"
   register: _project_type_task_result
-  delegate_to: "localhost"
+  delegate_to: localhost
 
 # Project specific init tasks.
 - name: Include project init tasks.
