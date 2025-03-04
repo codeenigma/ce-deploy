@@ -10,7 +10,7 @@ In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must ha
 Set the `asg_management.name` to the machine name of your ASG in order to automatically suspend and resume autoscaling on build.
 
 ## Recommended playbook setup
-To use this role the recommended approach is three different playbooks.
+To use this role the recommended approach is three different playbooks. Don't forget to add the `asg_management` variables to your variables file as well, see the defaults below for guidance.
 
 ### `deploy-dev.yml`
 
