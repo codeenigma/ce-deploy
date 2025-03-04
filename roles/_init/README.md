@@ -3,14 +3,6 @@ Mandatory role that must run before any other `ce-deploy` roles when executing a
 
 These variables **must** be set in a common variables file if you do not wish to use defaults.
 
-In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must have an AWS CLI profile for a user with the following IAM permissions:
-* `autoscaling:ResumeProcesses`
-* `autoscaling:SuspendProcesses`
-* `autoscaling:DescribeScalingProcessTypes`
-* `autoscaling:DescribeAutoScalingGroups`
-
-Set the `aws_asg.name` to the machine name of your ASG in order to automatically suspend and resume autoscaling on build.
-
 <!--TOC-->
 <!--ENDTOC-->
 
