@@ -1,9 +1,14 @@
 ---
+- name: Check for a ce-deploy lock file.
+  ansible.builtin.stat:
+    path: "{{ lock_file }}"
+  register: _ce_deploy_lock
+
 - name: Suspend autoscale processes on ASG.
   when:
     - asg_management.name | length > 0
     - deploy_operation == 'deploy'
-    - build_completed is not defined
+    - _ce_deploy_lock.stat.exists
   delegate_to: localhost
   run_once: true
   block:
@@ -48,8 +53,7 @@
   when:
     - asg_management.name | length > 0
     - asg_management.profile is not defined
-    - build_completed is defined
-    - build_completed
+    - not _ce_deploy_lock.stat.exists
 
 - name: Resume all autoscale processes on ASG via a specified boto profile.
   ansible.builtin.command: >-
@@ -63,5 +67,4 @@
     - asg_management.name | length > 0
     - asg_management.profile is defined
     - asg_management.profile | length > 0
-    - build_completed is defined
-    - build_completed
+    - not _ce_deploy_lock.stat.exists
