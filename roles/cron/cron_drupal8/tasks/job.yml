@@ -35,10 +35,11 @@
 - name: Set global MAILTO entry if it exists
   ansible.builtin.lineinfile:
     path: /var/spool/cron/crontabs/{{ deploy_user }}
-    line: 'MAILTO="{{ drupal.cron_mailto }}"'
+    line: "MAILTO={{ drupal.cron_mailto }}"
     insertafter: '^#'
     state: present
   when: drupal.cron_mailto is defined
+  delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
 
 #- name: Remove existing MAILTO entry (if any)
 #  community.general.cronvar:
