@@ -26,23 +26,14 @@
     - drupal.defer is defined
     - drupal.defer
 
-- name: Remove existing MAILTO entry if it exists
-  ansible.builtin.lineinfile:
-    path: /var/spool/cron/crontabs/{{ deploy_user }}
-    regexp: '^MAILTO='
-    state: absent
-  delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
-  become: true
-
 - name: Set global MAILTO entry if it exists
-  ansible.builtin.lineinfile:
-    path: /var/spool/cron/crontabs/{{ deploy_user }}
-    line: "MAILTO={{ drupal.cron_mailto }}"
-    insertafter: '^#'
+  ansible.builtin.cron:
+    name: MAILTO
+    env: true
+    job: "{{ drupal.cron_mailto }}"
     state: present
   when: drupal.cron_mailto is defined
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
-  become: true
 
 #- name: Remove existing MAILTO entry (if any)
 #  community.general.cronvar:
