@@ -40,7 +40,6 @@
     user: "{{ deploy_user }}"
     state: present
   when: drupal.cron_mailto is defined
-  become: true
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
 
 - name: Setup Drupal cron tasks on app server.
