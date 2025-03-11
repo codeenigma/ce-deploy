@@ -31,23 +31,10 @@
     name: MAILTO
     env: true
     job: "{{ drupal.cron_mailto }}"
+    user: "{{ deploy_user }}"
     state: present
   when: drupal.cron_mailto is defined
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
-
-#- name: Remove existing MAILTO entry (if any)
-#  community.general.cronvar:
-#    name: MAILTO
-#    state: absent
-#  delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
-
-#- name: Set global MAILTO for cron jobs (if defined)
-#  community.general.cronvar:
-#    name: MAILTO
-#    value: "{{ drupal.cron_mailto | default(omit) }}"
-#    state: present
-#  when: drupal.cron_mailto is defined and drupal.cron_mailto | length > 0
-#  delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
 
 - name: Setup Drupal cron tasks on app server.
   ansible.builtin.cron:
