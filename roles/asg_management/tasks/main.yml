@@ -1,0 +1,76 @@
+---
+- name: Check for a ce-deploy lock file.
+  ansible.builtin.stat:
+    path: "{{ lock_file }}"
+  register: _ce_deploy_lock
+
+- name: Show stat output.
+  ansible.builtin.debug:
+    msg: "{{ _ce_deploy_lock }}"
+  when: asg_management.verbose
+
+- name: Suspend autoscale processes on ASG.
+  when:
+    - asg_management.name | length > 0
+    - deploy_operation == 'deploy'
+    - _ce_deploy_lock.stat.exists
+  delegate_to: localhost
+  run_once: true
+  block:
+    # @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
+    - name: Suspend autoscale processes on ASG via a specified boto profile.
+      ansible.builtin.command: >-
+        aws autoscaling suspend-processes
+        --auto-scaling-group-name {{ asg_management.name }}
+        --scaling-processes {{ asg_management.suspend_processes }}
+        --region {{ asg_management.region }}
+        --profile {{ asg_management.profile }}
+      when:
+        - asg_management.profile is defined
+        - asg_management.profile | length > 0
+
+    - name: Suspend autoscale processes on ASG.
+      ansible.builtin.command: >-
+        aws autoscaling suspend-processes
+        --auto-scaling-group-name {{ asg_management.name }}
+        --scaling-processes {{ asg_management.suspend_processes }}
+        --region {{ asg_management.region }}
+      when:
+        - asg_management.profile is not defined
+
+    - name: Gather information about target group.
+      community.aws.elb_target_group_info:
+        region: "{{ asg_management.region }}"
+        profile: "{{ asg_management.profile | default(omit) }}"
+        names:
+          - "{{ asg_management.name }}"
+      register: _target_group
+
+    - name: Loop over target instances until they are all 'healthy'.
+      ansible.builtin.include_tasks: asg_target_health.yml
+
+- name: Resume all autoscale processes on ASG.
+  ansible.builtin.command: >-
+    aws autoscaling resume-processes
+    --auto-scaling-group-name {{ asg_management.name }}
+    --region {{ asg_management.region }}
+  delegate_to: localhost
+  run_once: true
+  when:
+    - asg_management.name | length > 0
+    - asg_management.profile is not defined
+    - not _ce_deploy_lock.stat.exists
+
+- name: Resume all autoscale processes on ASG via a specified boto profile.
+  ansible.builtin.command: >-
+    aws autoscaling resume-processes
+    --auto-scaling-group-name {{ asg_management.name }}
+    --region {{ asg_management.region }}
+    --profile {{ asg_management.profile }}
+  delegate_to: localhost
+  run_once: true
+  when:
+    - asg_management.name | length > 0
+    - asg_management.profile is defined
+    - asg_management.profile | length > 0
+    - not _ce_deploy_lock.stat.exists
