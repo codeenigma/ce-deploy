@@ -12,6 +12,7 @@
   delegate_to: localhost
   run_once: true
   block:
+    # @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
     - name: Suspend autoscale processes on ASG via a specified boto profile.
       ansible.builtin.command: >-
         aws autoscaling suspend-processes
