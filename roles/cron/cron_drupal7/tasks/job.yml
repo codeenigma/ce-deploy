@@ -18,6 +18,12 @@
   when:
     - drupal.defer is not defined or not drupal.defer
 
+- name: Add dev null redirection (for non-deferred).
+  ansible.builtin.set_fact:
+    _cron_job_command: "{{ _cron_job_command }} > /dev/null"
+  when:
+    - drupal.defer is not defined or not drupal.defer
+
 - name: Define cron job command for differing deploy users.
   ansible.builtin.set_fact:
     _cron_job_command: "{{ _cron_job_command }} --extra-vars '{\"become\":true,\"become_user\":\"{{ www_user }}\"}'"
@@ -26,18 +32,14 @@
     - drupal.defer is defined
     - drupal.defer
 
-- name: Remove existing MAILTO entry (if any)
-  community.general.cronvar:
+- name: Set global MAILTO entry if it exists
+  ansible.builtin.cron:
     name: MAILTO
-    state: absent
-  delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
-
-- name: Set global MAILTO for cron jobs (if defined)
-  community.general.cronvar:
-    name: MAILTO
-    value: "{{ drupal.cron_mailto | default(omit) }}"
+    env: true
+    job: "{{ drupal.cron_mailto }}"
+    user: "{{ deploy_user }}"
     state: present
-  when: drupal.cron_mailto is defined and drupal.cron_mailto | length > 0
+  when: drupal.cron_mailto is defined
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
 
 - name: Setup Drupal cron tasks on app server.
