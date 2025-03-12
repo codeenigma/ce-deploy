@@ -4,6 +4,11 @@
     path: "{{ lock_file }}"
   register: _ce_deploy_lock
 
+- name: Show stat output.
+  ansible.builtin.debug:
+    msg: "{{ _ce_deploy_lock }}"
+  when: asg_management.verbose
+
 - name: Suspend autoscale processes on ASG.
   when:
     - asg_management.name | length > 0
