@@ -18,12 +18,6 @@
   when:
     - drupal.defer is not defined or not drupal.defer
 
-- name: Add dev null redirection (for non-deferred).
-  ansible.builtin.set_fact:
-    _cron_job_command: "{{ _cron_job_command }} > /dev/null"
-  when:
-    - drupal.defer is not defined or not drupal.defer
-
 - name: Define cron job command for differing deploy users.
   ansible.builtin.set_fact:
     _cron_job_command: "{{ _cron_job_command }} --extra-vars '{\"become\":true,\"become_user\":\"{{ www_user }}\"}'"

@@ -2,7 +2,7 @@
 # Common defaults - the "_init" role is mandatory so this will ensure defaults to other roles too.
 deploy_user: deploy # if you are using ce-provision to deploy infrastructure this must match the `user_deploy.username` variable
 # For MySQL CE you might want to add '--set-gtid-purged=OFF --skip-definer' here:
-_mysqldump_params: "--set-gtid-purged=OFF --max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
+_mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 # @TODO only used by Drupal 7, can be removed with Drupal 7 deployments
 bin_directory: "/home/{{ deploy_user }}/.bin"
 # Number of dumps/db to look up for cleanup.
