@@ -89,7 +89,7 @@ deploy_container:
     acm: # see https://github.com/codeenigma/ce-provision/tree/1.x/roles/aws/aws_acm
       create_cert: false
       extra_domains: [] # list of Subject Alternative Name domains and zones
-    ssl_certificate_ARN: "" # optional SSL cert ARN if you imported one into AWS Certificate Manager
+    ssl_certificate_arn: "" # optional SSL cert ARN if you imported one into AWS Certificate Manager
     elb_security_groups: [] # default SG is used if none provided - module supports names or IDs
     elb_subnets: # must be public subnets for public facing applications
       - example-dev-a
