@@ -1,5 +1,5 @@
 # ASG Management
-This role should be called in a separate playbook to the rest of the build with the host set as `localhost`, not the target ASG group. The available hosts in the ASG group may change after it has run, so Ansible needs to interogate the ASG host group after this play has run and before building.
+This role should be called in a separate playbook, e.g. a separate command in CI, to the rest of the build with the host set as `localhost` and not the target ASG group. The available hosts in the ASG group may change after it has run, so Ansible needs to interogate the ASG host group after this play has run and before building. This cannot be done unless Ansible stops and starts again.
 
 In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must have an AWS CLI profile for a user with the following IAM permissions:
 * `autoscaling:ResumeProcesses`
@@ -10,26 +10,24 @@ In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must ha
 Set the `asg_management.name` to the machine name of your ASG in order to automatically suspend and resume autoscaling on build.
 
 ## Recommended playbook setup
-To use this role the recommended approach is three different playbooks. Don't forget to add the `asg_management` variables to your variables file as well, see the defaults below for guidance.
+To use this role the recommended approach is two different playbooks and separate Ansible commands. Don't forget to add the `asg_management` variables to your variables file as well. Below you will find a GitLab CI example and suggested variables.
 
-### `deploy-dev.yml`
+### `.gitlab-ci.yml`
 
 ```yaml
 ---
-- name: Stop ASG processes.
-  ansible.builtin.import_playbook: asg.yml
-  vars:
-    install_php_cachetool: false
-    build_type: dev
+stages:
+  - deploy
 
-- name: Build website.
-  ansible.builtin.import_playbook: build-dev.yml
-
-- name: Start ASG processes.
-  ansible.builtin.import_playbook: asg.yml
-  vars:
-    install_php_cachetool: false
-    build_type: dev
+deploy_dev:
+  stage: deploy
+  script:
+    - /bin/sh /home/deploy/ce-deploy/scripts/deploy.sh --workspace "$CI_PROJECT_DIR" --playbook deploy/asg.yml --ansible-extra-vars "{\"build_type\":\"$BUILD_TYPE\",\"install_php_cachetool\":false}" --build-number ${CI_PIPELINE_IID} --build-id acme-dev --boto-profile acme
+    - /bin/sh /home/deploy/ce-deploy/scripts/build.sh --workspace "$CI_PROJECT_DIR" --playbook deploy/deploy-dev.yml --build-number ${CI_PIPELINE_IID} --build-id acme-dev --boto-profile acme
+    - /bin/sh /home/deploy/ce-deploy/scripts/cleanup.sh --workspace "$CI_PROJECT_DIR" --playbook deploy/asg.yml --ansible-extra-vars "{\"build_type\":\"$BUILD_TYPE\",\"install_php_cachetool\":false}" --build-number ${CI_PIPELINE_IID} --build-id acme-dev --boto-profile acme
+  rules:
+    - if: '$CI_PIPELINE_SOURCE != "web" && $CI_COMMIT_BRANCH == "dev"'
+    - if: '$CI_PIPELINE_SOURCE == "web" && $SYNC == "no" && $BUILD_TYPE == "dev"'
 ```
 
 ### `asg.yml`
@@ -41,16 +39,14 @@ To use this role the recommended approach is three different playbooks. Don't fo
     - vars/common.yml
     - "vars/{{ build_type }}.yml"
   roles:
-    - _init
     - asg_management
-    - _exit
 ```
 
-### `build-dev.yml`
+### `deploy-dev.yml`
 
 ```yaml
 ---
-- hosts: _dev_acme_com
+- hosts: _ce_www_acme_codeenigma_net # ASG group name from EC2 discovery
   vars_files:
     - vars/common.yml
     - vars/dev.yml
@@ -59,13 +55,7 @@ To use this role the recommended approach is three different playbooks. Don't fo
 ```
 
 ### Process explained
-Your CI will call `deploy-dev.yml`. This will run the ASG playbook, the `_init` role will set the ce-deploy lock file on localhost - the CI server itself - the `asg_management` role will check for that lock file and, if it exists, will suspend ASG processes. The `_exit` role will be executed, but will *not* remove the lock file because we are on the `deploy` operation.
-
-Then the build playbook is called and runs as normal on the ASG machines.
-
-Finally, the ASG playbook runs again. It will re-suspend the ASG for the same logical reason, which loses us a few seconds, but doesn't to any harm. Once again, we are still in the `deploy` operation so the lock file will not get deleted by `_exit`
-
-The bash script will then take us to either the `cleanup` or `revert` operation, depending on whether or not Ansible exited with an error code on the `deploy` operation. Either way, the ASG play will run and ASG processes will stay suspended, because the lock file is still there. At the end of the play the `_exit` role will delete the lock file on localhost (lock files on ASG servers still exist at this point). The build playbook will execute and run either cleanup or revert, depending on the operation, then the ASG playbook will run a final time. At this point the `asg_management` role will detect the lock file on localhost is no longer present and enable the ASG processes again.
+The example is a single development environment Drupal build. Your CI will call `asg.yml` with the `deploy.sh` script which will *only* run the `deploy` operation, therefore it will try to suspend ASG processes and wait until the ASG has settled down before continuing. After that we call a normal Drupal build, `deploy-dev.yml`, same as you would if it were a standalone server or a static cluster. Finally, we call `asg.yml` again but this time with the `cleanup.sh` script which will *only* run the `cleanup` operation, therefore it will re-enable the suspended ASG processes.
 
 <!--TOC-->
 <!--ENDTOC-->
