@@ -1,5 +1,5 @@
 ---
-lhci_run:
+lhci:
   # Create a list of URLs to test with LHCI
   test_urls:
     - "http://www.example.com"
