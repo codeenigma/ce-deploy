@@ -1,0 +1,31 @@
+---
+- name: Install phpunit with composer.
+  ansible.builtin.import_role:
+    name: composer
+  vars:
+    composer:
+      command: require
+      args: phpunit/phpunit
+
+- name: Generates phpunit.xml file.
+  ansible.builtin.template:
+    src: "{{ item }}"
+    dest: "{{ deploy_path }}/phpunit.xml"
+  with_first_found:
+    - "{{ playbook_dir }}/files/phpunit.xml"
+    - "{{ _ce_deploy_build_dir }}/phpunit.xml"
+    - "{{ _ce_deploy_build_dir }}/phpunit.xml.dist"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml.dist"
+    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/core/phpunit.xml.dist" # Drupal's default location
+
+- name: Make sure we have a config file.
+  ansible.builtin.stat:
+    path: "{{ deploy_path }}/phpunit.xml"
+  register: _phpunit_config
+
+# Docs - https://docs.phpunit.de/ - chapter 3
+- name: Execute phpunit tests if we have a config.
+  ansible.builtin.command:
+    cmd: "{{ phpunit.bin }} --configuration {{ deploy_path }}/phpunit.xml --group {{ phpunit.group }} {{ phpunit.target }}"
+  when: _phpunit_config.stat.exists
