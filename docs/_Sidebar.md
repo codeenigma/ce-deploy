@@ -48,3 +48,4 @@
          - [Database sync - MySQL](/roles/sync/database_sync/database_sync-mysql)
      - [Tests](/roles/tests)
        - [LHCI tests](/roles/tests/tests_lhci)
+       - [PHPUnit tests](/roles/tests/tests_phpunit)
