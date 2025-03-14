@@ -1,0 +1,5 @@
+---
+phpunit:
+  group: unit # comma separated list of group names to run
+  target: web/modules # directory or file to test, defaults to Drupal's modules directory
+  bin: "{{ deploy_path }}/vendor/bin/phpunit" # location of phpunit
