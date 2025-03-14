@@ -20,6 +20,8 @@ drupal:
           job: cron
           # disabled: true
           # mailto: "{{ drupal.cron_mailto | default('') }}" # Each cron can have it's own mailto and can be configured to use different e-mail addresses.
+          # file: "/etc/cron.d/{{ project_name }}_{{ build_type }}_job_name" # edit job_name and uncomment to create a file for cron - note, deploy user needs to be able to write to the location
+          # file_user: "{{ deploy_user }}" # if you drop a file you must also supply an owner, usually the deploy user - make sure the deploy user has perms!
   cron_mailto: ""
   # If the sites are being deployed to an ASG, setting defer to true will create the crontab entry on the deploy server rather than all of the app servers.
   defer: false

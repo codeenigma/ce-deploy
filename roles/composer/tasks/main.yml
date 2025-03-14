@@ -13,6 +13,7 @@
 - name: Perform composer step.
   community.general.composer:
     command: "{{ composer.command }}"
+    arguments: "{{ composer.args | default(omit) }}"
     no_dev: "{{ composer.no_dev }}"
     working_dir: "{{ composer.working_dir }}"
     apcu_autoloader: "{{ composer.apcu_autoloader }}"

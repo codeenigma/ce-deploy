@@ -1,9 +1,9 @@
-# LHCI run
+# LHCI tests
 Step that runs LHCI against the codebase. Requires LHCI and Google Chrome to be installed on the web server or container. This can be done with ce-provision, see:
 
 * https://github.com/codeenigma/ce-provision/tree/1.x/roles/lhci
 
-This role is automatically present in preset ce-dev images on Docker Hub so you can just use `lhci_run` for local testing directly.
+This role is automatically present in preset ce-dev images on Docker Hub so you can just use `tests/tests_lhci` for local testing directly.
 
 For more information on LHCI, see https://github.com/GoogleChrome/lighthouse-ci/blob/main/docs/getting-started.md
 
@@ -14,7 +14,7 @@ For more information on LHCI, see https://github.com/GoogleChrome/lighthouse-ci/
 ## Default variables
 ```yaml
 ---
-lhci_run:
+lhci:
   # Create a list of URLs to test with LHCI
   test_urls:
     - "http://www.example.com"
@@ -32,6 +32,7 @@ lhci_run:
   # Optional lists of audits to explicitly skip or run.
   skip_audits: []
   only_audits: []
+
 ```
 
 <!--ENDROLEVARS-->
