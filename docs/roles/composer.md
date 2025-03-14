@@ -7,7 +7,9 @@ Performs a composer install on a freshly deployed codebase.
 ```yaml
 ---
 composer:
-  command: install
+  validate_command: validate # leave empty to skip validation
+  validate_args: "--no-check-all --no-check-publish"
+  command: install # leave empty to do nothing
   no_dev: true
   working_dir: "{{ deploy_path }}"
   apcu_autoloader: true

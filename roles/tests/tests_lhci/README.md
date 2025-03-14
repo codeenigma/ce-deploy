@@ -11,6 +11,30 @@ For more information on LHCI, see https://github.com/GoogleChrome/lighthouse-ci/
 <!--ENDTOC-->
 
 <!--ROLEVARS-->
+## Default variables
+```yaml
+---
+lhci:
+  # Create a list of URLs to test with LHCI
+  test_urls:
+    - "http://www.example.com"
+  # Number of times LHCI should run on each page
+  test_runs: 3
+  # Location to save reports
+  output_directory: "./reports/{{ ansible_date_time.iso8601 }}"
+  # Type of report storage (for now only local filesystem is supported)
+  upload_target_type: "filesystem"
+  # Flags to pass to Google Chrome
+  chrome_flags:
+    - "--no-sandbox"
+    - "--ignore-certificate-errors"
+    - "--disable-dev-shm-usage"
+  # Optional lists of audits to explicitly skip or run.
+  skip_audits: []
+  only_audits: []
+
+```
+
 <!--ENDROLEVARS-->
 
 The role installs `Xvfb` for 'headful' running of Google Chrome. This is preconfigured to run in the background with a display ID of 99, so you should run this command before running any `lhci` tests to ensure Chrome has an X session to run in:
