@@ -2,6 +2,7 @@
 - name: Install phpunit with composer.
   ansible.builtin.import_role:
     name: composer
+  when: phpunit.install
   vars:
     composer:
       command: require
