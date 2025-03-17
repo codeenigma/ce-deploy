@@ -18,7 +18,7 @@
     - "{{ _ce_deploy_build_dir }}/phpunit.xml.dist"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml.dist"
-  failed_when: false # don't fail if we don't find a file
+  ignore_errors: true # don't fail if we don't find a file
 
 - name: Check if we have a config file.
   ansible.builtin.stat:
@@ -30,7 +30,7 @@
     src: "{{ deploy_path }}/{{ webroot }}/core/phpunit.xml.dist" # Drupal's default location
     dest: "{{ deploy_path }}/phpunit.xml"
   when: not _phpunit_config.stat.exists
-  failed_when: false
+  ignore_errors: true
 
 - name: Check the config file again before running the tests.
   ansible.builtin.stat:
