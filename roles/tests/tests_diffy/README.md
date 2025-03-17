@@ -21,7 +21,7 @@ In this case you have pre-configured an environment called `dev` in Diffy and gi
 ```yaml
 ---
 diffy:
-  install: false  # set to true if you want to ce-deploy to attempt to composer install diffy
+  install: false  # set to true if you want ce-deploy to attempt to composer install diffy
   key: asdfghjkl  # set your diffy secret key, this should be encrypted with SOPS or stored in some other secrets manager
   project_id: 1   # the numeric ID of your diffy project
   main_env: dev   # name of the 'good' environment to compare against (must be pre-configured in diffy)
