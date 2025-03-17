@@ -1,0 +1,8 @@
+---
+diffy:
+  install: false  # set to true if you want to ce-deploy to attempt to composer install diffy
+  key: asdfghjkl  # set your diffy secret key, this should be encrypted with SOPS or stored in some other secrets manager
+  project_id: 1   # the numeric ID of your diffy project
+  main_env: dev   # name of the 'good' environment to compare against (must be pre-configured in diffy)
+  test_env: custom  # name of the environment to be compared (usually diffy's default 'custom' environment)
+  test_env_url: ""  # set a base URL to use against the diffy 'custom' environment
