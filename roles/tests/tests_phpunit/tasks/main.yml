@@ -13,12 +13,13 @@
     src: "{{ item }}"
     dest: "{{ phpunit.tests_path }}/phpunit.xml"
   with_first_found:
-    - "{{ playbook_dir }}/files/phpunit.xml"
-    - "{{ _ce_deploy_build_dir }}/phpunit.xml"
-    - "{{ _ce_deploy_build_dir }}/phpunit.xml.dist"
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml"
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml.dist"
-  ignore_errors: true # don't fail if we don't find a file
+    - files:
+        - "{{ playbook_dir }}/files/phpunit.xml"
+        - "{{ _ce_deploy_build_dir }}/phpunit.xml"
+        - "{{ _ce_deploy_build_dir }}/phpunit.xml.dist"
+        - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml"
+        - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml.dist"
+      skip: true  # don't fail if nothing found
 
 - name: Check if we have a provided config file.
   ansible.builtin.stat:
@@ -27,7 +28,7 @@
 
 - name: If not, check if we have Drupal's default phpunit.xml.dist file.
   ansible.builtin.stat:
-    path: "{{ deploy_path }}/{{ webroot }}/core/phpunit.xml.dist" # Drupal's default location
+    path: "{{ deploy_path }}/{{ webroot }}/core/phpunit.xml.dist"  # Drupal's default location
   register: _phpunit_config
   when: not _phpunit_config.stat.exists
 
