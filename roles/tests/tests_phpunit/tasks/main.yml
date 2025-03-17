@@ -29,6 +29,7 @@
   ansible.builtin.copy:
     src: "{{ deploy_path }}/{{ webroot }}/core/phpunit.xml.dist" # Drupal's default location
     dest: "{{ deploy_path }}/phpunit.xml"
+    remote_src: true
   when: not _phpunit_config.stat.exists
   ignore_errors: true
 
