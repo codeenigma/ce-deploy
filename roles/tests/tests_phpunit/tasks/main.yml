@@ -2,6 +2,7 @@
 - name: Install phpunit with composer.
   ansible.builtin.import_role:
     name: composer
+  when: phpunit.install
   vars:
     composer:
       command: require
@@ -18,6 +19,7 @@
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml.dist"
     - "{{ _ce_deploy_build_dir }}/{{ webroot }}/core/phpunit.xml.dist" # Drupal's default location
+  ignore_errors: true # don't fail if we don't find a file
 
 - name: Make sure we have a config file.
   ansible.builtin.stat:
