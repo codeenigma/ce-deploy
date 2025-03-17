@@ -1,46 +1,45 @@
 ---
-- name: Validate composer.json and composer.lock files.
-  community.general.composer:
-    command: "{{ composer.validate_command }}"
-    arguments: "{{ composer.validate_args }}"
-    no_dev: "{{ composer.no_dev }}"
-    working_dir: "{{ composer.working_dir }}"
-    apcu_autoloader: "{{ composer.apcu_autoloader }}"
-  when:
-    - deploy_operation == 'deploy'
-    - composer.validate_command | length > 1
+- name: Carry out composer commands.
+  when: deploy_operation == 'deploy'
+  block:
+    - name: Validate composer.json and composer.lock files.
+      community.general.composer:
+        command: "{{ composer.validate_command }}"
+        arguments: "{{ composer.validate_args }}"
+        no_dev: "{{ composer.no_dev }}"
+        working_dir: "{{ composer.working_dir }}"
+        apcu_autoloader: "{{ composer.apcu_autoloader }}"
+      when:
+        - composer.validate_command | length > 1
 
-- name: Perform composer step.
-  community.general.composer:
-    command: "{{ composer.command }}"
-    arguments: "{{ composer.args | default(omit) }}"
-    no_dev: "{{ composer.no_dev }}"
-    working_dir: "{{ composer.working_dir }}"
-    apcu_autoloader: "{{ composer.apcu_autoloader }}"
-  when:
-    - deploy_operation == 'deploy'
-    - composer.command | length > 1
+    - name: Perform composer step.
+      community.general.composer:
+        command: "{{ composer.command }}"
+        arguments: "{{ composer.args | default(omit) }}"
+        no_dev: "{{ composer.no_dev }}"
+        working_dir: "{{ composer.working_dir }}"
+        apcu_autoloader: "{{ composer.apcu_autoloader }}"
+      when:
+        - composer.command | length > 1
 
-- name: Generate additional templates.
-  ansible.builtin.template:
-    src: "{{ template.src }}"
-    dest: "{{ deploy_path }}/{{ template.dest }}"
-  with_items: "{{ composer.templates }}"
-  loop_control:
-    loop_var: template
-  when:
-    - composer.templates | length
-    - deploy_operation == 'deploy'
+    - name: Generate additional templates.
+      ansible.builtin.template:
+        src: "{{ template.src }}"
+        dest: "{{ deploy_path }}/{{ template.dest }}"
+      with_items: "{{ composer.templates }}"
+      loop_control:
+        loop_var: template
+      when:
+        - composer.templates | length
 
-- name: Create additional symlinks.
-  ansible.builtin.file:
-    src: "{{ link.src }}"
-    dest: "{{ deploy_path }}/{{ link.dest }}"
-    state: link
-    force: "{{ link.force | default(false) }}"
-  with_items: "{{ composer.symlinks }}"
-  loop_control:
-    loop_var: link
-  when:
-    - composer.symlinks | length
-    - deploy_operation == 'deploy'
+    - name: Create additional symlinks.
+      ansible.builtin.file:
+        src: "{{ link.src }}"
+        dest: "{{ deploy_path }}/{{ link.dest }}"
+        state: link
+        force: "{{ link.force | default(false) }}"
+      with_items: "{{ composer.symlinks }}"
+      loop_control:
+        loop_var: link
+      when:
+        - composer.symlinks | length
