@@ -8,26 +8,33 @@
       command: require
       args: phpunit/phpunit
 
-- name: Generates phpunit.xml file.
+- name: Generate phpunit.xml file from provided file.
   ansible.builtin.template:
     src: "{{ item }}"
-    dest: "{{ deploy_path }}/phpunit.xml"
+    dest: "{{ phpunit.tests_path }}/phpunit.xml"
   with_first_found:
-    - "{{ playbook_dir }}/files/phpunit.xml"
-    - "{{ _ce_deploy_build_dir }}/phpunit.xml"
-    - "{{ _ce_deploy_build_dir }}/phpunit.xml.dist"
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml"
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml.dist"
-    - "{{ _ce_deploy_build_dir }}/{{ webroot }}/core/phpunit.xml.dist" # Drupal's default location
-  ignore_errors: true # don't fail if we don't find a file
+    - files:
+        - "{{ playbook_dir }}/files/phpunit.xml"
+        - "{{ _ce_deploy_build_dir }}/phpunit.xml"
+        - "{{ _ce_deploy_build_dir }}/phpunit.xml.dist"
+        - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml"
+        - "{{ _ce_deploy_build_dir }}/{{ webroot }}/phpunit.xml.dist"
+      skip: true  # don't fail if nothing found
 
-- name: Make sure we have a config file.
+- name: Check if we have a provided config file.
   ansible.builtin.stat:
-    path: "{{ deploy_path }}/phpunit.xml"
+    path: "{{ phpunit.tests_path }}/phpunit.xml"
   register: _phpunit_config
+
+- name: If not, check if we have Drupal's default phpunit.xml.dist file.
+  ansible.builtin.stat:
+    path: "{{ deploy_path }}/{{ webroot }}/core/phpunit.xml.dist"  # Drupal's default location
+  register: _phpunit_config
+  when: not _phpunit_config.stat.exists
 
 # Docs - https://docs.phpunit.de/ - chapter 3
 - name: Execute phpunit tests if we have a config.
   ansible.builtin.command:
-    cmd: "{{ phpunit.bin }} --configuration {{ deploy_path }}/phpunit.xml --group {{ phpunit.group }} {{ phpunit.target }}"
+    cmd: "{{ phpunit.bin }} --configuration {{ _phpunit_config.stat.path }} --group {{ phpunit.group }} {{ phpunit.target }}"
+    chdir: "{{ phpunit.tests_path }}"
   when: _phpunit_config.stat.exists
