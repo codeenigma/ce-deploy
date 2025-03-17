@@ -16,7 +16,7 @@ For more information on PHPUnit, see https://docs.phpunit.de
 ```yaml
 ---
 phpunit:
-  install: false # set to true if you want to ce-deploy to attempt to composer install phpunit
+  install: false # set to true if you want ce-deploy to attempt to composer install phpunit
   group: unit # comma separated list of group names to run
   target: ../modules # directory or file to test, defaults to Drupal's modules directory
   bin: "{{ deploy_path }}/vendor/bin/phpunit" # location of phpunit
