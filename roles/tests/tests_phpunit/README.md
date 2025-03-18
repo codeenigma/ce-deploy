@@ -4,11 +4,22 @@ Step that runs PHPUnit against the specified path in the codebase. Requires that
 * in the repository root
 * in your application's `webroot` directory
 
-As a final fallback it checks for Drupal's default PHPUnit configuration file at `web/core/phpunit.xml.dist`.
+As a final fallback it checks for [Drupal's default PHPUnit configuration file at `web/core/phpunit.xml.dist`](https://git.drupalcode.org/project/drupal/-/blob/11.x/core/phpunit.xml.dist).
 
 Optionally installs PHPUnit with `composer` if you want it to do so.
 
 For more information on PHPUnit, see https://docs.phpunit.de
+
+## Using with Drupal
+Ideally to use the role with Drupal you should start with [the Coder module](https://www.drupal.org/project/coder), which means having this in your `composer.json` file:
+
+```json
+  "require-dev": {
+    "drupal/coder": "^8.3"
+  }
+```
+
+If you include `coder` in your application it will automatically download PHPUnit. Leave the Ansible default variables for this role as they are and the role will automatically run PHPUnit tests against the entire `modules` directory using the default configuration file provided by the Drupal project.
 
 <!--TOC-->
 <!--ENDTOC-->

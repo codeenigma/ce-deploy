@@ -6,11 +6,11 @@ Optionally installs PHP CodeSniffer with `composer` using [this package](https:/
 For more information on PHP CodeSniffer, see the GitHub wiki: https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/
 
 ## Using with Drupal
-Ideally to use the role with Drupal you should have this in your `composer.json` file:
+Ideally to use the role with Drupal you should start with [the Coder module](https://www.drupal.org/project/coder), which means having this in your `composer.json` file:
 
 ```json
   "require-dev": {
-    "drupal/coder": "^8.3",
+    "drupal/coder": "^8.3"
   },
   "config": {
     "allow-plugins": {
@@ -25,7 +25,7 @@ You can then set the Ansible variables as follows to check your custom Drupal th
 ```yaml
 ---
 composer:
-  no_dev: false # installs phpcs
+  no_dev: false # installs phpcs, phpstan and phpunit - see dependencies: https://packagist.org/packages/drupal/coder
 phpcs:
   standard: vendor/drupal/coder/coder_sniffer/Drupal
   extensions: php,module,inc,theme,install
@@ -33,6 +33,23 @@ phpcs:
     - web/themes/custom
     - web/modules/custom
 ```
+
+## Using with other PHP applications
+To load PHP CodeSniffer in another `composer`-based PHP application, this should be sufficient:
+
+```json
+  "require-dev": {
+    "dealerdirect/phpcodesniffer-composer-installer": "^1.0"
+  },
+    "config": {
+    "allow-plugins": {
+      "dealerdirect/phpcodesniffer-composer-installer": true
+    },
+    "sort-packages": true
+  }
+```
+
+See the installation documentation on packagist: https://packagist.org/packages/dealerdirect/phpcodesniffer-composer-installer
 
 <!--TOC-->
 <!--ENDTOC-->
