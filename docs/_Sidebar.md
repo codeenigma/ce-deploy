@@ -49,4 +49,5 @@
      - [Tests](/roles/tests)
        - [Diffy tests](/roles/tests/tests_diffy)
        - [LHCI tests](/roles/tests/tests_lhci)
+       - [PHP CodeSniffer tests](/roles/tests/tests_phpcs)
        - [PHPUnit tests](/roles/tests/tests_phpunit)
