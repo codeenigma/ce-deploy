@@ -3,14 +3,6 @@ Mandatory role that must run before any other `ce-deploy` roles when executing a
 
 These variables **must** be set in a common variables file if you do not wish to use defaults.
 
-In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must have an AWS CLI profile for a user with the following IAM permissions:
-* `autoscaling:ResumeProcesses`
-* `autoscaling:SuspendProcesses`
-* `autoscaling:DescribeScalingProcessTypes`
-* `autoscaling:DescribeAutoScalingGroups`
-
-Set the `aws_asg.name` to the machine name of your ASG in order to automatically suspend and resume autoscaling on build.
-
 <!--TOC-->
 <!--ENDTOC-->
 
@@ -30,11 +22,6 @@ install_php_cachetool: true # set to false if you don't need cachetool, e.g. for
 ce_deploy_version: 1.x
 lock_file: /tmp/ce-deploy-lock
 provision_lock_file: /tmp/ce-provision-lock # must match _init.lock_file in ce-provision
-# AWS ASG variables to allow for the suspension of autoscaling during a code deployment.
-aws_asg:
-  name: "" # if the deploy is on an ASG put the name here
-  region: "eu-west-1"
-  suspend_processes: "Launch Terminate" # space separated string, see https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-suspend-resume-processes.html
 # Application specific variables.
 drupal:
   drush_verbose_output: false
