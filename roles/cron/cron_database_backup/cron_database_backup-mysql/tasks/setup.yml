@@ -35,11 +35,7 @@
 
 - name: Define backup cron job command if deferred (ASG).
   ansible.builtin.set_fact:
-<<<<<<< HEAD
-    _backup_cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _backup_cron_job_command }}\""
-=======
     _backup_cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _backup_cron_job_command }}\" >/dev/null"
->>>>>>> Redirecting-mysql-cron-dev-null
   when:
     - drupal.defer is defined
     - drupal.defer
