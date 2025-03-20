@@ -15,11 +15,21 @@
 - name: Run diffy with environment URL set.
   ansible.builtin.command:
     cmd: "{{ deploy_path }}/vendor/bin/diffy project:compare {{ diffy.project_id }} {{ diffy.main_env }} {{ diffy.test_env }} --env2Url={{ diffy.test_env_url }}"
-  register: _diffy_report_id
+  register: _diffy_report_id_with_env
   when: diffy.test_env_url | length > 0
+
+- name: Set _diffy_report_id for other roles to use.
+  ansible.builtin.set_fact:
+    _diffy_report_id: "{{ _diffy_report_id_with_env.stdout }}"
+  when: _diffy_report_id_with_env.stdout is defined
 
 - name: Run diffy.
   ansible.builtin.command:
     cmd: "{{ deploy_path }}/vendor/bin/diffy project:compare {{ diffy.project_id }} {{ diffy.main_env }} {{ diffy.test_env }}"
-  register: _diffy_report_id
+  register: _diffy_report_id_no_env
   when: diffy.test_env_url | length == 0
+
+- name: Set _diffy_report_id for other roles to use.
+  ansible.builtin.set_fact:
+    _diffy_report_id: "{{ _diffy_report_id_no_env.stdout }}"
+  when: _diffy_report_id_no_env.stdout is defined
