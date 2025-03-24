@@ -4,6 +4,7 @@
   - [Usage](scripts)
   - [Roles](roles)
      - [API call](/roles/api_call)
+     - [ASG Management](/roles/asg_management)
      - [Config](/roles/cache_clear)
        - [Drupal 7](/roles/cache_clear/cache_clear-drupal7)
        - [Drupal 8](/roles/cache_clear/cache_clear-drupal8)
@@ -49,4 +50,5 @@
      - [Tests](/roles/tests)
        - [Diffy tests](/roles/tests/tests_diffy)
        - [LHCI tests](/roles/tests/tests_lhci)
+       - [PHP CodeSniffer tests](/roles/tests/tests_phpcs)
        - [PHPUnit tests](/roles/tests/tests_phpunit)

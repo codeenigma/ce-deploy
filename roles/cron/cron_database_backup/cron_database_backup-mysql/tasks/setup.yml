@@ -42,6 +42,12 @@
     - drupal.defer_target is defined
     - drupal.defer_target | length > 0
 
+- name: Add dev null redirection (for non-deferred).
+  ansible.builtin.set_fact:
+    _cron_job_command: "{{ _backup_cron_job_command }} > /dev/null"
+  when:
+    - drupal.defer is not defined or not drupal.defer
+
 - name: Setup regular backup for MySQL.
   ansible.builtin.cron:
     name: "cron_mysql_{{ database.host }}_{{ database.original.database }}"
