@@ -31,11 +31,11 @@
 
 - name: Define backup cron job command.
   ansible.builtin.set_fact:
-    _backup_cron_job_command: "/bin/sh /home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh >/dev/null"
+    _backup_cron_job_command: "/bin/sh /home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/{{ database.host }}-{{ database.original.database }}-regular-backups.sh"
 
 - name: Define backup cron job command if deferred (ASG).
   ansible.builtin.set_fact:
-    _backup_cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _backup_cron_job_command }}\" >/dev/null"
+    _backup_cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _backup_cron_job_command }} > /dev/null\""
   when:
     - drupal.defer is defined
     - drupal.defer
@@ -53,6 +53,6 @@
     name: "cron_mysql_{{ database.host }}_{{ database.original.database }}"
     minute: "{{ _cron_mysql_backup_minute }}"
     hour: "{{ _cron_mysql_backup_hour }}"
-    job: "{{ _backup_cron_job_command }}"
+    job: "{{ _backup_cron_job_command }} > /dev/null"
   delegate_to: "{{ 'localhost' if drupal.defer is defined and drupal.defer else inventory_hostname }}"
   when: database.is_replica is not defined
