@@ -1,0 +1,26 @@
+ci:
+  collect:
+    url:
+{% for url in lhci.test_urls %}
+      - "{{ url }}"
+{% endfor %}
+    settings:
+      chromeFlags:
+{% for flag in lhci.chrome_flags %}
+        - "{{ flag }}"
+{% endfor %}
+{% if lhci.skip_audits is defined and lhci.skip_audits %}
+      skipAudits:
+{% for audit in lhci.skip_audits %}
+        - "{{ audit }}"
+{% endfor %}{% endif %}
+{% if lhci.only_audits is defined and lhci.only_audits %}
+      onlyAudits:
+{% for audit in lhci.only_audits %}
+        - "{{ audit }}"
+{% endfor %}{% endif %}
+    numberOfRuns: {{ lhci.test_runs }}
+    headful: true
+  upload:
+    outputDir: "{{ lhci.output_directory }}"
+    target: "{{ lhci.upload_target_type }}"

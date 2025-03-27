@@ -9,13 +9,9 @@ bin_directory: "/home/{{ deploy_user }}/.bin"
 cleanup_history_depth: 50
 install_php_cachetool: true # set to false if you don't need cachetool, e.g. for a nodejs app
 ce_deploy_version: 1.x
+ce_provision_version: 2.x # the version of ce-provision to grab files from when roles are shared
 lock_file: /tmp/ce-deploy-lock
 provision_lock_file: /tmp/ce-provision-lock # must match _init.lock_file in ce-provision
-# AWS ASG variables to allow for the suspension of autoscaling during a code deployment.
-aws_asg:
-  name: "" # if the deploy is on an ASG put the name here
-  region: "eu-west-1"
-  suspend_processes: "Launch Terminate" # space separated string, see https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-suspend-resume-processes.html
 # Application specific variables.
 drupal:
   drush_verbose_output: false
