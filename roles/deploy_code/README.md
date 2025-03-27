@@ -111,6 +111,10 @@ deploy_code:
   templates: []
   # Number of builds to keep. Note this is independant of databases/dump.
   keep: 10
+  # Number of task retries - specifically for SquashFS unmount
+  unmount_retries: 3
+  # Delay in seconds - specificalčly for SquashFS unmount
+  unmount_delay: 20
   # Whether to sync the local deploy base to a shared destination, after successful build.
   mount_sync: ""
   # mount_sync: "/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/deploy"

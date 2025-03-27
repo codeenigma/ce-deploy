@@ -1,0 +1,27 @@
+---
+- name: Create Dockerfile from template.
+  ansible.builtin.template:
+    src: "{{ cron_ecs.dockerfile_template }}"
+    dest: "{{ cron_ecs.docker_build_dir }}/Dockerfile_{{ project_name }}_{{ build_type }}_{{ site.folder }}"
+
+- set_fact:
+    container_name: "{{ project_name }}_{{ build_type }}_{{ site.folder | regex_replace('[^a-zA-Z0-9_-]', '_') }}_task"
+
+- name: Build and push container image.
+  community.docker.docker_image:
+    build:
+      path: "{{ cron_ecs.docker_build_dir }}"
+      dockerfile: "Dockerfile_{{ project_name }}_{{ build_type }}_{{ site.folder }}"
+    name: "{{ cron_ecs.docker_registry_name }}/{{ container_name }}"
+    tag: "{{ cron_ecs.container_tag | default('latest') }}"
+    push: true
+    source: build
+    force_source: "{{ cron_ecs.container_force_build }}"
+    force_tag: "{{ cron_ecs.container_force_build }}"
+
+- name: Create ECS tasks for the site.
+  ansible.builtin.include_tasks:
+    file: ecs-task.yml
+  with_items: "{{ site.cron }}"
+  loop_control:
+    loop_var: entry

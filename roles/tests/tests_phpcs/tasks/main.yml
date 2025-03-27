@@ -1,0 +1,39 @@
+---
+- name: Install the Drupal Coder module.
+  ansible.builtin.import_role:
+    name: composer
+  when: phpcs.install_drupal_coder
+  vars:
+    composer:
+      command: require
+      args: drupal/coder
+
+- name: Install PHP CodeSniffer with composer.
+  ansible.builtin.import_role:
+    name: composer
+  when: phpcs.install
+  vars:
+    composer:
+      command: require
+      args: dealerdirect/phpcodesniffer-composer-installer
+
+- name: Set base phpcs command.
+  ansible.builtin.set_fact:
+    _phpcs_command: "{{ phpcs.bin }}"
+
+- name: Set a standard.
+  ansible.builtin.set_fact:
+    _phpcs_command: "{{ _phpcs_command }} --standard={{ phpcs.standard }}"
+  when: phpcs.standard | length > 0
+
+- name: Set extensions.
+  ansible.builtin.set_fact:
+    _phpcs_command: "{{ _phpcs_command }} --extensions={{ phpcs.extensions }}"
+  when: phpcs.extensions | length > 0
+
+# Docs - https://github.com/PHPCSStandards/PHP_CodeSniffer/wiki/Usage
+- name: Execute phpcs tests.
+  ansible.builtin.command:
+    cmd: "{{ _phpcs_command }} {{ phpcs.test_paths | join(' ') }}"
+    chdir: "{{ deploy_path }}"
+  when: phpcs.test_paths | length > 0
