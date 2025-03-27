@@ -1,5 +1,6 @@
 ---
 deploy_container:
+  ce_provision_version: "{{ ce_provision_version }}" # used to determine version of ce-provision to fetch roles from
   action: create # can also be destroy
   container_name: example-container
   container_tag: latest # tag will take format container_name:container_tag
@@ -20,6 +21,7 @@ deploy_container:
   # Note, you can if you wish make more restrictive roles and policies
   aws_ecs:
     enabled: false
+    service_type: web_app # other options: scheduled_task, e.g. a cron job
     region: eu-west-1
     aws_profile: example
     tags: {}
