@@ -23,6 +23,7 @@
     path: "{{ lock_file }}"
     state: touch
     mode: 0644
+  when: deploy_operation == 'deploy'
 
 # Ensure default values for common variables.
 - name: Define deploy user.
@@ -70,6 +71,9 @@
     - cache_clear_opcache.cachetool_bin | length > 0
 
 - name: Manipulate variables for SquashFS builds.
+  when:
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
   block:
     - name: Define image builds base path.
       ansible.builtin.set_fact:
@@ -97,9 +101,6 @@
       ansible.builtin.file:
         path: "{{ build_base_path }}"
         state: directory
-  when:
-    - deploy_code.mount_type is defined
-    - deploy_code.mount_type == "squashfs"
 
 - name: Set the previous deploy's path for later use where we need to manipulate the live site.
   ansible.builtin.set_fact:
@@ -140,21 +141,10 @@
   ansible.builtin.stat:
     path: "{{ role_path }}/tasks/{{ project_type }}.yml"
   register: _project_type_task_result
-  delegate_to: "localhost"
+  delegate_to: localhost
 
 # Project specific init tasks.
 - name: Include project init tasks.
   ansible.builtin.include_tasks: "{{ project_type }}.yml"
   when:
     - _project_type_task_result.stat.exists
-
-# If we are operating on an AWS ASG then pause autoscaling.
-# @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
-- name: Disable autoscale processes on ASG.
-  ansible.builtin.command: >
-    aws autoscaling suspend-processes --auto-scaling-group-name {{ aws_asg.name }} --scaling-processes {{ aws_asg.suspend_processes }} --region {{ aws_asg.region }}
-  delegate_to: localhost
-  run_once: true
-  when:
-    - aws_asg.name is defined
-    - aws_asg.name | length > 0
