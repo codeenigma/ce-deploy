@@ -84,7 +84,7 @@
         msg: "Track file ID: {{ previous_build_number }}. Build path ID: {{ _current_build_id }}. These should match, something is wrong, failing the build."
       when:
         - _current_build_path.stat.islnk
-        - _current_build_id != previous_build_number
+        - _current_build_id | int != previous_build_number | int
 
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
