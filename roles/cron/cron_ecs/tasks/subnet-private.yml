@@ -1,7 +1,7 @@
 - name: Gather private subnet information.
   amazon.aws.ec2_vpc_subnet_info:
-    profile: "{{ ecs_asg.aws_ecs.aws_profile }}"
-    region: "{{ ecs_asg.aws_ecs.region }}"
+    profile: "{{ cron_ecs.aws_ecs.aws_profile }}"
+    region: "{{ cron_ecs.aws_ecs.region }}"
     filters:
       vpc-id: "{{ _aws_ecs_cluster_vpc_id }}"
       tag:Name: "{{ subnet }}"

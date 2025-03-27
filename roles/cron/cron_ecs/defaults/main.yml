@@ -1,5 +1,5 @@
 ---
-ecs_asg:
+cron_ecs:
   container_tag: latest # tag will take format container_name:container_tag
   container_force_build: true # force Docker to build and tag a new image
   docker_registry_name: index.docker.io/example # combines with container_name to make the full registry name, docker_registry_name/container_name
@@ -11,6 +11,9 @@ ecs_asg:
     aws_profile: example
   # Requires the deploy IAM user to have the managed AmazonECS_FullAccess and ElasticLoadBalancingFullAccess policies attached
   # Note, you can if you wish make more restrictive roles and policies
+  drupal_cron_entrypoint: "sh -c"
+  drupal_cron_command:
+    - "cd sites/{{ site.folder }} && ../../../vendor/bin/drush {{ entry.job }}"
   aws_ecs:
     region: eu-west-1
     aws_profile: example
