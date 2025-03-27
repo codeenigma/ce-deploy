@@ -1,0 +1,40 @@
+---
+- name: Gather VPC information.
+  amazon.aws.ec2_vpc_net_info:
+    profile: "{{ ecs_asg.aws_ecs.aws_profile }}"
+    region: "{{ ecs_asg.aws_ecs.region }}"
+    filters:
+      "tag:Name": "{{ ecs_asg.aws_ecs.vpc_name }}"
+  register: _aws_ecs_cluster_vpc
+  when:
+    - ecs_asg.aws_ecs.vpc_name is defined
+    - ecs_asg.aws_ecs.vpc_name | length > 0
+
+- name: Set the VPC id from name.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_vpc_id: "{{ _aws_ecs_cluster_vpc.vpcs[0].vpc_id }}"
+  when:
+    - ecs_asg.aws_ecs.vpc_name is defined
+    - ecs_asg.aws_ecs.vpc_name | length > 0
+
+- name: Use provided VPC id.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_vpc_id: "{{ ecs_asg.aws_ecs.vpc_id }}"
+  when: (ecs_asg.aws_ecs.vpc_name is not defined or ecs_asg.aws_ecs.vpc_name | length < 0)
+
+- name: Reset subnets lists.
+  ansible.builtin.set_fact:
+    _aws_ecs_cluster_public_subnets_ids: []
+    _aws_ecs_cluster_private_subnets_ids: []
+
+- name: Construct list of public subnet IDs.
+  ansible.builtin.include_tasks: subnet-public.yml
+  with_items: "{{ ecs_asg.aws_ecs.elb_subnets }}"
+  loop_control:
+    loop_var: subnet
+
+- name: Construct list of private subnet IDs.
+  ansible.builtin.include_tasks: subnet-private.yml
+  with_items: "{{ ecs_asg.aws_ecs.service_subnets }}"
+  loop_control:
+    loop_var: subnet

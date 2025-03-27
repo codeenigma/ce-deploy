@@ -14,22 +14,20 @@
 
 - name: AWS ECR handling.
   when: deploy_container.aws_ecr.enabled
+  delegate_to: localhost
   block:
     - name: Fetch AWS ECR registry login token. # token valid for 12 hours
       ansible.builtin.command:
         cmd: "aws ecr get-login-password --region {{ deploy_container.aws_ecr.region }} --profile {{ deploy_container.aws_ecr.aws_profile }}"
-      delegate_to: localhost
       register: _docker_registry_ecr_token
 
     - name: Set AWS ECR registry password.
       ansible.builtin.set_fact:
         _docker_registry_password: "{{ _docker_registry_ecr_token.stdout }}"
-      delegate_to: localhost
 
     - name: Set AWS ECR registry username.
       ansible.builtin.set_fact:
         _docker_registry_username: "AWS"
-      delegate_to: localhost
 
 - name: Remove Docker credentials file.
   ansible.builtin.file:
@@ -60,13 +58,13 @@
 # AWS specific things start here
 - name: Fetch the ACM role from ce-provision if required.
   when: deploy_container.aws_ecs.acm.create_cert
+  delegate_to: localhost
   block:
     - name: Ensure the aws_acm directory exists.
       ansible.builtin.file:
         path: "{{ _ce_deploy_base_dir }}/roles/aws_acm/{{ item }}"
         state: directory
         mode: '0755'
-      delegate_to: localhost
       with_items:
         - tasks
         - defaults
@@ -75,7 +73,6 @@
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_container.ce_provision_version }}/roles/aws/aws_acm/{{ item }}/main.yml"
         dest: "{{ _ce_deploy_base_dir }}/roles/aws_acm/{{ item }}/main.yml"
-      delegate_to: localhost
       with_items:
         - tasks
         - defaults
@@ -84,7 +81,6 @@
       ansible.builtin.get_url:
         url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_container.ce_provision_version }}/roles/aws/aws_acm/tasks/main.yml"
         dest: "{{ _ce_deploy_base_dir }}/roles/aws_acm/tasks/main.yml"
-      delegate_to: localhost
 
 # Gather all network information and set up task definition
 - name: Network handling and task definition creation.
@@ -351,10 +347,3 @@
       loop: "{{ _aws_ecs_cluster_dns_all_domains }}"
       when:
         - deploy_container.aws_ecs.route_53.zone | length > 0
-
-# Create standalone task
-- name: Web application service handling.
-  when:
-    - deploy_container.aws_ecs.service_type == 'scheduled_task'
-    - deploy_container.aws_ecs.enabled
-  block:

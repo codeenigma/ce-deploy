@@ -1,0 +1,10 @@
+FROM php:{{ _php_version_str }}-cli
+
+RUN apt-get update && apt-get install -y \
+    default-mysql-client \
+    unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY {{ deploy_path }} /var/www/html
+
+WORKDIR /var/www/html/{{ webroot }}

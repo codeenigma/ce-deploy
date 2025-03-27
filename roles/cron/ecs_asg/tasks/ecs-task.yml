@@ -1,0 +1,68 @@
+---
+- name: Set task definition name.
+  set_fact:
+    task_definition_name: "{{ project_name }}_{{ site.folder | regex_replace('[^a-zA-Z0-9_-]', '_') }}_task_{{ entry.job | regex_replace(' ', '_') }}"
+
+- name: Set containers definition for cron job.
+  set_fact:
+    dynamic_task_containers:
+      - name: "{{ container_name }}"
+        image: "{{ ecs_asg.docker_registry_name }}/{{ container_name }}:{{ ecs_asg.container_tag | default('latest') }}"
+        essential: true
+        entrypoint: ["sh", "-c"]
+        command: ["cd sites/{{ site.folder }} && ../../../vendor/bin/drush {{ entry.job }}"]
+        logConfiguration:
+          logDriver: awslogs
+          options:
+            awslogs-group: "/ecs/{{ ecs_asg.aws_ecs.cluster_name }}"
+            awslogs-region: "{{ ecs_asg.aws_ecs.region }}"
+            awslogs-stream-prefix: "{{ project_name }}_{{ task_definition_name }}"
+
+- name: Create task definition.
+  community.aws.ecs_taskdefinition:
+    region: "{{ ecs_asg.aws_ecs.region }}"
+    profile: "{{ ecs_asg.aws_ecs.aws_profile }}"
+    family: "{{ task_definition_name }}"
+    execution_role_arn: "{{ ecs_asg.aws_ecs.task_execution_role_arn }}"
+    task_role_arn: "{{ ecs_asg.aws_ecs.task_role_arn | default(omit) }}"
+    containers: "{{ dynamic_task_containers }}"
+    launch_type: "{{ ecs_asg.aws_ecs.launch_type }}"
+    cpu: "{{ ecs_asg.aws_ecs.cpu | default(omit) }}"
+    memory: "{{ ecs_asg.aws_ecs.memory | default(omit) }}"
+    state: present
+    network_mode: "{{ ecs_asg.aws_ecs.network_mode }}"
+    volumes: "{{ ecs_asg.aws_ecs.volumes | default(omit) }}"
+    force_create: "{{ ecs_asg.aws_ecs.task_definition_force_create }}"
+  register: task_definition_result
+
+# - name: Create ECS service.
+#   community.aws.ecs_service:
+#     region: "{{ ecs_asg.aws_ecs.region }}"
+#     profile: "{{ ecs_asg.aws_ecs.aws_profile }}"
+#     state: present
+#     name: "{{ task_definition_name }}"
+#     cluster: "{{ ecs_asg.aws_ecs.cluster_name }}"
+#     task_definition: "{{ task_definition_result.task_definition.task_definition_arn }}"
+#     desired_count: "{{ ecs_asg.aws_ecs.task_count }}"
+#     launch_type: "{{ ecs_asg.aws_ecs.launch_type }}"
+#     platform_version: "LATEST"
+#     scheduling_strategy: "DAEMON"
+#     network_configuration:
+#       subnets: "{{ _aws_ecs_cluster_private_subnets_ids }}" # internal private subnet
+#       security_groups: "{{ ecs_asg.aws_ecs.security_groups }}"
+#       assign_public_ip: false
+#     tags: "{{ ecs_asg.aws_ecs.tags }}"
+#     enable_execute_command: "{{ ecs_asg.aws_ecs.service_enable_ssm }}"
+#     force_new_deployment: "{{ ecs_asg.aws_ecs.service_force_refresh }}"
+#     wait: true
+
+- name: Create schedule.
+  amazon.aws.cloudwatchevent_rule:
+    name: "{{ task_definition_name }}_schedule"
+    schedule_expression: "cron({{ entry.minute }} {{ entry.hour | default(omit) }} {{ entry.day | default(omit) }} {{ entry.month | default(omit) }} {{ entry.weekday | default(omit) }})"
+    targets:
+      - id: "{{ task_definition_name }}"
+        arn: "{{ task_definition_result.task_definition.task_definition_arn }}"
+        ecs_parameters:
+          task_count: "{{ ecs_asg.aws_ecs.task_count }}"
+          task_definition_arn: "{{ task_definition_result.task_definition.task_definition_arn }}"
