@@ -34,6 +34,7 @@
     volumes: "{{ ecs_asg.aws_ecs.volumes | default(omit) }}"
     force_create: "{{ ecs_asg.aws_ecs.task_definition_force_create }}"
   register: task_definition_result
+  delegate_to: localhost
 
 # - name: Create ECS service.
 #   community.aws.ecs_service:
@@ -66,3 +67,4 @@
         ecs_parameters:
           task_count: "{{ ecs_asg.aws_ecs.task_count }}"
           task_definition_arn: "{{ task_definition_result.task_definition.task_definition_arn }}"
+  delegate_to: localhost

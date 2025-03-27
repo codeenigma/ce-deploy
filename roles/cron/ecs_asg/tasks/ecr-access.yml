@@ -3,6 +3,8 @@
   ansible.builtin.command:
     cmd: "aws ecr get-login-password --region {{ ecs_asg.aws_ecr.region }} --profile {{ ecs_asg.aws_ecr.aws_profile }}"
   register: _docker_registry_ecr_token
+  delegate_to: localhost
+  no_log: true
 
 - name: Set AWS ECR registry password.
   ansible.builtin.set_fact:
