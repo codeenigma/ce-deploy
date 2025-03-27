@@ -1,8 +1,8 @@
 ---
 - name: Create Dockerfile from template.
   ansible.builtin.template:
-    src: "{{ ecs_asg.dockerfile_template }}"
-    dest: "{{ ecs_asg.docker_build_dir }}/Dockerfile_{{ project_name }}_{{ build_type }}_{{ site.folder }}"
+    src: "{{ cron_ecs.dockerfile_template }}"
+    dest: "{{ cron_ecs.docker_build_dir }}/Dockerfile_{{ project_name }}_{{ build_type }}_{{ site.folder }}"
 
 - set_fact:
     container_name: "{{ project_name }}_{{ build_type }}_{{ site.folder | regex_replace('[^a-zA-Z0-9_-]', '_') }}_task"
@@ -10,14 +10,14 @@
 - name: Build and push container image.
   community.docker.docker_image:
     build:
-      path: "{{ ecs_asg.docker_build_dir }}"
+      path: "{{ cron_ecs.docker_build_dir }}"
       dockerfile: "Dockerfile_{{ project_name }}_{{ build_type }}_{{ site.folder }}"
-    name: "{{ ecs_asg.docker_registry_name }}/{{ container_name }}"
-    tag: "{{ ecs_asg.container_tag | default('latest') }}"
+    name: "{{ cron_ecs.docker_registry_name }}/{{ container_name }}"
+    tag: "{{ cron_ecs.container_tag | default('latest') }}"
     push: true
     source: build
-    force_source: "{{ ecs_asg.container_force_build }}"
-    force_tag: "{{ ecs_asg.container_force_build }}"
+    force_source: "{{ cron_ecs.container_force_build }}"
+    force_tag: "{{ cron_ecs.container_force_build }}"
 
 - name: Create ECS tasks for the site.
   ansible.builtin.include_tasks:
