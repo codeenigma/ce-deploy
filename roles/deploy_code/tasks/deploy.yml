@@ -71,23 +71,23 @@
 
     - name: Fetch nginx domain.yml.
       ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/nginx/tasks/domain.yml
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/nginx/tasks/domain.yml"
         dest: "{{ _ce_deploy_base_dir }}/roles/debian/nginx/domain.yml"
 
     # Because of the way it is called, this needs putting into the playbook directory.
     - name: Fetch nginx ssl.yml.
       ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/nginx/tasks/ssl.yml
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/nginx/tasks/ssl.yml"
         dest: "{{ _ce_deploy_build_dir }}/deploy/ssl.yml"
 
     - name: Fetch nginx defaults.
       ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/nginx/defaults/main.yml
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/nginx/defaults/main.yml"
         dest: "{{ _ce_deploy_base_dir }}/roles/debian/nginx/defaults/main.yml"
 
     - name: Fetch nginx templates.
       ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/nginx/templates/{{ item }}"
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/nginx/templates/{{ item }}"
         dest: "{{ _ce_deploy_base_dir }}/roles/debian/nginx/templates/{{ item }}"
       with_items:
         - vhosts.j2
@@ -95,7 +95,7 @@
 
     - name: Fetch ssl tasks.
       ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/ssl/tasks/{{ item }}.yml"
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/ssl/tasks/{{ item }}.yml"
         dest: "{{ _ce_deploy_base_dir }}/roles/debian/ssl/tasks/{{ item }}.yml"
       with_items:
         - copy
@@ -108,12 +108,12 @@
 
     - name: Fetch ssl defaults.
       ansible.builtin.get_url:
-        url: https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/ssl/defaults/main.yml
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/ssl/defaults/main.yml"
         dest: "{{ _ce_deploy_base_dir }}/roles/debian/ssl/defaults/main.yml"
 
     - name: Fetch ssl templates.
       ansible.builtin.get_url:
-        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/2.x/roles/debian/ssl/templates/{{ item }}"
+        url: "https://raw.githubusercontent.com/codeenigma/ce-provision/{{ deploy_code.ce_provision_version }}/roles/debian/ssl/templates/{{ item }}"
         dest: "{{ _ce_deploy_base_dir }}/roles/debian/ssl/templates/{{ item }}"
       with_items:
         - le_cron.sh.j2

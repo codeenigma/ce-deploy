@@ -1,0 +1,27 @@
+---
+- name: Fetch AWS ECR registry login token. # token valid for 12 hours
+  ansible.builtin.command:
+    cmd: "aws ecr get-login-password --region {{ cron_ecs.aws_ecr.region }} --profile {{ cron_ecs.aws_ecr.aws_profile }}"
+  register: _docker_registry_ecr_token
+  delegate_to: localhost
+  no_log: true
+
+- name: Set AWS ECR registry password.
+  ansible.builtin.set_fact:
+    _docker_registry_password: "{{ _docker_registry_ecr_token.stdout }}"
+
+- name: Set AWS ECR registry username.
+  ansible.builtin.set_fact:
+    _docker_registry_username: "AWS"
+
+- name: Remove Docker credentials file.
+  ansible.builtin.file:
+    state: absent
+    path: "/home/{{ deploy_user }}/.docker/config.json"
+
+- name: Log into Docker registry.
+  community.docker.docker_login:
+    registry_url: "{{ cron_ecs.docker_registry_url }}"
+    username: "{{ _docker_registry_username }}"
+    password: "{{ _docker_registry_password }}"
+    reauthorize: true
