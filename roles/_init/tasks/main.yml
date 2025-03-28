@@ -59,6 +59,34 @@
   ansible.builtin.set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
 
+- name: Read the live symlink to get the path to the current build.
+  ansible.builtin.stat:
+    path: "{{ live_symlink_dest }}"
+  register: _current_build_path
+
+- name: Stop the build if track file value doesn't match current build.
+  when:
+    - deploy_operation == 'deploy'
+    - previous_build_number > 0
+    - _current_build_path.stat.islnk is defined
+  block:
+    - name: Grab the link target build ID with regex.
+      ansible.builtin.set_fact:
+        _current_build_id: "{{ _current_build_path.stat.lnk_source | regex_search('.*_([0-9]*)$', '\\1') }}"
+      when: _current_build_path.stat.islnk
+
+    - name: Tidy up the variable so it only contains the build ID.
+      ansible.builtin.set_fact:
+        _current_build_id: "{{ _current_build_id[0] }}"
+      when: _current_build_path.stat.islnk
+
+    - name: Fail the build if the path does not match the track file.
+      ansible.builtin.fail:
+        msg: "Track file ID: {{ previous_build_number }}. Build path ID: {{ _current_build_id }}. These should match, something is wrong, failing the build."
+      when:
+        - _current_build_path.stat.islnk
+        - _current_build_id | int != previous_build_number | int
+
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
     cachetool_bin: "{{ deploy_base_path }}/cachetool.phar"
@@ -105,30 +133,6 @@
 - name: Set the previous deploy's path for later use where we need to manipulate the live site.
   ansible.builtin.set_fact:
     previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
-
-# Gather last known good build directly from symlink.
-# This can happen:
-# - when the first builds failed,
-# and we don't have yet a succesful one
-# - when the repository source changed and we lost track of
-# the project
-# - when the symlink has been manually messed up.
-# @todo commented out, not sure we want that.
-# - name: Check if we have a live symlink.
-#   stat:
-#     path: "{{ live_symlink_dest }}"
-#   register: last_build_symlink
-
-# - name: Register current build.
-#   shell: "readlink {{ live_symlink_dest }} | grep -Po '{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_\\K([0-9]*)'"
-#   register: last_build
-#   when: last_build_symlink.stat.exists
-
-# - set_fact:
-#     previous_build_number: "{{ last_build.stdout }}"
-#   when:
-#     - last_build_symlink.stat.exists
-#     - previous_build_number == 0
 
 # Make sure the deploy target exists.
 - name: Ensure deploy target directory exists.
