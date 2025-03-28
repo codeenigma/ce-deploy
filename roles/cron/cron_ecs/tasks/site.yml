@@ -4,7 +4,7 @@
     src: "{{ cron_ecs.dockerfile_template }}"
     dest: "{{ cron_ecs.docker_build_dir }}/Dockerfile_{{ project_name }}_{{ build_type }}_{{ site.folder }}"
 
-- set_fact:
+- ansible.builtin.set_fact:
     container_name: "{{ project_name }}_{{ build_type }}_{{ site.folder | regex_replace('[^a-zA-Z0-9_-]', '_') }}_task"
 
 - name: Build and push container image.
