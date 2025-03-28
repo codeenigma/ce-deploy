@@ -201,11 +201,11 @@
 
     - name: Default to provided SSL certificate ARN.
       ansible.builtin.set_fact:
-        _ssl_certificate_ARN: "{{ deploy_container.aws_ecs.ssl_certificate_ARN }}"
+        _ssl_certificate_arn: "{{ deploy_container.aws_ecs.ssl_certificate_arn }}"
 
     - name: If provided, override SSL certificate ARN with the one received from ACM.
       ansible.builtin.set_fact:
-        _ssl_certificate_ARN: "{{ aws_acm_certificate_arn }}"
+        _ssl_certificate_arn: "{{ aws_acm_certificate_arn }}"
       when:
         - deploy_container.aws_ecs.acm.create_cert
 
@@ -235,7 +235,7 @@
           Port: "{{ deploy_container.aws_ecs.elb_https_port }}"
           SslPolicy: "{{ deploy_container.aws_ecs.elb_ssl_policy }}"
           Certificates:
-            - CertificateArn: "{{ _ssl_certificate_ARN }}"
+            - CertificateArn: "{{ _ssl_certificate_arn }}"
           DefaultActions:
             - Type: forward
               TargetGroupName: "{{ deploy_container.aws_ecs.target_group_name | truncate(32, true, '', 0) }}"
@@ -245,13 +245,13 @@
       ansible.builtin.set_fact:
         _aws_ecs_cluster_listeners: "{{ [ _aws_ecs_cluster_listeners_http ] }}"
       when:
-        - _ssl_certificate_ARN | length < 1
+        - _ssl_certificate_arn | length < 1
 
     - name: Add HTTPS Listener.
       ansible.builtin.set_fact:
         _aws_ecs_cluster_listeners: "{{ [ _aws_ecs_cluster_listeners_redirect, _aws_ecs_cluster_listeners_https ] }}"
       when:
-        - _ssl_certificate_ARN | length > 1
+        - _ssl_certificate_arn | length > 1
 
     - name: Add custom Listeners.
       ansible.builtin.set_fact:
