@@ -8,7 +8,6 @@
   ansible.builtin.include_tasks:
     file: networking.yml
   when: deploy_operation == 'cleanup'
-  delegate_to: localhost
 
 - name: Create and push containers for the scheduled ECS tasks.
   ansible.builtin.include_tasks:

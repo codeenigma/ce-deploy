@@ -21,7 +21,7 @@
 
 - name: Log into Docker registry.
   community.docker.docker_login:
-    registry_url: "{{ cron_ecs.docker_registry_url }}"
+    registry_url: "https://{{ cron_ecs.docker_registry_name }}"
     username: "{{ _docker_registry_username }}"
     password: "{{ _docker_registry_password }}"
     reauthorize: true

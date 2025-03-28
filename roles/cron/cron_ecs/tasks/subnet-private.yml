@@ -6,6 +6,7 @@
       vpc-id: "{{ _aws_ecs_cluster_vpc_id }}"
       tag:Name: "{{ subnet }}"
   register: _aws_ecs_cluster_private_subnet
+  delegate_to: localhost
 
 - name: Add private subnet to the list.
   ansible.builtin.set_fact:
