@@ -1,10 +1,10 @@
 ---
 - name: Set task definition name.
-  set_fact:
+  ansible.builtin.set_fact:
     task_definition_name: "{{ project_name }}_{{ site.folder | regex_replace('[^a-zA-Z0-9_-]', '_') }}_task_{{ entry.job | regex_replace(' ', '_') }}"
 
 - name: Set containers definition for drupal cron tasks.
-  set_fact:
+  ansible.builtin.set_fact:
     dynamic_task_containers:
       - name: "{{ container_name }}"
         image: "{{ cron_ecs.docker_registry_name }}/{{ container_name }}:{{ cron_ecs.container_tag | default('latest') }}"
