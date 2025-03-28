@@ -69,10 +69,6 @@
     - deploy_operation == 'deploy'
     - previous_build_number > 0
     - _current_build_path.stat.islnk is defined
-- name: Stop the build if track file value doesn't match current build.
-  when:
-    - deploy_operation == 'deploy'
-    - previous_build_number > 0
   block:
     - name: Grab the link target build ID with regex.
       ansible.builtin.set_fact:
