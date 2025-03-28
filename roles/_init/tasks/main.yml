@@ -59,16 +59,17 @@
   ansible.builtin.set_fact:
     live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
 
+- name: Read the live symlink to get the path to the current build.
+  ansible.builtin.stat:
+    path: "{{ live_symlink_dest }}"
+  register: _current_build_path
+
 - name: Stop the build if track file value doesn't match current build.
   when:
     - deploy_operation == 'deploy'
     - previous_build_number > 0
+    - _current_build_path.stat.islnk is defined
   block:
-    - name: Read the live symlink to get the path to the current build.
-      ansible.builtin.stat:
-        path: "{{ live_symlink_dest }}"
-      register: _current_build_path
-
     - name: Grab the link target build ID with regex.
       ansible.builtin.set_fact:
         _current_build_id: "{{ _current_build_path.stat.lnk_source | regex_search('.*_([0-9]*)$', '\\1') }}"
