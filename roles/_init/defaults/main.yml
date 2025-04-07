@@ -12,6 +12,7 @@ ce_deploy_version: 1.x
 ce_provision_version: 2.x # the version of ce-provision to grab files from when roles are shared
 lock_file: /tmp/ce-deploy-lock
 provision_lock_file: /tmp/ce-provision-lock # must match _init.lock_file in ce-provision
+skip_build_path_check: false # by default we're checking if track number matches
 # Application specific variables.
 drupal:
   drush_verbose_output: false

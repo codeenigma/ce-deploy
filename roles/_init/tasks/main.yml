@@ -86,6 +86,7 @@
       when:
         - _current_build_path.stat.islnk
         - _current_build_id | int != previous_build_number | int
+        - not skip_build_path_check
 
 - name: Define opcache cachetool path.
   ansible.builtin.set_fact:
