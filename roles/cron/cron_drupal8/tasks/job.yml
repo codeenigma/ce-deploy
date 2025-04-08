@@ -31,6 +31,7 @@
     name: MAILTO
     env: true
     job: "{{ drupal.cron_mailto }}"
+    user: "{{ deploy_user }}"
     state: present
   when: drupal.cron_mailto is defined
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
