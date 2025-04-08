@@ -16,11 +16,11 @@ backup(){
 }
 
 cleanup(){
-  if [ "$(find "$TARGET_DIR" -name '*.sql.*'  | wc -l)" -lt "$KEEP" ]; then
-    return 0
-  fi
-  rm "$(find $TARGET_DIR -name '*.sql.*' | sort | head -n 1)"
-  cleanup
+  # Loop to check and remove backups if there are more than the KEEP value
+  while [ "$(find "$TARGET_DIR" -name "$DB_NAME-*.sql.gz" | wc -l)" -gt "$KEEP" ]; do
+    # Remove the oldest backup if more than KEEP backups exist
+    rm "$(find "$TARGET_DIR" -name "$DB_NAME-*.sql.gz" | sort | head -n 1)"
+  done
 }
 
 backup
