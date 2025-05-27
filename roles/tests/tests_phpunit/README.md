@@ -34,6 +34,7 @@ phpunit:
   target: ../modules # directory or file to test, defaults to Drupal's modules directory
   bin: "{{ deploy_path }}/vendor/bin/phpunit" # location of phpunit
   tests_path: "{{ deploy_path }}/{{ webroot }}/core" # directory containing the PHPUnit 'tests' directory, defaults to Drupal's core directory
+  working_dir: "{{ deploy_path }}"  # path to execute composer from
 
 ```
 
