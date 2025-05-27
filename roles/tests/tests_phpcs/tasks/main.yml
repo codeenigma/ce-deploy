@@ -7,6 +7,7 @@
     composer:
       command: require
       args: drupal/coder
+      working_dir: "{{ phpcs.working_dir }}"
 
 - name: Install PHP CodeSniffer with composer.
   ansible.builtin.import_role:
@@ -16,6 +17,7 @@
     composer:
       command: require
       args: dealerdirect/phpcodesniffer-composer-installer
+      working_dir: "{{ phpcs.working_dir }}"
 
 - name: Set base phpcs command.
   ansible.builtin.set_fact:
@@ -35,5 +37,5 @@
 - name: Execute phpcs tests.
   ansible.builtin.command:
     cmd: "{{ _phpcs_command }} {{ phpcs.test_paths | join(' ') }}"
-    chdir: "{{ deploy_path }}"
+    chdir: "{{ phpcs.working_dir }}"
   when: phpcs.test_paths | length > 0

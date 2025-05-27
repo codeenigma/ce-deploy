@@ -1,0 +1,29 @@
+---
+- name: Reset the _behat_outputs var.
+  ansible.builtin.set_fact:
+    _behat_outputs: ""
+
+- name: Install Behat with composer.
+  ansible.builtin.import_role:
+    name: composer
+  when: behat.install
+  vars:
+    composer:
+      command: require
+      args: behat/behat
+      working_dir: "{{ behat.working_dir }}"
+
+- name: Build Behat outputs string.
+  ansible.builtin.set_fact:
+    _behat_outputs: "{{ _behat_outputs }} -f {{ item.format }} -o {{ item.output }}"
+  with_items: "{{ behat.outputs }}"
+
+- name: Add verbosity if requested.
+  ansible.builtin.set_fact:
+    _behat_outputs: "{{ _behat_outputs }} -v"
+  when: behat.verbose
+
+- name: Run Behat command.
+  ansible.builtin.command:
+    cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
+  when: behat.outputs | length > 0

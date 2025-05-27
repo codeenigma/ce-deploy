@@ -27,6 +27,8 @@ diffy:
   main_env: dev   # name of the 'good' environment to compare against (must be pre-configured in diffy)
   test_env: custom  # name of the environment to be compared (usually diffy's default 'custom' environment)
   test_env_url: ""  # set a base URL to use against the diffy 'custom' environment
+  bin: "{{ deploy_path }}/vendor/bin/diffy"  # location of diffy
+  working_dir: "{{ deploy_path }}"  # path to execute composer and related binaries from
 
 ```
 
