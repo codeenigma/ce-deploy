@@ -1,4 +1,18 @@
 ---
+- name: Override paths for squashfs build cleanup step.
+  block:
+    - name: Override path to drush binary.
+      set_fact:
+        drush_bin: "{{ drush_live_bin }}"
+
+    - name: Override deploy_path.
+      set_fact:
+        deploy_path: "{{ live_symlink_dest }}"
+  when:
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
+    - deploy_operation == "cleanup"
+
 - name: Clear Drupal 7 cache.
   command:
     cmd: "{{ drush_bin }} -l {{ site_drupal.folder }} -y cc all"
@@ -9,3 +23,9 @@
   loop_control:
     loop_var: site_drupal
   run_once: true
+  register: _drush_output
+
+- name: Show drush output.
+  ansible.builtin.debug:
+    msg: "{{ _drush_output }}"
+  when: drupal.drush_verbose_output
