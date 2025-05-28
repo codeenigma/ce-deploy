@@ -1,8 +1,7 @@
 ---
 deploy_user: 'deploy'
 live_symlink:
-  # Either update (for successful builds) or revert.
-  operation: update
+  revert_on_fail: true
   # Specify any additional directory symlink to create, with src (target) and dest (link).
   # src: can be either absolute or relative to the dest (eg. '/var/my_data', '/home/deploy/simplesaml', '../../../myconfig')
   # dest: can only be relative to the root of your repository (eg. 'www/themes/myassets', 'var/cache')
