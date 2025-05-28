@@ -89,6 +89,7 @@ Deploying code with autoscaling clusters relies on [cloud-init](https://cloudini
 _ce_provision_data_dir: /home/deploy/ce-deploy/data
 
 deploy_code:
+  ce_provision_version: "{{ ce_provision_version }}" # used to determine version of ce-provision to fetch roles from
   # Feature branching config.
   feature_branch:
     enabled: false

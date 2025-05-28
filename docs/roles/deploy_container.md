@@ -43,11 +43,13 @@ It is worth noting that even if you put your containers on private subnets and c
 ```yaml
 ---
 deploy_container:
+  ce_provision_version: "{{ ce_provision_version }}" # used to determine version of ce-provision to fetch roles from
   action: create # can also be destroy
   container_name: example-container
   container_tag: latest # tag will take format container_name:container_tag
   container_force_build: true # force Docker to build and tag a new image
   docker_registry_name: index.docker.io/example # combines with container_name to make the full registry name, docker_registry_name/container_name
+  # docker_registry_url: "https://index.docker.io/v1/"
   docker_registry_user: example
   docker_registry_pass: asdf1234
   docker_base_command: "docker image build"
@@ -63,6 +65,7 @@ deploy_container:
   # Note, you can if you wish make more restrictive roles and policies
   aws_ecs:
     enabled: false
+    service_type: web_app # other options: scheduled_task, e.g. a cron job
     region: eu-west-1
     aws_profile: example
     tags: {}
@@ -71,14 +74,14 @@ deploy_container:
       zone: example.com
       aws_profile: example2 # might not be the same account
     vpc_name: example
-    #vpc_id: vpc-XXXXXXX # optionally specify VPC ID to use
+    # vpc_id: vpc-XXXXXXX # optionally specify VPC ID to use
     security_groups: [] # list of security groups, accepts names or IDs
     cluster_name: example-cluster
     family_name: example-task-definition
     task_definition_revision: "" # integer, but must be presented as a string for Jinja2
     task_definition_force_create: false # creates a task definition revision every time if set to true
     task_execution_role_arn: "arn:aws:iam::000000000000:role/ecsTaskExecutionRole" # ARN of the IAM role to run the task as, must have access to the ECR repository if applicable
-    #task_role_arn: "" # required if you set service_enable_ssm to true
+    # task_role_arn: "" # required if you set service_enable_ssm to true
     task_count: 1
     task_minimum_count: 1
     task_maximum_count: 4
@@ -111,23 +114,23 @@ deploy_container:
     memory: 1024
     launch_type: FARGATE
     network_mode: awsvpc
-    #volumes: [] # list of additional volumes to attach
+    # volumes: [] # list of additional volumes to attach
     target_group_name: example # can have a maximum of 32 characters, must contain only alphanumeric characters or hyphens, and must not begin or end with a hyphen
     target_group_protocol: http
     target_group_port: 8080 # ports lower than 1024 will require the app to be configured to run as a privileged user in the Dockerfile
     target_group_wait_timeout: 200 # how long to wait for target group events to complete
     targets: [] # typically we do not specify targets at this point, this will be handled automatically by the ECS service
-      #- Id: 10.0.0.2
-      #  Port: 80
-      #  AvailabilityZone: all
+      # - Id: 10.0.0.2
+      #   Port: 80
+      #   AvailabilityZone: all
     health_check:
       protocol: http
       path: /
       response_codes: "200"
-      # optional additional healthcheck settings
-      #interval: 60
-      #healthy_threshold_count: 3
-      #unhealthy_threshold_count: 5
+      ## optional additional healthcheck settings
+      # interval: 60
+      # healthy_threshold_count: 3
+      # unhealthy_threshold_count: 5
     # Requires the deploy IAM user to have the managed AWSCertificateManagerFullAccess and AmazonRoute53FullAccess policies attached
     acm: # see https://github.com/codeenigma/ce-provision/tree/1.x/roles/aws/aws_acm
       create_cert: false
