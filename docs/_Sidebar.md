@@ -48,6 +48,7 @@
        - [Database sync](/roles/sync/database_sync)
          - [Database sync - MySQL](/roles/sync/database_sync/database_sync-mysql)
      - [Tests](/roles/tests)
+       - [Behat tests](/roles/tests/tests_behat)
        - [Diffy tests](/roles/tests/tests_diffy)
        - [LHCI tests](/roles/tests/tests_lhci)
        - [PHP CodeSniffer tests](/roles/tests/tests_phpcs)
