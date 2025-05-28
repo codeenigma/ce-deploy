@@ -27,4 +27,15 @@
   ansible.builtin.command:
     cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
     chdir: "{{ behat.working_dir }}"
-  when: behat.outputs | length > 0
+  when:
+    - behat.outputs | length > 0
+    - behat.fail_builds
+
+- name: Run Behat command without failing build.
+  ansible.builtin.command:
+    cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
+    chdir: "{{ behat.working_dir }}"
+  failed_when: false
+  when:
+    - behat.outputs | length > 0
+    - not behat.fail_builds
