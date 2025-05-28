@@ -26,4 +26,5 @@
 - name: Run Behat command.
   ansible.builtin.command:
     cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
+    chdir: "{{ behat.working_dir }}"
   when: behat.outputs | length > 0
