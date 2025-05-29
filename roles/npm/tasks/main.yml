@@ -49,7 +49,7 @@
       ansible.builtin.file:
         path: "{{ npm.working_dir }}/node_modules"
         state: absent
-      when: remove_node_modules
+      when: npm.remove_node_modules
 
     - name: Generate additional templates.
       ansible.builtin.template:
