@@ -14,7 +14,7 @@
 
     - name: Show NPM commands output.
       ansible.builtin.debug:
-        msg: "{{ item.item }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
+        msg: "{{ item.npm_command }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
       loop: "{{ _npm_results.results }}"
 
     - name: Run extra drush commands from webroot.
@@ -28,7 +28,7 @@
 
     - name: Show extra drush commands output.
       ansible.builtin.debug:
-        msg: "{{ item.item }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
+        msg: "{{ item.extra_drush_command }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
       loop: "{{ _extra_drush_command_results.results }}"
 
     - name: Run extra npm commands from node app dir.
@@ -42,7 +42,7 @@
 
     - name: Show extra npm commands output.
       ansible.builtin.debug:
-        msg: "{{ item.item }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
+        msg: "{{ item.extra_npm_command }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
       loop: "{{ _extra_npm_command_results.results }}"
 
     - name: Remove node_modules.
