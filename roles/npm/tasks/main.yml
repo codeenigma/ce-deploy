@@ -1,33 +1,74 @@
 ---
-- name: Perform NPM steps.
-  ansible.builtin.command:
-    cmd: "{{ npm.executor }} {{ npm_command }}"
-    chdir: "{{ npm.working_dir }}"
-  with_items: "{{ npm.commands }}"
-  loop_control:
-    loop_var: npm_command
-  when: deploy_operation == 'deploy'
-
-- name: Generate additional templates.
-  ansible.builtin.template:
-    src: "{{ template.src }}"
-    dest: "{{ deploy_path }}/{{ template.dest }}"
-  with_items: "{{ npm.templates }}"
-  loop_control:
-    loop_var: template
+- name: Perform NPM and extra steps.
   when:
-    - npm.templates | length
     - deploy_operation == 'deploy'
+  block:
+    - name: Perform NPM steps.
+      ansible.builtin.command:
+        cmd: "{{ npm.executor }} {{ npm_command }}"
+        chdir: "{{ npm.working_dir }}"
+      with_items: "{{ npm.commands }}"
+      loop_control:
+        loop_var: npm_command
+      register: _npm_results
 
-- name: Create additional symlinks.
-  ansible.builtin.file:
-    src: "{{ link.src }}"
-    dest: "{{ deploy_path }}/{{ link.dest }}"
-    state: link
-    force: "{{ link.force | default(false) }}"
-  with_items: "{{ npm.symlinks }}"
-  loop_control:
-    loop_var: link
-  when:
-    - npm.symlinks | length
-    - deploy_operation == 'deploy'
+    - name: Show NPM commands output.
+      ansible.builtin.debug:
+        msg: "{{ item.item }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
+      loop: "{{ _npm_results.results }}"
+
+    - name: Run extra drush commands from webroot.
+      ansible.builtin.command:
+        cmd: "{{ drush_bin }} {{ extra_drush_command }}"
+        chdir: "{{ deploy_path }}/{{ webroot }}"
+      with_items: "{{ npm.extra_drush_commands }}"
+      loop_control:
+        loop_var: extra_drush_command
+      register: _extra_drush_command_results
+
+    - name: Show extra drush commands output.
+      ansible.builtin.debug:
+        msg: "{{ item.item }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
+      loop: "{{ _extra_drush_command_results.results }}"
+
+    - name: Run extra npm commands from node app dir.
+      ansible.builtin.command:
+        cmd: "{{ npm.executor }} {{ extra_npm_command }}"
+        chdir: "{{ npm.working_dir }}"
+      with_items: "{{ npm.extra_npm_commands }}"
+      loop_control:
+        loop_var: extra_npm_command
+      register: _extra_npm_command_results
+
+    - name: Show extra npm commands output.
+      ansible.builtin.debug:
+        msg: "{{ item.item }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
+      loop: "{{ _extra_npm_command_results.results }}"
+
+    - name: Remove node_modules.
+      ansible.builtin.file:
+        path: "{{ npm.working_dir }}/node_modules"
+        state: absent
+      when: remove_node_modules
+
+    - name: Generate additional templates.
+      ansible.builtin.template:
+        src: "{{ template.src }}"
+        dest: "{{ deploy_path }}/{{ template.dest }}"
+      with_items: "{{ npm.templates }}"
+      loop_control:
+        loop_var: template
+      when:
+        - npm.templates | length
+
+    - name: Create additional symlinks.
+      ansible.builtin.file:
+        src: "{{ link.src }}"
+        dest: "{{ deploy_path }}/{{ link.dest }}"
+        state: link
+        force: "{{ link.force | default(false) }}"
+      with_items: "{{ npm.symlinks }}"
+      loop_control:
+        loop_var: link
+      when:
+        - npm.symlinks | length
