@@ -45,9 +45,10 @@
         msg: "{{ item.item }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
       loop: "{{ _extra_npm_command_results.results }}"
 
-    - ansible.builtin.command:
-        cmd: "rm -r node_modules"
-        chdir: "{{ npm.working_dir }}"
+    - name: Remove node_modules.
+      ansible.builtin.file:
+        path: "{{ npm.working_dir }}/node_modules"
+        state: absent
       when: remove_node_modules
 
     - name: Generate additional templates.
