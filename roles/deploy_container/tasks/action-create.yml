@@ -108,7 +108,7 @@
     - name: Use provided VPC id.
       ansible.builtin.set_fact:
         _aws_ecs_cluster_vpc_id: "{{ deploy_container.aws_ecs.vpc_id }}"
-      when: (deploy_container.aws_ecs.vpc_name is not defined or deploy_container.aws_ecs.vpc_name | length < 0)
+      when: deploy_container.aws_ecs.vpc_name is not defined or (deploy_container.aws_ecs.vpc_name | length) == 0
 
     - name: Reset subnets lists.
       ansible.builtin.set_fact:
