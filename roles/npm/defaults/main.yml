@@ -11,7 +11,7 @@ npm:
   commands: []
   # drush commands executed from webroot after previous npm commands
   extra_drush_commands: []
-  # npm/yarn commands executed from webroot after previous drush commands
+  # npm/yarn commands executed from node app dir after previous drush commands
   extra_npm_commands: []
   # Specify any additional symlink to create, with src (target) and dest (link).
   # src: can be either absolute or relative to the dest (eg. '/var/my_data', '/home/deploy/simplesaml', '../../../myconfig')
