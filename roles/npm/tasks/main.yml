@@ -1,5 +1,5 @@
 ---
-- name: Abort if ce-deploy lock file exists.
+- name: Perform NPM and extra steps.
   when:
     - deploy_operation == 'deploy'
   block:
