@@ -17,10 +17,10 @@
         msg: "{{ item.npm_command }} >>> rc={{ item.rc }}, stdout={{ item.stdout }}"
       loop: "{{ _npm_results.results }}"
 
-    - name: Run extra drush commands from webroot.
+    - name: Run extra drush commands from the first site's dir.
       ansible.builtin.command:
         cmd: "{{ drush_bin }} {{ extra_drush_command }}"
-        chdir: "{{ deploy_path }}/{{ webroot }}"
+        chdir: "{{ deploy_path }}/{{ webroot }}/sites/{{ drupal.sites[0].folder }}"
       with_items: "{{ npm.extra_drush_commands }}"
       loop_control:
         loop_var: extra_drush_command
