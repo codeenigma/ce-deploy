@@ -5,7 +5,8 @@
 
 - name: Define cron job command if deferred (ASG).
   ansible.builtin.set_fact:
-    _cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a \"{{ _cron_job_command }}\" > /dev/null"
+    _cron_job_command: >-
+      cd {{ ce_deploy_base_dir }} && {{ ce_deploy_ansible_location }} {{ drupal.defer_target }} -m shell -a "{{ _cron_job_command }} > /dev/null 2>&1{% if entry.cron_error_mailto is defined %} || (echo 'Command failed' | mail -s 'Cron Error - {{ inventory_hostname }}' {{ entry.cron_error_mailto }}){% endif %}"
   when:
     - drupal.defer is defined
     - drupal.defer
@@ -14,7 +15,8 @@
 
 - name: Add dev null redirection (for non-deferred).
   ansible.builtin.set_fact:
-    _cron_job_command: "{{ _cron_job_command }} > /dev/null"
+    _cron_job_command: >-
+      {{ _cron_job_command }} > /dev/null 2>&1{% if entry.cron_error_mailto is defined %} || (echo 'Command failed' | mail -s 'Cron Error - {{ inventory_hostname }}' {{ entry.cron_error_mailto }}){% endif %}
   when:
     - drupal.defer is not defined or not drupal.defer
 
@@ -31,6 +33,7 @@
     name: MAILTO
     env: true
     job: "{{ drupal.cron_mailto }}"
+    user: "{{ deploy_user }}"
     state: present
   when: drupal.cron_mailto is defined
   delegate_to: "{{ 'localhost' if drupal.defer else inventory_hostname }}"
