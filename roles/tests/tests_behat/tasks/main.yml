@@ -26,7 +26,6 @@
 - name: Run Behat command.
   ansible.builtin.command:
     cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
-<<<<<<< HEAD
     chdir: "{{ behat.working_dir }}"
   when:
     - behat.outputs | length > 0
@@ -40,6 +39,3 @@
   when:
     - behat.outputs | length > 0
     - not behat.fail_builds
-=======
-  when: behat.outputs | length > 0
->>>>>>> Cron-filtering
