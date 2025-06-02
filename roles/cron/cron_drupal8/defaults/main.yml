@@ -23,4 +23,3 @@ drupal:
   drush_location: "{{ drush_bin }}" # you might specify another location, e.g. "{{ deploy_path }}/vendor/bin/drush"
   python_interpreter: "-e 'ansible_python_interpreter=/home/controller/ce-python/bin/python'"
   cron_error_filter: "egrep -i 'error|fail|fatal|critical|exception'"
-
