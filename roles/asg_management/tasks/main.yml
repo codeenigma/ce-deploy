@@ -6,6 +6,17 @@
   delegate_to: localhost
   run_once: true
   block:
+    - name: Gather information about target group.
+      community.aws.elb_target_group_info:
+        region: "{{ asg_management.region }}"
+        profile: "{{ asg_management.profile | default(omit) }}"
+        names:
+          - "{{ asg_management.name }}"
+      register: _target_group
+
+    - name: Loop over target instances until they are all 'healthy'.
+      ansible.builtin.include_tasks: asg_target_health.yml
+
     # @TODO - the autoscaling_group module can do this - https://docs.ansible.com/ansible/latest/collections/amazon/aws/autoscaling_group_module.html
     - name: Suspend autoscale processes on ASG via a specified boto profile.
       ansible.builtin.command: >-
@@ -26,17 +37,6 @@
         --region {{ asg_management.region }}
       when:
         - asg_management.profile is not defined
-
-    - name: Gather information about target group.
-      community.aws.elb_target_group_info:
-        region: "{{ asg_management.region }}"
-        profile: "{{ asg_management.profile | default(omit) }}"
-        names:
-          - "{{ asg_management.name }}"
-      register: _target_group
-
-    - name: Loop over target instances until they are all 'healthy'.
-      ansible.builtin.include_tasks: asg_target_health.yml
 
 - name: Resume all autoscale processes on ASG.
   ansible.builtin.command: >-
