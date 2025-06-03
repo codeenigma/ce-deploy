@@ -21,3 +21,5 @@ drupal:
   # If defer is set to true, the Ansible target must be declared with defer_target. If using a group, include the index. For example, _ce_www_dev[0]
   defer_target: ""
   drush_location: "{{ drush_bin }}" # you might specify another location, e.g. "{{ deploy_path }}/vendor/bin/drush"
+  python_interpreter: "-e 'ansible_python_interpreter=/home/controller/ce-python/bin/python'"
+  cron_error_filter: "egrep -i 'error|fail|fatal|critical|exception'"
