@@ -8,8 +8,6 @@
 - ansible.builtin.import_role:
     name: composer
 - ansible.builtin.import_role:
-    name: npm
-- ansible.builtin.import_role:
     name: maintenance_mode
   vars:
     maintenance_mode:
@@ -24,6 +22,8 @@
     name: database_apply
 - ansible.builtin.import_role:
     name: sanitize/admin_creds
+- ansible.builtin.import_role:
+    name: npm
 - ansible.builtin.import_role:
     name: live_symlink
 - ansible.builtin.import_role:
