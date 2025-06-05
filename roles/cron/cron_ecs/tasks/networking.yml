@@ -21,7 +21,7 @@
 - name: Use provided VPC id.
   ansible.builtin.set_fact:
     _aws_ecs_cluster_vpc_id: "{{ cron_ecs.aws_ecs.vpc_id }}"
-  when: (cron_ecs.aws_ecs.vpc_name is not defined or cron_ecs.aws_ecs.vpc_name | length < 0)
+  when: cron_ecs.aws_ecs.vpc_name is not defined or (cron_ecs.aws_ecs.vpc_name | length) == 0
 
 - name: Reset subnets lists.
   ansible.builtin.set_fact:
