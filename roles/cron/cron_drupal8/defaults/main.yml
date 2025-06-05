@@ -22,4 +22,4 @@ drupal:
   defer_target: ""
   drush_location: "{{ drush_bin }}" # you might specify another location, e.g. "{{ deploy_path }}/vendor/bin/drush"
   python_interpreter: "-e 'ansible_python_interpreter=/home/controller/ce-python/bin/python'"
-  cron_error_filter: "egrep -i 'error|fail|fatal|critical|exception'"
+  cron_error_filter: '2>&1 > /tmp/cron_output.txt && if ! grep -q "\"rc\": -13" /tmp/cron_output.txt; then cat /tmp/cron_output.txt | grep -iE "(error|fail|fatal|critical|exception)" | grep -v "MODULE FAILURE"; fi && rm -f /tmp/cron_output.txt || true'
