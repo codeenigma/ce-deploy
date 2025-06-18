@@ -1,59 +1,62 @@
 ---
 # Build and ship a container image
-- name: Create Dockerfile from template.
-  ansible.builtin.template:
-    src: "{{ deploy_container.dockerfile_template }}"
-    dest: "{{ deploy_container.docker_build_dir }}/Dockerfile"
-  delegate_to: localhost
-
-- name: Set Docker registry username and password.
-  ansible.builtin.set_fact:
-    _docker_registry_username: "{{ deploy_container.docker_registry_user }}"
-    _docker_registry_password: "{{ deploy_container.docker_registry_pass }}"
-  delegate_to: localhost
-
-- name: AWS ECR handling.
-  when: deploy_container.aws_ecr.enabled
-  delegate_to: localhost
+- name: Build and push a Docker image.
+  when: deploy_container.create_image
   block:
-    - name: Fetch AWS ECR registry login token. # token valid for 12 hours
-      ansible.builtin.command:
-        cmd: "aws ecr get-login-password --region {{ deploy_container.aws_ecr.region }} --profile {{ deploy_container.aws_ecr.aws_profile }}"
-      register: _docker_registry_ecr_token
+    - name: Create Dockerfile from template.
+      ansible.builtin.template:
+        src: "{{ deploy_container.dockerfile_template }}"
+        dest: "{{ deploy_container.docker_build_dir }}/Dockerfile"
+      delegate_to: localhost
 
-    - name: Set AWS ECR registry password.
+    - name: Set Docker registry username and password.
       ansible.builtin.set_fact:
-        _docker_registry_password: "{{ _docker_registry_ecr_token.stdout }}"
+        _docker_registry_username: "{{ deploy_container.docker_registry_user }}"
+        _docker_registry_password: "{{ deploy_container.docker_registry_pass }}"
+      delegate_to: localhost
 
-    - name: Set AWS ECR registry username.
-      ansible.builtin.set_fact:
-        _docker_registry_username: "AWS"
+    - name: AWS ECR handling.
+      when: deploy_container.aws_ecr.enabled
+      delegate_to: localhost
+      block:
+        - name: Fetch AWS ECR registry login token. # token valid for 12 hours
+          ansible.builtin.command:
+            cmd: "aws ecr get-login-password --region {{ deploy_container.aws_ecr.region }} --profile {{ deploy_container.aws_ecr.aws_profile }}"
+          register: _docker_registry_ecr_token
 
-- name: Remove Docker credentials file.
-  ansible.builtin.file:
-    state: absent
-    path: "/home/{{ deploy_user }}/.docker/config.json"
-  delegate_to: localhost
+        - name: Set AWS ECR registry password.
+          ansible.builtin.set_fact:
+            _docker_registry_password: "{{ _docker_registry_ecr_token.stdout }}"
 
-- name: Log into Docker registry.
-  community.docker.docker_login:
-    registry_url: "{{ deploy_container.docker_registry_url }}"
-    username: "{{ _docker_registry_username }}"
-    password: "{{ _docker_registry_password }}"
-    reauthorize: true
-  delegate_to: localhost
+        - name: Set AWS ECR registry username.
+          ansible.builtin.set_fact:
+            _docker_registry_username: "AWS"
 
-- name: Build and push container image.
-  community.docker.docker_image:
-    build:
-      path: "{{ deploy_container.docker_build_dir }}"
-    name: "{{ deploy_container.docker_registry_name }}/{{ deploy_container.container_name }}"
-    tag: "{{ deploy_container.container_tag | default('latest') }}"
-    push: true
-    source: build
-    force_source: "{{ deploy_container.container_force_build }}"
-    force_tag: "{{ deploy_container.container_force_build }}"
-  delegate_to: localhost
+    - name: Remove Docker credentials file.
+      ansible.builtin.file:
+        state: absent
+        path: "/home/{{ deploy_user }}/.docker/config.json"
+      delegate_to: localhost
+
+    - name: Log into Docker registry.
+      community.docker.docker_login:
+        registry_url: "{{ deploy_container.docker_registry_url }}"
+        username: "{{ _docker_registry_username }}"
+        password: "{{ _docker_registry_password }}"
+        reauthorize: true
+      delegate_to: localhost
+
+    - name: Build and push container image.
+      community.docker.docker_image:
+        build:
+          path: "{{ deploy_container.docker_build_dir }}"
+        name: "{{ deploy_container.docker_registry_name }}/{{ deploy_container.container_name }}"
+        tag: "{{ deploy_container.container_tag | default('latest') }}"
+        push: true
+        source: build
+        force_source: "{{ deploy_container.container_force_build }}"
+        force_tag: "{{ deploy_container.container_force_build }}"
+      delegate_to: localhost
 
 # AWS specific things start here
 - name: Fetch the ACM role from ce-provision if required.
