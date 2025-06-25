@@ -5,7 +5,7 @@
 
 - name: Define cron job command if deferred (ASG).
   ansible.builtin.set_fact:
-    _cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} {{ drupal.python_interpreter }} -m shell -a '{{ _cron_job_command }} {{ drupal.cron_error_filter }}'"
+    _cron_job_command: "cd {{ _ce_deploy_base_dir }} && {{ _ce_deploy_ansible_location }} {{ drupal.defer_target }} {{ drupal.python_interpreter }} -m shell -a '{{ _cron_job_command }} {{ drupal.cron_error_filter }} {{ drupal.cron_error_email }}"
   when:
     - drupal.defer is defined
     - drupal.defer

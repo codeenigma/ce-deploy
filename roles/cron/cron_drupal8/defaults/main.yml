@@ -21,5 +21,6 @@ drupal:
   # If defer is set to true, the Ansible target must be declared with defer_target. If using a group, include the index. For example, _ce_www_dev[0]
   defer_target: ""
   drush_location: "{{ drush_bin }}" # you might specify another location, e.g. "{{ deploy_path }}/vendor/bin/drush"
-  cron_error_filter: '2>&1 > /tmp/cron_output.txt && if ! grep -q "\"rc\": -13" /tmp/cron_output.txt; then cat /tmp/cron_output.txt | grep -iE "(error|fail|fatal|critical|exception)" | grep -v "MODULE FAILURE"; fi && rm -f /tmp/cron_output.txt || true'
+  cron_error_filter: "> /tmp/cron_output.txt 2>&1 && if ! grep -q '\"rc\": -13' /tmp/cron_output.txt; then cat /tmp/cron_output.txt | grep -iE '(error|fail|fatal|critical|exception)' | grep -v 'MODULE FAILURE'; fi || true"
+  cron_error_email: "{% if entry.cron_error_mailto is defined %} || (echo 'Command failed' | mail -s 'Cron Error - {{ inventory_hostname }}' {{ entry.cron_error_mailto }}){% endif %}"
   python_interpreter: "-e 'ansible_python_interpreter=/home/controller/ce-python/bin/python'"
