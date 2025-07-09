@@ -4,7 +4,9 @@
 
 - ansible.builtin.set_fact:
     _live_symlink_build_target: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_{{ previous_build_number }}"
-  when: deploy_operation == 'revert'
+  when:
+    - deploy_operation == 'revert'
+    - live_symlink.revert_on_fail
 
 - ansible.builtin.set_fact:
     _live_symlink_dest_target: "{{ live_symlink_dest }}"

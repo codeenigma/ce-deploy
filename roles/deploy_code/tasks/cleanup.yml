@@ -1,8 +1,8 @@
 ---
 - name: Ensure codebase is writable.
   ansible.builtin.shell:
-    cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod -R 777 {{ deploy_path_prefix }}{{ item }}; fi"
-  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+    cmd: "if [ -d {{ item.path }} ]; then chmod -R 777 {{ item.path }}; fi"
+  with_items: "{{ _build_directories.files }}"  # set in _init role
   become: true
   when:
     - "www_user != deploy_user"
@@ -10,20 +10,30 @@
 
 - name: Ensure permissions are set on deploy directory.
   ansible.builtin.shell:
-    cmd: "if [ -d {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
-  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+    cmd: "if [ -d {{ item.path }} ]; then chmod 755 {{ item.path }}; fi"
+  with_items: "{{ _build_directories.files }}"  # set in _init role
   when:
     - deploy_code.perms_fix_path is defined
     - deploy_code.perms_fix_path | length > 1
     - deploy_code.mount_type != "squashfs"
 
+- name: Initialise list variable for directory deleting.
+  ansible.builtin.set_fact:
+    _build_directories_to_delete: []
+
 - name: Delete codebases from deploy directory.
-  ansible.builtin.file:
-    name: "{{ deploy_path_prefix }}{{ item }}"
-    state: absent
-  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
-  when:
-    - deploy_code.mount_type != "squashfs"
+  when: deploy_code.mount_type != "squashfs"
+  block:
+    - name: Build a list of directories to delete.
+      ansible.builtin.set_fact:
+        _build_directories_to_delete: "{{ _build_directories_to_delete + [deploy_path_prefix + item|string] }}"
+      with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
+
+    - name: Delete the directories.
+      ansible.builtin.file:
+        name: "{{ item }}"
+        state: absent
+      with_items: "{{ _build_directories_to_delete }}"
 
 - name: Create a tarball of the deployed codebases.
   ansible.builtin.command:
@@ -55,20 +65,29 @@
 
 # Beginning of the squashFS block.
 - name: Execute tasks for squashFS mount type.
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
   block:
     - name: Ensure permissions are set on builds directory.
       ansible.builtin.shell:
-        cmd: "if [ -d {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
-      with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+        cmd: "if [ -d {{ item.path }} ]; then chmod 755 {{ item.path }}; fi"
+      with_items: "{{ _build_directories.files }}"  # set in _init role
       when:
         - deploy_code.perms_fix_path is defined
         - deploy_code.perms_fix_path | length > 1
 
-    - name: Delete codebases from builds directory.
+    - name: Build a list of directories to delete.
+      ansible.builtin.set_fact:
+        _build_directories_to_delete: "{{ _build_directories_to_delete + [build_path_prefix + item|string] }}"
+      with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
+
+    - name: Delete the directories.
       ansible.builtin.file:
-        name: "{{ build_path_prefix }}{{ item }}"
+        name: "{{ item }}"
         state: absent
-      with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+      with_items: "{{ _build_directories_to_delete }}"
 
     - name: Create a SquashFS image of the deployed codebases.
       ansible.builtin.command:
@@ -200,10 +219,6 @@
         - _deploy_code_mount_check.rc == 0
         - deploy_code.service_action == "stop"
         - deploy_code.services | length > 0
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
 # End of the squashFS block.
 
 - name: Trigger an infrastructure rebuild.
