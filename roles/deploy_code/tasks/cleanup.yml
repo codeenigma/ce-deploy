@@ -18,12 +18,49 @@
     - deploy_code.mount_type != "squashfs"
 
 - name: Delete codebases from deploy directory.
-  ansible.builtin.file:
-    name: "{{ deploy_path_prefix }}{{ item }}"
-    state: absent
-  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
-  when:
-    - deploy_code.mount_type != "squashfs"
+  when: deploy_code.mount_type != "squashfs"
+  block:
+    - name: Initialise list variables for directory reading.
+      ansible.builtin.set_fact:
+        _build_directory_names: []
+        _build_numbers: []
+        _build_numbers_clean: []
+        _build_directories_to_delete: []
+
+    - name: Find all directories in this project build directory.
+      ansible.builtin.find:
+        paths: "{{ deploy_base_path }}"
+        recurse: false
+        file_type: directory
+      register: _build_directories
+
+    - name: Build a list of build numbers.
+      ansible.builtin.set_fact:
+        _build_numbers: "{{ _build_numbers + [item.path | regex_search('^(.*)_([0-9]*)$', '\\2')] }}"
+      with_items: "{{ _build_directories.files }}"
+
+    - name: Convert the list of build numbers to integers.
+      ansible.builtin.set_fact:
+        _build_numbers_clean: "{{ _build_numbers_clean + [item | int] }}"
+      with_items: "{{ _build_numbers }}"
+
+    - name: Order the list of build numbers.
+      ansible.builtin.set_fact:
+        _build_numbers_clean: "{{ _build_numbers_clean | sort }}"
+
+    - name: Build a list of directories to delete.
+      ansible.builtin.set_fact:
+        _build_directories_to_delete: "{{ _build_directories_to_delete + [deploy_path_prefix + item|string] }}"
+      with_items: "{{ _build_numbers_clean }}"
+      when: _build_directory_index < (_build_directories.matched - deploy_code.keep)
+      loop_control:
+        index_var: _build_directory_index
+
+    - name: Delete the directories.
+      ansible.builtin.file:
+        name: "{{ item }}"
+        state: absent
+      with_items: "{{ _build_directories_to_delete }}"
 
 - name: Create a tarball of the deployed codebases.
   ansible.builtin.command:
@@ -55,6 +92,10 @@
 
 # Beginning of the squashFS block.
 - name: Execute tasks for squashFS mount type.
+  when:
+    - deploy_code.mount_sync is defined
+    - deploy_code.mount_sync | length > 1
+    - deploy_code.mount_type == "squashfs"
   block:
     - name: Ensure permissions are set on builds directory.
       ansible.builtin.shell:
@@ -64,11 +105,47 @@
         - deploy_code.perms_fix_path is defined
         - deploy_code.perms_fix_path | length > 1
 
-    - name: Delete codebases from builds directory.
+    - name: Initialise list variables for directory reading.
+      ansible.builtin.set_fact:
+        _build_directory_names: []
+        _build_numbers: []
+        _build_numbers_clean: []
+        _build_directories_to_delete: []
+
+    - name: Find all directories in this project build directory.
+      ansible.builtin.find:
+        paths: "{{ build_base_path }}"
+        recurse: false
+        file_type: directory
+      register: _build_directories
+
+    - name: Build a list of build numbers.
+      ansible.builtin.set_fact:
+        _build_numbers: "{{ _build_numbers + [item.path | regex_search('^(.*)_([0-9]*)$', '\\2')] }}"
+      with_items: "{{ _build_directories.files }}"
+
+    - name: Convert the list of build numbers to integers.
+      ansible.builtin.set_fact:
+        _build_numbers_clean: "{{ _build_numbers_clean + [item | int] }}"
+      with_items: "{{ _build_numbers }}"
+
+    - name: Order the list of build numbers.
+      ansible.builtin.set_fact:
+        _build_numbers_clean: "{{ _build_numbers_clean | sort }}"
+
+    - name: Build a list of directories to delete.
+      ansible.builtin.set_fact:
+        _build_directories_to_delete: "{{ _build_directories_to_delete + [build_path_prefix + item|string] }}"
+      with_items: "{{ _build_numbers_clean }}"
+      when: _build_directory_index < (_build_directories.matched - deploy_code.keep)
+      loop_control:
+        index_var: _build_directory_index
+
+    - name: Delete the directories.
       ansible.builtin.file:
-        name: "{{ build_path_prefix }}{{ item }}"
+        name: "{{ item }}"
         state: absent
-      with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+      with_items: "{{ _build_directories_to_delete }}"
 
     - name: Create a SquashFS image of the deployed codebases.
       ansible.builtin.command:
@@ -200,10 +277,6 @@
         - _deploy_code_mount_check.rc == 0
         - deploy_code.service_action == "stop"
         - deploy_code.services | length > 0
-  when:
-    - deploy_code.mount_sync is defined
-    - deploy_code.mount_sync | length > 1
-    - deploy_code.mount_type == "squashfs"
 # End of the squashFS block.
 
 - name: Trigger an infrastructure rebuild.
