@@ -16,7 +16,7 @@
 - ansible.builtin.include_tasks: "cleanup-{{ mysql_backup.handling }}.yml"
   when: database.is_replica is not defined
 
-- name: Delete mysql users.
+- name: Delete MySQL users.
   community.mysql.mysql_user:
     name: "{{ database.user }}_{{ item }}"
     host_all: true
