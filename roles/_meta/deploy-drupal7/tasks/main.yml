@@ -8,8 +8,6 @@
 - import_role:
     name: deploy_code
 - import_role:
-    name: npm
-- import_role:
     name: maintenance_mode
   vars:
     maintenance_mode:
@@ -24,6 +22,8 @@
     name: sanitize/admin_creds
 - import_role:
     name: live_symlink
+- import_role:
+    name: npm
 - import_role:
     name: cache_clear/cache_clear-opcache
 - import_role:

@@ -1,0 +1,50 @@
+---
+- name: Reset the _behat_outputs var.
+  ansible.builtin.set_fact:
+    _behat_outputs: ""
+
+- name: Install Behat with composer.
+  ansible.builtin.import_role:
+    name: composer
+  when: behat.install
+  vars:
+    composer:
+      command: require
+      args: behat/behat
+      working_dir: "{{ behat.working_dir }}"
+
+- name: Build Behat outputs string.
+  ansible.builtin.set_fact:
+    _behat_outputs: "{{ _behat_outputs }} -f {{ item.format }} -o {{ item.output }}"
+  with_items: "{{ behat.outputs }}"
+
+- name: Add verbosity if requested.
+  ansible.builtin.set_fact:
+    _behat_outputs: "{{ _behat_outputs }} -v"
+  when: behat.verbose
+
+- name: Run Behat command.
+  ansible.builtin.command:
+    cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
+    chdir: "{{ behat.working_dir }}"
+  when:
+    - behat.outputs | length > 0
+    - behat.fail_builds
+
+- name: Run Behat command without failing build.
+  ansible.builtin.command:
+    cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
+    chdir: "{{ behat.working_dir }}"
+  register: _tests_behat_output  # if we do not fail the build, we do not see the output if tests fail
+  failed_when: false
+  when:
+    - behat.outputs | length > 0
+    - not behat.fail_builds
+
+- name: Show Behat output.
+  ansible.builtin.debug:
+    msg: "{{ _tests_behat_output.stdout }}"
+  when:
+    - _tests_behat_output is defined
+    - _tests_behat_output.stdout
+    - behat.show_results
