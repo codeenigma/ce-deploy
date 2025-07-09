@@ -144,14 +144,25 @@
     paths: "{{ deploy_base_path }}"
     recurse: false
     file_type: directory
-  register: _build_directories
+  register: _build_directories_general
 
-- name: Replace with directories in the build directory if SquashFS.
+- name: Find all directories in the build directory if SquashFS.
   ansible.builtin.find:
     paths: "{{ build_base_path }}"
     recurse: false
     file_type: directory
-  register: _build_directories
+  register: _build_directories_squashfs
+  when:
+    - deploy_code.mount_type is defined
+    - deploy_code.mount_type == "squashfs"
+
+- name: Copy build directories into consistently named variable.
+  ansible.builtin.set_fact:
+    _build_directories: "{{ _build_directories_general }}"
+
+- name: Replace build directories variable if this is a SquashFS build.
+  ansible.builtin.set_fact:
+    _build_directories: "{{ _build_directories_squashfs }}"
   when:
     - deploy_code.mount_type is defined
     - deploy_code.mount_type == "squashfs"
