@@ -175,6 +175,7 @@
         health_check_path: "{{ deploy_container.aws_ecs.health_check.path }}"
         health_check_interval: "{{ deploy_container.aws_ecs.health_check.interval | default(omit) }}"
         healthy_threshold_count: "{{ deploy_container.aws_ecs.health_check.healthy_threshold_count | default(omit) }}"
+        deregistration_delay_timeout: "{{ deploy_container.aws_ecs.target_group_deregistration_delay_timeout }}"
         unhealthy_threshold_count: "{{ deploy_container.aws_ecs.health_check.unhealthy_threshold_count | default(omit) }}"
         successful_response_codes: "{{ deploy_container.aws_ecs.health_check.response_codes }}"
         target_type: ip
