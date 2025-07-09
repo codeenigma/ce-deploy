@@ -1,5 +1,5 @@
 ---
-- name: Delete mysql databases.
+- name: Delete MySQL databases.
   community.mysql.mysql_db:
     name: "{{ database.database }}_{{ item }}"
     state: absent
@@ -7,5 +7,5 @@
     login_user: "{{ _mysql_user }}"
     login_password: "{{ _mysql_password }}"
     login_unix_socket: "{{ mysql_backup.mysql_unix_socket | default(omit) }}"
-  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - mysql_backup.keep, 0] | max }}
+  with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
   run_once: true
