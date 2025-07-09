@@ -1,8 +1,8 @@
 ---
 - name: Ensure codebase is writable.
   ansible.builtin.shell:
-    cmd: "if [ -d {{ deploy_path_prefix }}{{ item }} ]; then chmod -R 777 {{ deploy_path_prefix }}{{ item }}; fi"
-  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+    cmd: "if [ -d {{ item.path }} ]; then chmod -R 777 {{ item.path }}; fi"
+  with_items: "{{ _build_directories.files }}"  # set in _init role
   become: true
   when:
     - "www_user != deploy_user"
@@ -10,51 +10,24 @@
 
 - name: Ensure permissions are set on deploy directory.
   ansible.builtin.shell:
-    cmd: "if [ -d {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ deploy_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
-  with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+    cmd: "if [ -d {{ item.path }} ]; then chmod 755 {{ item.path }}; fi"
+  with_items: "{{ _build_directories.files }}"  # set in _init role
   when:
     - deploy_code.perms_fix_path is defined
     - deploy_code.perms_fix_path | length > 1
     - deploy_code.mount_type != "squashfs"
 
+- name: Initialise list variable for directory deleting.
+  ansible.builtin.set_fact:
+    _build_directories_to_delete: []
+
 - name: Delete codebases from deploy directory.
   when: deploy_code.mount_type != "squashfs"
   block:
-    - name: Initialise list variables for directory reading.
-      ansible.builtin.set_fact:
-        _build_directory_names: []
-        _build_numbers: []
-        _build_numbers_clean: []
-        _build_directories_to_delete: []
-
-    - name: Find all directories in this project build directory.
-      ansible.builtin.find:
-        paths: "{{ deploy_base_path }}"
-        recurse: false
-        file_type: directory
-      register: _build_directories
-
-    - name: Build a list of build numbers.
-      ansible.builtin.set_fact:
-        _build_numbers: "{{ _build_numbers + [item.path | regex_search('^(.*)_([0-9]*)$', '\\2')] }}"
-      with_items: "{{ _build_directories.files }}"
-
-    - name: Convert the list of build numbers to integers.
-      ansible.builtin.set_fact:
-        _build_numbers_clean: "{{ _build_numbers_clean + [item | int] }}"
-      with_items: "{{ _build_numbers }}"
-
-    - name: Order the list of build numbers.
-      ansible.builtin.set_fact:
-        _build_numbers_clean: "{{ _build_numbers_clean | sort }}"
-
     - name: Build a list of directories to delete.
       ansible.builtin.set_fact:
         _build_directories_to_delete: "{{ _build_directories_to_delete + [deploy_path_prefix + item|string] }}"
-      with_items: "{{ _build_numbers_clean }}"
-      when: _build_directory_index < (_build_directories.matched - deploy_code.keep)
-      loop_control:
-        index_var: _build_directory_index
+      with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
 
     - name: Delete the directories.
       ansible.builtin.file:
@@ -99,47 +72,16 @@
   block:
     - name: Ensure permissions are set on builds directory.
       ansible.builtin.shell:
-        cmd: "if [ -d {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }} ]; then chmod 755 {{ build_path_prefix }}{{ item }}/{{ deploy_code.perms_fix_path }}; fi"
-      with_sequence: start={{ [previous_build_number | int - cleanup_history_depth, 0] | max }}  end={{ [previous_build_number | int - deploy_code.keep, 0] | max }}
+        cmd: "if [ -d {{ item.path }} ]; then chmod 755 {{ item.path }}; fi"
+      with_items: "{{ _build_directories.files }}"  # set in _init role
       when:
         - deploy_code.perms_fix_path is defined
         - deploy_code.perms_fix_path | length > 1
 
-    - name: Initialise list variables for directory reading.
-      ansible.builtin.set_fact:
-        _build_directory_names: []
-        _build_numbers: []
-        _build_numbers_clean: []
-        _build_directories_to_delete: []
-
-    - name: Find all directories in this project build directory.
-      ansible.builtin.find:
-        paths: "{{ build_base_path }}"
-        recurse: false
-        file_type: directory
-      register: _build_directories
-
-    - name: Build a list of build numbers.
-      ansible.builtin.set_fact:
-        _build_numbers: "{{ _build_numbers + [item.path | regex_search('^(.*)_([0-9]*)$', '\\2')] }}"
-      with_items: "{{ _build_directories.files }}"
-
-    - name: Convert the list of build numbers to integers.
-      ansible.builtin.set_fact:
-        _build_numbers_clean: "{{ _build_numbers_clean + [item | int] }}"
-      with_items: "{{ _build_numbers }}"
-
-    - name: Order the list of build numbers.
-      ansible.builtin.set_fact:
-        _build_numbers_clean: "{{ _build_numbers_clean | sort }}"
-
     - name: Build a list of directories to delete.
       ansible.builtin.set_fact:
         _build_directories_to_delete: "{{ _build_directories_to_delete + [build_path_prefix + item|string] }}"
-      with_items: "{{ _build_numbers_clean }}"
-      when: _build_directory_index < (_build_directories.matched - deploy_code.keep)
-      loop_control:
-        index_var: _build_directory_index
+      with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
 
     - name: Delete the directories.
       ansible.builtin.file:
