@@ -131,6 +131,67 @@
         path: "{{ build_base_path }}"
         state: directory
 
+# Calculate the builds to cleanup once here, so we don't do it many times later.
+- name: Calculate builds to cleanup.
+  when: deploy_operation == 'cleanup'
+  block:
+    - name: Initialise list variables for directory reading.
+      ansible.builtin.set_fact:
+        _build_directory_names: []
+        _build_numbers: []
+        _build_numbers_clean: []
+        _build_numbers_to_delete: []
+
+    - name: Find all directories in this project deploy directory.
+      ansible.builtin.find:
+        paths: "{{ deploy_base_path }}"
+        recurse: false
+        file_type: directory
+      register: _build_directories_general
+
+    - name: Find all directories in the build directory if SquashFS.
+      ansible.builtin.find:
+        paths: "{{ build_base_path }}"
+        recurse: false
+        file_type: directory
+      register: _build_directories_squashfs
+      when:
+        - deploy_code.mount_type is defined
+        - deploy_code.mount_type == "squashfs"
+
+    - name: Copy build directories into consistently named variable.
+      ansible.builtin.set_fact:
+        _build_directories: "{{ _build_directories_general }}"
+
+    - name: Replace build directories variable if this is a SquashFS build.
+      ansible.builtin.set_fact:
+        _build_directories: "{{ _build_directories_squashfs }}"
+      when:
+        - deploy_code.mount_type is defined
+        - deploy_code.mount_type == "squashfs"
+
+    - name: Build a list of build numbers.
+      ansible.builtin.set_fact:
+        _build_numbers: "{{ _build_numbers + [item.path | regex_search('^(.*)_([0-9]*)$', '\\2')] }}"
+      with_items: "{{ _build_directories.files }}"
+
+    - name: Convert the list of build numbers to integers.
+      ansible.builtin.set_fact:
+        _build_numbers_clean: "{{ _build_numbers_clean + [item | int] }}"
+      with_items: "{{ _build_numbers }}"
+
+    - name: Order the list of build numbers.
+      ansible.builtin.set_fact:
+        _build_numbers_clean: "{{ _build_numbers_clean | sort }}"
+
+    - name: Build a list of builds to delete.
+      ansible.builtin.set_fact:
+        _build_numbers_to_delete: "{{ _build_numbers_to_delete + [item] }}"
+      with_items: "{{ _build_numbers_clean }}"
+      when: _build_directory_index < (_build_directories.matched - deploy_code.keep)
+      loop_control:
+        index_var: _build_directory_index
+
 - name: Set the previous deploy's path for later use where we need to manipulate the live site.
   ansible.builtin.set_fact:
     previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"

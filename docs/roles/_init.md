@@ -16,8 +16,6 @@ deploy_user: deploy # if you are using ce-provision to deploy infrastructure thi
 _mysqldump_params: "--max-allowed-packet=128M --single-transaction --skip-opt -e --quick --skip-disable-keys --skip-add-locks -C -a --add-drop-table"
 # @TODO only used by Drupal 7, can be removed with Drupal 7 deployments
 bin_directory: "/home/{{ deploy_user }}/.bin"
-# Number of dumps/db to look up for cleanup.
-cleanup_history_depth: 50
 install_php_cachetool: true # set to false if you don't need cachetool, e.g. for a nodejs app
 ce_deploy_version: 1.x
 ce_provision_version: 2.x # the version of ce-provision to grab files from when roles are shared
