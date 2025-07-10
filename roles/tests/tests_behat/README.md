@@ -12,6 +12,8 @@ behat:
   install: false        # set to true if you want ce-deploy to attempt to composer install Behat
   tags: "~@javascript"  # behat tags to run
   verbose: false        # set to true for verbose output
+  fail_builds: true     # set to false if you do not want Ansible to stop if Behat tests fail
+  show_results: true    # if `fail_builds: false` then show_results allows us to optionally show Behat test results in the Ansible output
   bin: "{{ deploy_path }}/vendor/bin/behat"  # location of Behat
   # List of outputs to create, defaults to 'pretty' to STDOUT
   outputs:
