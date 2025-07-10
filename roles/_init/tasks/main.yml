@@ -135,6 +135,16 @@
 - name: Calculate builds to cleanup.
   when: deploy_operation == 'cleanup'
   block:
+    # @TODO: This can be removed later
+    - name: Catching usage of the old 'deploy_code.keep' variable.
+      ansible.builtin.set_fact:
+        keep_builds: "{{ deploy_code.keep }}"  # this will only ever exist in project variables
+      when: deploy_code.keep is defined
+    - name: Deprecation warning for 'deploy_code.keep' variable.
+      ansible.builtin.debug:
+        msg: "WARNING: 'deploy_code.keep' is deprecated, please update to using 'keep_builds'."
+      when: deploy_code.keep is defined
+
     - name: Initialise list variables for directory reading.
       ansible.builtin.set_fact:
         _build_directory_names: []
@@ -188,7 +198,7 @@
       ansible.builtin.set_fact:
         _build_numbers_to_delete: "{{ _build_numbers_to_delete + [item] }}"
       with_items: "{{ _build_numbers_clean }}"
-      when: _build_directory_index < (_build_directories.matched - deploy_code.keep)
+      when: _build_directory_index < (_build_directories.matched - keep_builds|default(10))
       loop_control:
         index_var: _build_directory_index
 
