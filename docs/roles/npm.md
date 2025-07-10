@@ -10,11 +10,16 @@ npm:
   # npm/yarn
   executor: npm
   working_dir: "{{ deploy_path }}"
+  remove_node_modules: false # remove node_modules dir
   # A list of commands to execute.
   # eg:
   # - install
   # - build-prod
   commands: []
+  # drush commands executed from webroot after previous npm commands
+  extra_drush_commands: []
+  # npm/yarn commands executed from node app dir after previous drush commands
+  extra_npm_commands: []
   # Specify any additional symlink to create, with src (target) and dest (link).
   # src: can be either absolute or relative to the dest (eg. '/var/my_data', '/home/deploy/simplesaml', '../../../myconfig')
   # dest: can only be relative to the root of your repository (eg. 'www/themes/myassets', 'var/cache')
