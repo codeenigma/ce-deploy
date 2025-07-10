@@ -24,8 +24,6 @@ deploy_code:
   # src: name of a template, in the "templates" dir relative to your playbook.
   # dest: can only be relative to the root of your repository (eg. 'www/config.php', 'var/mysettings.php')
   templates: []
-  # Number of builds to keep. Note this is independant of databases/dump.
-  keep: 10
   # Number of task retries - specifically for SquashFS unmount
   unmount_retries: 3
   # Delay in seconds - specificalčly for SquashFS unmount
