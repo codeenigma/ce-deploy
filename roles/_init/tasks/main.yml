@@ -188,7 +188,7 @@
       ansible.builtin.set_fact:
         _build_numbers_to_delete: "{{ _build_numbers_to_delete + [item] }}"
       with_items: "{{ _build_numbers_clean }}"
-      when: _build_directory_index < (_build_directories.matched - deploy_code.keep)
+      when: _build_directory_index < (_build_directories.matched - keep_builds|default(10))
       loop_control:
         index_var: _build_directory_index
 
