@@ -1,12 +1,30 @@
 ---
 - name: Ensure codebase is writable.
-  ansible.builtin.shell:
-    cmd: "if [ -d {{ item.path }} ]; then chmod -R 777 {{ item.path }}; fi"
+  ansible.builtin.file:
+    path: "{{ item.path }}"
+    state: directory
+    recurse: true
+    mode: '0777'
+    follow: false  # do not follow links, we do not want to recurse over public files directories
   with_items: "{{ _build_directories.files }}"  # set in _init role
   become: true
   when:
     - "www_user != deploy_user"
     - deploy_code.fix_cleanup_perms
+
+- name: Ensure sites folder contents are ready to delete.
+  ansible.builtin.file:
+    path: "{{ item.path }}/{{ webroot }}/sites"
+    state: directory
+    recurse: true
+    mode: '0755'
+    owner: "{{ deploy_user }}"
+    group: "{{ deploy_user }}"
+    follow: false  # do not follow links, we do not want to recurse over public files directories
+  with_items: "{{ _build_directories.files }}"  # set in _init role
+  when:
+    - deploy_code.fix_cleanup_perms
+    - project_type == "drupal7" or project_type == "drupal8"
 
 - name: Ensure permissions are set on deploy directory.
   ansible.builtin.shell:
