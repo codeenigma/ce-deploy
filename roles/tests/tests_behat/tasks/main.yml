@@ -32,19 +32,18 @@
     - behat.fail_builds
 
 - name: Run Behat command without failing build.
-  ansible.builtin.command:
-    cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
-    chdir: "{{ behat.working_dir }}"
-  register: _tests_behat_output  # if we do not fail the build, we do not see the output if tests fail
-  failed_when: false
   when:
     - behat.outputs | length > 0
     - not behat.fail_builds
+  block:
+    - name: Run Behat command.
+      ansible.builtin.command:
+        cmd: "{{ behat.bin }} --config={{ behat.config_file }} --tags={{ behat.tags }} {{ _behat_outputs }}"
+        chdir: "{{ behat.working_dir }}"
+      register: _tests_behat_output  # if we do not fail the build, we do not see the output if tests fail
+      failed_when: false
 
-- name: Show Behat output.
-  ansible.builtin.debug:
-    msg: "{{ _tests_behat_output.stdout }}"
-  when:
-    - _tests_behat_output is defined
-    - _tests_behat_output.stdout
-    - behat.show_results
+    - name: Show Behat output.
+      ansible.builtin.debug:
+        msg: "{{ _tests_behat_output.stdout }}"
+      when: behat.show_results
