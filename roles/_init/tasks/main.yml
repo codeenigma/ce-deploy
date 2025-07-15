@@ -152,18 +152,20 @@
         _build_numbers_clean: []
         _build_numbers_to_delete: []
 
-    - name: Find all directories in this project deploy directory.
+    - name: Find the relevant directories in this project deploy directory.
       ansible.builtin.find:
         paths: "{{ deploy_base_path }}"
         recurse: false
         file_type: directory
+        patterns: "{{ build_cleanup_pattern }}"
       register: _build_directories_general
 
-    - name: Find all directories in the build directory if SquashFS.
+    - name: Find the relevant directories in the build directory if SquashFS.
       ansible.builtin.find:
         paths: "{{ build_base_path }}"
         recurse: false
         file_type: directory
+        patterns: "{{ build_cleanup_pattern }}"
       register: _build_directories_squashfs
       when:
         - deploy_code.mount_type is defined
