@@ -157,6 +157,7 @@
         paths: "{{ deploy_base_path }}"
         recurse: false
         file_type: directory
+        patterns: "{{ project_name }}_{{ build_type }}_build_*"
       register: _build_directories_general
 
     - name: Find all directories in the build directory if SquashFS.
@@ -164,6 +165,7 @@
         paths: "{{ build_base_path }}"
         recurse: false
         file_type: directory
+        patterns: "{{ project_name }}_{{ build_type }}_build_*"
       register: _build_directories_squashfs
       when:
         - deploy_code.mount_type is defined
