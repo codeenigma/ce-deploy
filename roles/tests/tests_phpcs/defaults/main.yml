@@ -2,8 +2,8 @@
 phpcs:
   install: false               # set to true if you want ce-deploy to attempt to composer install PHP CodeSniffer
   install_drupal_coder: false  # set to true to install the Coder module for Drupal, which provides a Drupal standard for CodeSniffer
-  bin: "{{ deploy_path }}/vendor/bin/phpcs"  # location of phpcs
+  bin: "{{ live_symlink_dest }}/vendor/bin/phpcs"  # location of phpcs
   standard: ""    # optionally set the path to an installed standard, for example "vendor/drupal/coder/coder_sniffer/Drupal" for the Coder module for Drupal
   extensions: ""  # set optional extensions, for example for Drupal you could set "php,module,inc,theme,install" - defaults to "php,inc/php,js,css"
   test_paths: []  # list of paths to test against
-  working_dir: "{{ deploy_path }}"  # path to execute composer from
+  working_dir: "{{ live_symlink_dest }}"  # path to execute composer from

@@ -14,13 +14,13 @@ behat:
   verbose: false        # set to true for verbose output
   fail_builds: true     # set to false if you do not want Ansible to stop if Behat tests fail
   show_results: true    # if `fail_builds: false` then show_results allows us to optionally show Behat test results in the Ansible output
-  bin: "{{ deploy_path }}/vendor/bin/behat"  # location of Behat
+  bin: "{{ live_symlink_dest }}/vendor/bin/behat"  # location of Behat
   # List of outputs to create, defaults to 'pretty' to STDOUT
   outputs:
     - format: pretty  # options are pretty, progress or junit
       output: std     # see docs for more information, supports output filepath or various formats
-  config_file: "{{ deploy_path }}/tests/behat/behat.yml"  # path to config file
-  working_dir: "{{ deploy_path }}"  # path to execute composer from
+  config_file: "{{ live_symlink_dest }}/tests/behat/behat.yml"  # path to config file
+  working_dir: "{{ live_symlink_dest }}"  # path to execute composer from
 
 ```
 
