@@ -1,12 +1,14 @@
 ---
 cache_clear_opcache:
   # Adapter string to use as argument.
-  # eg.
+  # e.g.
   # --fcgi=127.0.0.1:9000
-  # Leave blank to use /etc/cachetool.yml
-  # adapter: "--fcgi=127.0.0.1:9081" # Leave commented to automatically detect the adapter based on PHP version.
+  # --fcgi=/var/run/php-fpm.sock
+  # Provide an empty string to use /etc/cachetool.yml
+  # adapter: "--fcgi=127.0.0.1:9081"  # Leave commented to automatically detect the adapter based on PHP version.
+  unix_socket: false  # Set to true to use automatic detection of Unix socket as set by ce-provision
   # Bins to clear.
   clear_opcache: true
   clear_apcu: false
   clear_stat: true
-  # cachetool_bin: "/path/to/cachetool.phar" # see _init for paths if undefined
+  # cachetool_bin: "/path/to/cachetool.phar"  # see _init for default paths if undefined
