@@ -1,22 +1,4 @@
 ---
-- name: Get latest php installed
-  ansible.builtin.shell:
-    cmd: 'set -o pipefail && ls -1 /etc/php/ | while read ver; do if [ -d "/etc/php/$ver/fpm" ]; then echo "$ver"; fi; done | tail -1'
-  args:
-    executable: /bin/bash
-  register: _php_version
-
-- name: Set cachetool adapter specified or default to a TCP/IP port.
-  ansible.builtin.set_fact:
-    _cachetool_adapter: "{{ cache_clear_opcache.adapter | default('--fcgi=127.0.0.1:90' + _php_version.stdout | replace('.','')) }}"
-
-- name: Override cachetool adapter to be a Unix socket if requested.
-  ansible.builtin.set_fact:
-    _cachetool_adapter: "--fcgi=/var/run/php{{ _php_version.stdout | replace('.','') }}-fpm.sock"
-  when:
-    - cache_clear_opcache.unix_socket
-    - cache_clear_opcache.adapter is not defined
-
 # cachetool_bin is set in the _init role.
 - name: Clear opcache.
   ansible.builtin.command:

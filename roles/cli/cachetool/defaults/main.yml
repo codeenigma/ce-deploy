@@ -1,3 +1,10 @@
 ---
 cachetool:
   version: "" # enter three-digit version number, e.g. "7.0.0", to install a specific version. If not specified, will be installed depending on the php version.
+  unix_socket: false  # Set to true to use automatic detection of Unix socket as set by ce-provision
+  # Adapter string to use as argument.
+  # e.g.
+  # --fcgi=127.0.0.1:9000
+  # --fcgi=/var/run/php-fpm.sock
+  # Provide an empty string to use /etc/cachetool.yml
+  # adapter: "--fcgi=127.0.0.1:9081"  # Leave commented to automatically detect the adapter based on PHP version.
