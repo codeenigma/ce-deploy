@@ -1,6 +1,6 @@
 # Opcache
 
-Clear opcache.
+Clear opcache. You must have run the `cli/cachetool` role to install `cachetool` first.
 
 <!--TOC-->
 <!--ENDTOC-->
@@ -10,16 +10,11 @@ Clear opcache.
 ```yaml
 ---
 cache_clear_opcache:
-  # Adapter string to use as argument.
-  # eg.
-  # --fcgi=127.0.0.1:9000
-  # Leave blank to use /etc/cachetool.yml
-  # adapter: "--fcgi=127.0.0.1:9081" # Leave commented to automatically detect the adapter based on PHP version.
   # Bins to clear.
   clear_opcache: true
   clear_apcu: false
   clear_stat: true
-  # cachetool_bin: "/path/to/cachetool.phar" # see _init for paths if undefined
+  # cachetool_bin: "/path/to/cachetool.phar"  # see _init for default paths if undefined
 
 ```
 
