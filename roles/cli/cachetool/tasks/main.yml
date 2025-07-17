@@ -1,17 +1,16 @@
 ---
-- name: Remove previous cachetool if exists.
-  ansible.builtin.file:
-    path: "{{ cachetool_bin }}"
-    state: absent
-  when:
-    - deploy_operation == 'deploy'
+- name: Initial housekeeping tasks.
+  when: deploy_operation == 'deploy'
+  block:
+    - name: Remove previous cachetool if exists.
+      ansible.builtin.file:
+        path: "{{ cachetool_bin }}"
+        state: absent
 
-- name: Ensure bin directory exists.
-  ansible.builtin.file:
-    path: "{{ cachetool_bin | dirname }}"
-    state: directory
-  when:
-    - deploy_operation == 'deploy'
+    - name: Ensure bin directory exists.
+      ansible.builtin.file:
+        path: "{{ cachetool_bin | dirname }}"
+        state: directory
 
 - name: Download cachetool depending on latest php version installed. # If not specified manually, according to https://github.com/gordalina/cachetool#compatibility
   when:
@@ -84,7 +83,7 @@
     - cachetool.version is defined
     - cachetool.version | length > 0
 
-# Set up cachetool adapter
+# Set up cachetool adapter - needs to happen on every run so _cachetool_adapter is set.
 - name: Get latest PHP version installed.
   ansible.builtin.shell:
     cmd: 'set -o pipefail && ls -1 /etc/php/ | while read ver; do if [ -d "/etc/php/$ver/fpm" ]; then echo "$ver"; fi; done | tail -1'
