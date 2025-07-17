@@ -11,9 +11,7 @@
   ansible.builtin.set_fact:
     drush_live_bin: "{{ drush_live_bin | default('{{ live_symlink_dest }}/vendor/bin/drush') }}"
 
-- name: Ensure we have a cachetool binary.
+- name: Ensure we have a cachetool binary and configuration.
   ansible.builtin.import_role:
     name: cli/cachetool
-  when:
-    - install_php_cachetool
-    - deploy_operation == 'deploy'
+  when: install_php_cachetool
