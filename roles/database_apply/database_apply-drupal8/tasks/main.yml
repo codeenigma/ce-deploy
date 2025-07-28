@@ -108,6 +108,15 @@
     msg: "{{ _drush_output }}"
   when: drupal.drush_verbose_output
 
+- name: Clear cache before config import.
+  ansible.builtin.include_role:
+    name: "cache_clear/cache_clear-{{ project_type }}"
+  with_items: "{{ drupal.sites }}"
+  loop_control:
+    loop_var: site
+  when:
+    - drupal.clear_cache_before_config_import | default(false)
+
 - name: Import configuration.
   ansible.builtin.command:
     cmd: "{{ drush_bin }} -l {{ site.folder }} -y {{ site.config_import_command }}"
