@@ -107,4 +107,3 @@
   ansible.builtin.command:
     cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n opcache:status"
   when: _php_version.stdout | length > 0
-
