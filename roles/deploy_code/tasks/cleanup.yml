@@ -244,7 +244,7 @@
               loop_control:
                 loop_var: www_service
               become: true
-              when: 
+              when:
                 - deploy_code.service_action == "stop"
                 - deploy_code.services | length > 0
 
@@ -286,7 +286,7 @@
               loop_control:
                 loop_var: www_service
               become: true
-              when: 
+              when:
                 - deploy_code.service_action == "stop"
                 - deploy_code.services | length > 0
                 - not asg_management.refresh_asg_instances or (asg_management.name | length) == 0
