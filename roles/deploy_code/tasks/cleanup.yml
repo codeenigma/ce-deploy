@@ -274,6 +274,7 @@
                   skip_matching: false
                 state: started
               delegate_to: localhost
+              run_once: true
               when:
                 - asg_management.name | length > 0
                 - asg_management.refresh_asg_instances
