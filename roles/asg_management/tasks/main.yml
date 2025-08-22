@@ -11,7 +11,7 @@
         region: "{{ asg_management.region }}"
         profile: "{{ asg_management.profile | default(omit) }}"
         names:
-          - "{{ asg_management.name }}"
+          - "{{ asg_management.target_group_name }}"
       register: _target_group
 
     - name: Loop over target instances until they are all 'healthy'.
