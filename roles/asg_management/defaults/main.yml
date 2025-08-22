@@ -2,7 +2,7 @@
 # AWS ASG variables to allow for the suspension of autoscaling during a code deployment.
 asg_management:
   name: "" # if the deploy is on an ASG put the name here
-  target_group_name: "{{ asg_management.name }}" # change if different from the ASG name (which may happen due to the 32-char limit)
+  #target_group_name: "example" # matches the ASG name by default, specify if your TargetGroup name is different (for example due to the 32-char name length limit in AWS)
   refresh_asg_instances: true # runs only if squashFS image unmount failed and this set to true.
   #profile: "example" # optional, the boto profile name to use if not the system default
   region: "eu-west-1"
