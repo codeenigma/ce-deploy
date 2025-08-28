@@ -102,8 +102,12 @@
     - cachetool.unix_socket
     - cachetool.adapter is not defined
 
-# We want to fail early if cachetool is broken.
 - name: Ensure cachetool is working.
   ansible.builtin.command:
     cmd: "{{ cachetool_bin }} {{ _cachetool_adapter }} -n opcache:status"
   when: _php_version.stdout | length > 0
+  register: opcache_status_check
+  retries: "{{ cachetool.check_retries }}"
+  delay: "{{ cachetool.check_delay }}"
+  until: opcache_status_check.rc == 0
+  failed_when: false
