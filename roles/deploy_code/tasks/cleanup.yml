@@ -256,7 +256,7 @@
                 name: "{{ asg_management.name }}"
                 region: "{{ asg_management.region }}"
                 profile: "{{ asg_management.profile | default(omit) }}"
-                suspended_processes: []
+                suspend_processes: []
               delegate_to: localhost
               run_once: true
               when:
