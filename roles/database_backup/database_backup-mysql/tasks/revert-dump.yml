@@ -4,26 +4,22 @@
     remote_src: true
     src: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.gz"
     dest: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql.gz"
-  run_once: true
   when: previous_build_number > 0
 
 # unarchive module does not support archives not in tar.gz format
 - name: Unpack dump file.
   ansible.builtin.command:
     cmd: "gunzip /tmp/{{ database.database }}-{{ previous_build_number }}.sql.gz"
-  run_once: true
   when: previous_build_number > 0
 
 - name: Revert database from dump.
   ansible.builtin.shell: "mysql --defaults-extra-file={{ database.credentials_file }} {{ database.database }} < /tmp/{{ database.database }}-{{ previous_build_number }}.sql"
   args:
     executable: /bin/bash
-  run_once: true
   when: previous_build_number > 0
 
 - name: Delete unpacked dump file.
   ansible.builtin.file:
     path: "/tmp/{{ database.database }}-{{ previous_build_number }}.sql"
     state: absent
-  run_once: true
   when: previous_build_number > 0
