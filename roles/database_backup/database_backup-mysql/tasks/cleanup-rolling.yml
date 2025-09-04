@@ -8,4 +8,3 @@
     login_password: "{{ _mysql_password }}"
     login_unix_socket: "{{ mysql_backup.mysql_unix_socket | default(omit) }}"
   with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
-  run_once: true
