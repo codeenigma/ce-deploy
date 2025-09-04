@@ -22,4 +22,3 @@ drupal:
   cron_error_filter: "> /tmp/cron_output.txt 2>&1; rc=\\$?; if [ \\$rc -ne 0 ] || grep -iE \"error|fail|fatal|critical|exception\" /tmp/cron_output.txt | grep -v -E \"(\\\"rc\\\": -13|MODULE FAILURE)\" | grep -q .; then [ -n \\\"{{ entry.cron_error_mailto }}\\\" ] && mail -s \\\"Cron Error - \\$(hostname)\\\" {{ entry.cron_error_mailto }} < /tmp/cron_output.txt; fi"
   cron_error_email: ""
   python_interpreter: "-e 'ansible_python_interpreter=/home/controller/ce-python/bin/python'"
-
