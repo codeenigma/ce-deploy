@@ -13,7 +13,7 @@
 
 - name: Execute cleanup tasks.
   ansible.builtin.include_tasks: "cleanup-{{ mysql_backup.handling }}.yml"
-  when: database.is_replica is not defined
+  when: database.is_replica is not defined  # do not execute against read replicas
 
 - name: Delete MySQL users.
   community.mysql.mysql_user:
@@ -26,4 +26,4 @@
   with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
   when:
     - mysql_backup.credentials_handling == 'rotate'
-    - database.is_replica is not defined
+    - database.is_replica is not defined  # do not execute against read replicas
