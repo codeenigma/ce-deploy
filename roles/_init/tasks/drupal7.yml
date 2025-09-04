@@ -11,7 +11,7 @@
   import_role:
     name: cli/drush
 
-- name: Ensure we have a cachetool binary.
+- name: Ensure we have a cachetool binary and configuration.
   ansible.builtin.import_role:
     name: cli/cachetool
   when: install_php_cachetool
