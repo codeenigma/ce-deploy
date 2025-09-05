@@ -1,18 +1,17 @@
 ---
+# Setup database names.
 - ansible.builtin.set_fact:
     _mysql_build_database_name: "{{ database.database }}"
-- ansible.builtin.set_fact:
     _mysql_previous_build_database_name: "{{ database.database }}"
 
 - name: Check if the database exists already.
   ansible.builtin.shell: "set -o pipefail && mysql --defaults-extra-file={{ database.credentials_file }} -e 'SHOW DATABASES;' | grep -w {{ _mysql_build_database_name }}"
   register: _build_db_status
-  failed_when: _build_db_status.rc > 1 # only exit on abnormal errors
-  run_once: true
+  failed_when: _build_db_status.rc > 1  # only exit on abnormal errors
   args:
     executable: /bin/bash
 
-# Create database if this is an initial build or it doesn't exist yet
+# Create database if this is an initial build or it doesn't exist yet.
 - name: Create initial database.
   community.mysql.mysql_db:
     name: "{{ _mysql_build_database_name }}"
@@ -22,7 +21,6 @@
     login_password: "{{ _mysql_password }}"
     login_unix_socket: "{{ mysql_backup.mysql_unix_socket | default(omit) }}"
   when: previous_build_number == 0 or _build_db_status.rc == 1
-  run_once: true
 
 - name: Ensure the dump directory exists.
   ansible.builtin.file:
@@ -30,11 +28,9 @@
     state: directory
     owner: "{{ deploy_user }}"
     group: "{{ deploy_user }}"
-  run_once: true
 
 - name: Take a database dump.
   ansible.builtin.shell: "set -o pipefail && mysqldump --defaults-extra-file={{ database.credentials_file }} {{ mysql_backup.mysqldump_params }} {{ database.database }} | gzip > {{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ previous_build_number }}.sql.gz"
   args:
     executable: /bin/bash
   when: previous_build_number > 0
-  run_once: true
