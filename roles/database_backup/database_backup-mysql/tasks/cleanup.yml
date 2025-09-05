@@ -8,13 +8,12 @@
 # Credentials for "managing" databases.
 - ansible.builtin.set_fact:
     _mysql_host: "{{ lookup('ini', 'host section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- ansible.builtin.set_fact:
     _mysql_user: "{{ lookup('ini', 'user section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- ansible.builtin.set_fact:
     _mysql_password: "{{ lookup('ini', 'password section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
 
-- ansible.builtin.include_tasks: "cleanup-{{ mysql_backup.handling }}.yml"
-  when: database.is_replica is not defined
+- name: Execute cleanup tasks.
+  ansible.builtin.include_tasks: "cleanup-{{ mysql_backup.handling }}.yml"
+  when: database.is_replica is not defined  # do not execute against read replicas
 
 - name: Delete MySQL users.
   community.mysql.mysql_user:
@@ -27,5 +26,4 @@
   with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
   when:
     - mysql_backup.credentials_handling == 'rotate'
-    - database.is_replica is not defined
-  run_once: true
+    - database.is_replica is not defined  # do not execute against read replicas

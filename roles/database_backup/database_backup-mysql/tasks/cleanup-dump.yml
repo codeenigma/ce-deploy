@@ -4,4 +4,3 @@
     path: "{{ mysql_backup.dumps_directory }}/{{ _mysql_host }}/{{ database.database }}-{{ item }}.sql.*"
     state: absent
   with_items: "{{ _build_numbers_to_delete }}"  # set in _init role
-  run_once: true
