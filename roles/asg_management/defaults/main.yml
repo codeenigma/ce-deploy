@@ -4,7 +4,7 @@ asg_management:
   name: "" # if the deploy is on an ASG put the name here
   #target_group_name: "example" # matches the ASG name by default, specify if your TargetGroup name is different (for example due to the 32-char name length limit in AWS)
   refresh_asg_instances: true # runs only if squashFS image unmount failed and this set to true.
-  #profile: "example" # optional, the boto profile name to use if not the system default
+  profile: "{{ aws_profile | default(omit) }}" # optional, the boto profile name to use if not the system default
   region: "eu-west-1"
   suspend_processes: "Launch Terminate HealthCheck" # space separated string, see https://docs.aws.amazon.com/autoscaling/ec2/userguide/as-suspend-resume-processes.html
   pause: 10 # localhost ping count, to wait before polling the AWS API again for instance statuses (instead of ansible 'pause' module which seems to be buggy and hangs sometimes)
