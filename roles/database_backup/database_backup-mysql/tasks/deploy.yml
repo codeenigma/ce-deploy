@@ -8,16 +8,13 @@
 # Credentials for "managing" databases.
 - ansible.builtin.set_fact:
     _mysql_host: "{{ lookup('ini', 'host section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- ansible.builtin.set_fact:
     _mysql_user: "{{ lookup('ini', 'user section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
-- ansible.builtin.set_fact:
     _mysql_password: "{{ lookup('ini', 'password section=client file={{ _ce_deploy_build_dir }}/mysql_backup_credentials.ini') }}"
+
 # Credentials for the app itself.
 # Manual: reuse given creds. Note the user gets ignored.
 - ansible.builtin.set_fact:
     _mysql_build_user_name: "{{ _mysql_user }}"
-  when: mysql_backup.credentials_handling == 'manual'
-- ansible.builtin.set_fact:
     _mysql_build_password: "{{ _mysql_password }}"
   when: mysql_backup.credentials_handling == 'manual'
 # Static: create/update user/pwd only once.
@@ -31,7 +28,6 @@
     path: "{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}"
   register: _legacy_static_creds
   delegate_to: localhost
-  run_once: true
   when: mysql_backup.credentials_handling == 'static'
 
 - name: Create new static password location if it doesn't exist.
@@ -42,7 +38,6 @@
     group: "{{ deploy_user }}"
     mode: 0755
   delegate_to: localhost
-  run_once: true
   when: mysql_backup.credentials_handling == 'static'
 
 - name: Copy legacy static password to new location.
@@ -53,7 +48,6 @@
     group: "{{ deploy_user }}"
     mode: 0644
   delegate_to: localhost
-  run_once: true
   when:
     - mysql_backup.credentials_handling == 'static'
     - _legacy_static_creds is defined
@@ -64,7 +58,6 @@
     path: "{{ _ce_deploy_data_dir }}/{{ inventory_hostname }}/mysql/{{ _mysql_host }}/{{ database.database }}"
     state: absent
   delegate_to: localhost
-  run_once: true
   when:
     - mysql_backup.credentials_handling == 'static'
     - _legacy_static_creds is defined
@@ -82,8 +75,6 @@
 # Rotate: create user/pwd on each build.
 - ansible.builtin.set_fact:
     _mysql_build_user_name: "{{ database.user }}_{{ build_number }}"
-  when: mysql_backup.credentials_handling == 'rotate'
-- ansible.builtin.set_fact:
     _mysql_build_password: "{{ lookup('password', '{{ mysql_backup.mysql_password_path }}') }}"
   when: mysql_backup.credentials_handling == 'rotate'
 
@@ -98,9 +89,9 @@
     - database.handling is defined
     - database.handling | length > 0
 
-- name: Execute backup tasks.
+- name: Execute deploy tasks.
   ansible.builtin.include_tasks: "deploy-{{ _mysql_handling }}.yml"
-  when: database.is_replica is not defined
+  when: database.is_replica is not defined  # do not execute against read replicas
 
 # We append privileges instead of replacing,
 # to allow this role to be looped over,
@@ -112,15 +103,14 @@
   when:
     - ( mysql_backup.credentials_handling == 'rotate' ) or ( mysql_backup.credentials_handling == 'static' )
     - database.is_replica is not defined
-  run_once: true
 
 - name: Create/update mysql user for unix socket connections.
   ansible.builtin.command: mysql --defaults-extra-file={{ database.credentials_file }} -e "CREATE USER IF NOT EXISTS '{{ _mysql_build_user_name }}'@'localhost' IDENTIFIED BY '{{ _mysql_build_password }}'; GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, REFERENCES, INDEX, ALTER, CREATE TEMPORARY TABLES, LOCK TABLES, EXECUTE, CREATE VIEW, SHOW VIEW, CREATE ROUTINE, ALTER ROUTINE, EVENT, TRIGGER ON `{{ _mysql_build_database_name }}`.* TO '{{ _mysql_build_user_name }}'@'localhost';"
   when:
     - ( mysql_backup.credentials_handling == 'rotate' ) or ( mysql_backup.credentials_handling == 'static' )
     - database.is_replica is not defined
-  run_once: true
 
+# Define this database.
 - ansible.builtin.set_fact:
     _build_database:
       original: "{{ database }}"
@@ -129,5 +119,6 @@
       password: "{{ _mysql_build_password }}"
       host: "{{ _mysql_host }}"
 
+# Add database to our list of build databases for later use.
 - ansible.builtin.set_fact:
     build_databases: "{{ build_databases + [ _build_database ] }}"
