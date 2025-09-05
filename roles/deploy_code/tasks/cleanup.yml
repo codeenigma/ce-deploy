@@ -255,7 +255,7 @@
               amazon.aws.autoscaling_group:
                 name: "{{ asg_management.name }}"
                 region: "{{ asg_management.region }}"
-                profile: "{{ asg_management.profile | default(omit) }}"
+                profile: "{{ asg_management.profile | default(aws_profile | default(omit)) }}"
                 suspend_processes: []
               delegate_to: localhost
               run_once: true
@@ -266,7 +266,7 @@
               amazon.aws.autoscaling_instance_refresh:
                 name: "{{ asg_management.name }}"
                 region: "{{ asg_management.region }}"
-                profile: "{{ asg_management.profile | default(omit) }}"
+                profile: "{{ asg_management.profile | default(aws_profile | default(omit)) }}"
                 strategy: Rolling
                 preferences:
                   min_healthy_percentage: 51
