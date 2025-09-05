@@ -1,7 +1,8 @@
 ---
 - name: Pause so as to not hammer the AWS API.
-  ansible.builtin.pause:
-    seconds: "{{ asg_management.pause }}"
+  ansible.builtin.command:
+    cmd: "ping localhost -c {{ asg_management.pause }}"
+  failed_when: false
 
 - name: Empty the target list.
   ansible.builtin.set_fact:

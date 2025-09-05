@@ -6,6 +6,7 @@ In order to manipulate an AWS Autoscaling Group (ASG) your `deploy` user must ha
 * `autoscaling:SuspendProcesses`
 * `autoscaling:DescribeScalingProcessTypes`
 * `autoscaling:DescribeAutoScalingGroups`
+* `autoscaling:StartInstanceRefresh`
 
 Set the `asg_management.name` to the machine name of your ASG in order to automatically suspend and resume autoscaling on build.
 
