@@ -260,6 +260,7 @@
               delegate_to: localhost
               run_once: true
               when:
+                - asg_management.name is defined
                 - asg_management.name | length > 0
 
             - name: Run ASG instance refresh.
@@ -276,6 +277,7 @@
               delegate_to: localhost
               run_once: true
               when:
+                - asg_management.name is defined
                 - asg_management.name | length > 0
                 - asg_management.refresh_asg_instances
 
@@ -290,7 +292,7 @@
               when:
                 - deploy_code.service_action == "stop"
                 - deploy_code.services | length > 0
-                - not asg_management.refresh_asg_instances or (asg_management.name | length) == 0
+                - not asg_management.refresh_asg_instances or asg_management.name is not defined
 # End of the squashFS block.
 
 - name: Trigger an infrastructure rebuild.
