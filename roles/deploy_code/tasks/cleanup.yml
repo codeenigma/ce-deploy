@@ -252,13 +252,8 @@
           when: task_result.rc != 0
           block:
             - name: Resume all autoscale processes on ASG.
-              amazon.aws.autoscaling_group:
-                name: "{{ asg_management.name }}"
-                region: "{{ asg_management.region }}"
-                profile: "{{ asg_management.profile | default(omit) }}"
-                suspend_processes: []
-              delegate_to: localhost
-              run_once: true
+              ansible.builtin.include_role:
+                name: asg_management
               when:
                 - asg_management.name is defined
                 - asg_management.name | length > 0
@@ -279,7 +274,7 @@
               when:
                 - asg_management.name is defined
                 - asg_management.name | length > 0
-                - asg_management.refresh_asg_instances
+                - asg_management.refresh_asg_instances | default(true)
 
             - name: Start any services we stopped if the image re-mounting failed and ASG management is disabled.
               ansible.builtin.service:
@@ -292,7 +287,7 @@
               when:
                 - deploy_code.service_action == "stop"
                 - deploy_code.services | length > 0
-                - not asg_management.refresh_asg_instances or asg_management.name is not defined
+                - asg_management.refresh_asg_instances is not defined or not asg_management.refresh_asg_instances or asg_management.name is not defined
 # End of the squashFS block.
 
 - name: Trigger an infrastructure rebuild.
