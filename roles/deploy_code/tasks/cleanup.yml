@@ -274,7 +274,7 @@
               when:
                 - asg_management.name is defined
                 - asg_management.name | length > 0
-                - asg_management.refresh_asg_instances is defined
+                - asg_management.refresh_asg_instances | default(true)
                 - asg_management.refresh_asg_instances
 
             - name: Start any services we stopped if the image re-mounting failed and ASG management is disabled.
@@ -288,7 +288,7 @@
               when:
                 - deploy_code.service_action == "stop"
                 - deploy_code.services | length > 0
-                - not asg_management.refresh_asg_instances or asg_management.name is not defined
+                - asg_management.refresh_asg_instances is not defined or not asg_management.refresh_asg_instances or asg_management.name is not defined
 # End of the squashFS block.
 
 - name: Trigger an infrastructure rebuild.
