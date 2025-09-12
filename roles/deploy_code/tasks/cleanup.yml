@@ -275,7 +275,6 @@
                 - asg_management.name is defined
                 - asg_management.name | length > 0
                 - asg_management.refresh_asg_instances | default(true)
-                - asg_management.refresh_asg_instances
 
             - name: Start any services we stopped if the image re-mounting failed and ASG management is disabled.
               ansible.builtin.service:
