@@ -30,34 +30,28 @@
   ansible.builtin.set_fact:
     deploy_user: "{{ deploy_user | default('deploy') }}"
 
-- name: Define deploy base path.
+- name: Define initial deploy paths.
   ansible.builtin.set_fact:
-    deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy/{{ project_name }}_{{ build_type }}') }}"
-
-- name: Define mounted directory for assets.
-  ansible.builtin.set_fact:
-    deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/assets') }}"
-
-- name: Define webroot.
-  ansible.builtin.set_fact:
+    deploy_base_path: "{{ deploy_base_path | default('/home/' + deploy_user + '/deploy/' + project_name + '_' + build_type) }}"
+    deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/' + deploy_user + '/shared/' + project_name + '_' + build_type + '/assets') }}"
     webroot: "{{ webroot | default('web') }}"
+
+- name: Define deploy_path_prefix variable.
+  ansible.builtin.set_fact:
+    deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+
+- name: Define final deploy_path variable.
+  ansible.builtin.set_fact:
+    deploy_path: "{{ deploy_path | default(deploy_path_prefix + build_number|string) }}"
 
 # This is passed from caller.
 - name: Gather last known good build number.
   ansible.builtin.set_fact:
     previous_build_number: "{{ previous_known_build_number }}"
 
-- name: Define build deploy path prefix.
-  ansible.builtin.set_fact:
-    deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
-
-- name: Define build deploy path.
-  ansible.builtin.set_fact:
-    deploy_path: "{{ deploy_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
-
 - name: Define live_symlink dest.
   ansible.builtin.set_fact:
-    live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+    live_symlink_dest: "{{ live_symlink_dest | default(deploy_base_path + '/live.' + project_name + '_' + build_type) }}"
 
 - name: Read the live symlink to get the path to the current build.
   ansible.builtin.stat:
@@ -85,7 +79,7 @@
         msg: "Track file ID: {{ previous_build_number }}. Build path ID: {{ _current_build_id }}. These should match, something is wrong, failing the build."
       when:
         - _current_build_path.stat.islnk
-        - _current_build_id | int != previous_build_number | int
+        - _current_build_id|int != previous_build_number|int
         - not skip_build_path_check
 
 - name: Define opcache cachetool path.
@@ -114,11 +108,11 @@
 
     - name: Define live_symlink dest for image builds.
       ansible.builtin.set_fact:
-        live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+        live_symlink_build_dest: "{{ live_symlink_build_dest | default(build_base_path + '/live.' + project_name + '_' + build_type) }}"
 
     - name: Overwrite deploy and live_symlink paths if SquashFS deploy.
       ansible.builtin.set_fact:
-        deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
+        deploy_path: "{{ build_path | default(build_path_prefix + build_number|string) }}"
 
     - name: Overwrite cachetool path if SquashFS deploy and path not provided.
       ansible.builtin.set_fact:
@@ -206,7 +200,7 @@
 
 - name: Set the previous deploy's path for later use where we need to manipulate the live site.
   ansible.builtin.set_fact:
-    previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
+    previous_deploy_path: "{{ previous_deploy_path | default(deploy_path_prefix + previous_build_number|string) }}"
 
 # Make sure the deploy target exists.
 - name: Ensure deploy target directory exists.
