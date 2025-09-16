@@ -30,12 +30,18 @@
   ansible.builtin.set_fact:
     deploy_user: "{{ deploy_user | default('deploy') }}"
 
-- name: Define deploy paths.
+- name: Define initial deploy paths.
   ansible.builtin.set_fact:
     deploy_base_path: "{{ deploy_base_path | default('/home/' + deploy_user + '/deploy/' + project_name + '_' + build_type) }}"
     deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/' + deploy_user + '/shared/' + project_name + '_' + build_type + '/assets') }}"
     webroot: "{{ webroot | default('web') }}"
+
+- name: Define deploy_path_prefix variable.
+  ansible.builtin.set_fact:
     deploy_path_prefix: "{{ deploy_base_path }}/{{ project_name }}_{{ build_type }}_build_"
+
+- name: Define final deploy_path variable.
+  ansible.builtin.set_fact:
     deploy_path: "{{ deploy_path | default(deploy_path_prefix + build_number|string) }}"
 
 # This is passed from caller.
