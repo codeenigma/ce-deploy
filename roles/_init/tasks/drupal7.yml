@@ -1,14 +1,11 @@
 ---
-- name: Define path to drush for this build.
-  set_fact:
-    drush_bin: "{{ drush_bin | default('{{ bin_directory }}/drush.phar') }}"
-
-- name: Define path to drush for currently live build. # usually the same as drush_bin for Drupal 7
-  set_fact:
-    drush_live_bin: "{{ drush_live_bin | default('{{ bin_directory }}/drush.phar') }}"
+- name: Define paths to drush for this build.
+  ansible.builtin.set_fact:
+    drush_bin: "{{ drush_bin | default(bin_directory + '/drush.phar') }}"
+    drush_live_bin: "{{ drush_live_bin | default(bin_directory + '/drush.phar') }}"  # usually the same as drush_bin for Drupal 7
 
 - name: Ensure we have a drush binary.
-  import_role:
+  ansible.builtin.import_role:
     name: cli/drush
 
 - name: Ensure we have a cachetool binary and configuration.

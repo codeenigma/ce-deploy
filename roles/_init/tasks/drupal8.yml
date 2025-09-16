@@ -1,15 +1,15 @@
 ---
 - name: Define path to drush for this build.
   ansible.builtin.set_fact:
-    drush_bin: "{{ drush_bin | default('{{ deploy_path }}/vendor/bin/drush') }}"
+    drush_bin: "{{ drush_bin | default(deploy_path + '/vendor/bin/drush') }}"
 
 - name: Define path to drush for previous build.
   ansible.builtin.set_fact:
-    previous_drush_bin: "{{ previous_drush_bin | default('{{ previous_deploy_path }}/vendor/bin/drush') }}"
+    previous_drush_bin: "{{ previous_drush_bin | default(previous_deploy_path + '/vendor/bin/drush') }}"
 
 - name: Define path to drush for currently live build.
   ansible.builtin.set_fact:
-    drush_live_bin: "{{ drush_live_bin | default('{{ live_symlink_dest }}/vendor/bin/drush') }}"
+    drush_live_bin: "{{ drush_live_bin | default(live_symlink_dest + '/vendor/bin/drush') }}"
 
 - name: Ensure we have a cachetool binary and configuration.
   ansible.builtin.import_role:
