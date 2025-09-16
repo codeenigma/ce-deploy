@@ -32,11 +32,11 @@
 
 - name: Define deploy base path.
   ansible.builtin.set_fact:
-    deploy_base_path: "{{ deploy_base_path | default('/home/{{ deploy_user }}/deploy/{{ project_name }}_{{ build_type }}') }}"
+    deploy_base_path: "{{ deploy_base_path | default('/home/' + deploy_user + '/deploy/' + project_name + '_' + build_type) }}"
 
 - name: Define mounted directory for assets.
   ansible.builtin.set_fact:
-    deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/{{ deploy_user }}/shared/{{ project_name }}_{{ build_type }}/assets') }}"
+    deploy_assets_base_path: "{{ deploy_assets_base_path | default('/home/' + deploy_user + '/shared/' + project_name + '_' + build_type + '/assets') }}"
 
 - name: Define webroot.
   ansible.builtin.set_fact:
@@ -53,11 +53,11 @@
 
 - name: Define build deploy path.
   ansible.builtin.set_fact:
-    deploy_path: "{{ deploy_path | default('{{ deploy_path_prefix }}{{ build_number }}') }}"
+    deploy_path: "{{ deploy_path | default(deploy_path_prefix + build_number) }}"
 
 - name: Define live_symlink dest.
   ansible.builtin.set_fact:
-    live_symlink_dest: "{{ live_symlink_dest | default('{{ deploy_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+    live_symlink_dest: "{{ live_symlink_dest | default(deploy_base_path + '/live.' + project_name + '_' + build_type) }}"
 
 - name: Read the live symlink to get the path to the current build.
   ansible.builtin.stat:
@@ -114,11 +114,11 @@
 
     - name: Define live_symlink dest for image builds.
       ansible.builtin.set_fact:
-        live_symlink_build_dest: "{{ live_symlink_build_dest | default('{{ build_base_path }}/live.{{ project_name }}_{{ build_type }}') }}"
+        live_symlink_build_dest: "{{ live_symlink_build_dest | default(build_base_path + '/live.' + project_name + '_' + build_type) }}"
 
     - name: Overwrite deploy and live_symlink paths if SquashFS deploy.
       ansible.builtin.set_fact:
-        deploy_path: "{{ build_path | default('{{ build_path_prefix }}{{ build_number }}') }}"
+        deploy_path: "{{ build_path | default(build_path_prefix + build_number) }}"
 
     - name: Overwrite cachetool path if SquashFS deploy and path not provided.
       ansible.builtin.set_fact:
@@ -206,7 +206,7 @@
 
 - name: Set the previous deploy's path for later use where we need to manipulate the live site.
   ansible.builtin.set_fact:
-    previous_deploy_path: "{{ previous_deploy_path | default('{{ deploy_path_prefix }}{{ previous_build_number }}') }}"
+    previous_deploy_path: "{{ previous_deploy_path | default(deploy_path_prefix + previous_build_number) }}"
 
 # Make sure the deploy target exists.
 - name: Ensure deploy target directory exists.
