@@ -128,7 +128,7 @@
     loop_var: site
   when:
     - previous_build_number > 0
-    - site.config_import_command
+    - site.config_import_command | length > 0
   register: _drush_output
 
 - name: Show drush output.
