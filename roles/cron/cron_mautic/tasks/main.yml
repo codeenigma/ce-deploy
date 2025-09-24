@@ -8,7 +8,7 @@
     name: "{{ project_name }}_{{ build_type }}_{{ entry.job }}"
     minute: "{{ entry.minute }}"
     hour: "{{ entry.hour | default(omit) }}"
-    job: "env php {{ symfony_console_bin }} {{ entry.job }}"
+    job: "{{ symfony_console_bin }} {{ entry.job }}"
   with_items: "{{ cron_mautic.entries }}"
   loop_control:
     loop_var: entry
