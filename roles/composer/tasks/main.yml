@@ -30,7 +30,7 @@
       loop_control:
         loop_var: template
       when:
-        - composer.templates | length
+        - composer.templates | length > 0
 
     - name: Create additional symlinks.
       ansible.builtin.file:
@@ -42,4 +42,4 @@
       loop_control:
         loop_var: link
       when:
-        - composer.symlinks | length
+        - composer.symlinks | length > 0

@@ -111,7 +111,7 @@
     - name: Use provided VPC id.
       ansible.builtin.set_fact:
         _aws_ecs_cluster_vpc_id: "{{ deploy_container.aws_ecs.vpc_id }}"
-      when: deploy_container.aws_ecs.vpc_name is not defined or (deploy_container.aws_ecs.vpc_name | length) == 0
+      when: (deploy_container.aws_ecs.vpc_name is not defined) or (deploy_container.aws_ecs.vpc_name|length == 0)
 
     - name: Reset subnets lists.
       ansible.builtin.set_fact:
@@ -262,7 +262,7 @@
         _aws_ecs_cluster_listeners: "{{ _aws_ecs_cluster_listeners + deploy_container.aws_ecs.elb_listeners }}"
       when:
         - deploy_container.aws_ecs.elb_listeners is defined
-        - deploy_container.aws_ecs.elb_listeners | length
+        - deploy_container.aws_ecs.elb_listeners | length > 0
 
     - name: Create an ALB.
       amazon.aws.elb_application_lb:

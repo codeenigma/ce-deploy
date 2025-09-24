@@ -59,7 +59,7 @@
       loop_control:
         loop_var: template
       when:
-        - npm.templates | length
+        - npm.templates | length > 0
 
     - name: Create additional symlinks.
       ansible.builtin.file:
@@ -71,4 +71,4 @@
       loop_control:
         loop_var: link
       when:
-        - npm.symlinks | length
+        - npm.symlinks | length > 0
