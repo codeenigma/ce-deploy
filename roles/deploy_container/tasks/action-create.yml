@@ -276,9 +276,9 @@
         listeners: "{{ _aws_ecs_cluster_listeners }}"
         idle_timeout: "{{ deploy_container.aws_ecs.elb_idle_timeout }}"
         ip_address_type: "{{ deploy_container.aws_ecs.elb_ip_address_type }}"
+        wait: true
       register: _aws_ecs_cluster_alb
       delegate_to: localhost
-      wait: true
 
     - name: Create ECS service.
       community.aws.ecs_service:
