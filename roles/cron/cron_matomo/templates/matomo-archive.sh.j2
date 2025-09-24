@@ -7,11 +7,11 @@ archive(){
 }
 
 tasks(){
-  env php {{ live_symlink_dest }}/{{ webroot }}/console scheduled-tasks:run"
+  env php {{ live_symlink_dest }}/{{ webroot }}/console scheduled-tasks:run
 }
 
 fix(){
-  env php {{ live_symlink_dest }}/{{ webroot }}/console core:fix-duplicate-log-actions"
+  env php {{ live_symlink_dest }}/{{ webroot }}/console core:fix-duplicate-log-actions
 }
 
 cleanup(){
