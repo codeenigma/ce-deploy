@@ -31,12 +31,12 @@
   loop_control:
     loop_var: template
   when:
-    - live_symlink.templates | length
+    - live_symlink.templates | length > 0
     - deploy_operation == 'deploy'
 
 - name: Handle additional symlinks.
   when:
-    - live_symlink.symlinks | length
+    - live_symlink.symlinks | length > 0
     - deploy_operation == 'deploy'
   block:
     - name: Ensure additional symlink sources exist.
