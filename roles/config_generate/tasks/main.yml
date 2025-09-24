@@ -12,7 +12,7 @@
   loop_control:
     loop_var: template
   when:
-    - config_generate.templates | length
+    - config_generate.templates | length > 0
     - deploy_operation == "deploy"
 
 - name: Create additional symlinks.
@@ -25,5 +25,5 @@
   loop_control:
     loop_var: link
   when:
-    - config_generate.symlinks | length
+    - config_generate.symlinks | length > 0
     - deploy_operation == "deploy"

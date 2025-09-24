@@ -25,7 +25,7 @@
   loop_control:
     loop_var: template
   when:
-    - deploy_code.templates | length
+    - deploy_code.templates | length > 0
     - deploy_operation == 'deploy'
 
 - name: Create additional symlinks in build dir.
@@ -38,7 +38,7 @@
   loop_control:
     loop_var: link
   when:
-    - deploy_code.symlinks | length
+    - deploy_code.symlinks | length > 0
 
 # Additional vhost handling for feature branch builds.
 
